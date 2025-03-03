@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Please Log In</title>
+    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+</head>
+<body>
+<header>
+    <div class="logo-container">
+        <img src="/images/logo.png" alt="Logo" class="logo">
+    </div>
+    <div class="header-text">
+        <h1>Haru</h1>
+        <p>로그인을 해주세요</p>
+    </div>
+</header>
+<div class="container">
+    <h1 class="form-title">Log In</h1>
+    <div th:if="${param.error}" class="error-message">
+        Invalid username and password.
+    </div>
+    <div th:if="${param.logout}" class="info-message">
+        You have been logged out.
+    </div>
+    <form th:action="${loginProcessingUrl}" method="post" class="login-form">
+        <div class="form-group">
+            <input type="text" name="username" placeholder="Username" class="form-input"/>
+        </div>
+        <div class="form-group">
+            <input type="password" name="password" placeholder="Password" class="form-input"/>
+        </div>
+        <input type="hidden" name="redirect_uri" th:value="${redirectUri}">
+        <input type="submit" value="Log in" class="btn"/>
+    </form>
+</div>
+</body>
+</html>

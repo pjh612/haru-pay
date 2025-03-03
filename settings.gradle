@@ -2,3 +2,4 @@ rootProject.name = 'haru'
 
 include "user-api"
 include "common"
+include "auth"
