@@ -1,0 +1,74 @@
+spring:
+  application:
+    name: payments
+  datasource:
+    url: jdbc:mysql://mysql:3306/haru
+    password: password
+    username: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database: mysql
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+  kafka:
+    client-id: payments
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      group-id: haru-payments
+    bootstrap-servers: kafka:29092
+    listener:
+      concurrency: 1
+      missing-topics-fatal: true
+  data:
+    redis:
+      host: redis
+      port: 6379
+  security:
+    oauth2:
+      client:
+        registration:
+          payments-oidc:
+            provider: spring
+            client-id: payments
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://payments:8071/login/oauth2/code/{registrationId}"
+            scope: openid
+            client-name: payments-oidc
+          payments-authorization-code:
+            provider: spring
+            client-id: payments
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://payments:8071/authorized"
+            scope: members.read
+            client-name: payments-authorization-code
+        provider:
+          spring:
+            issuer-uri: http://auth:8072
+server.port: 8071
+
+client:
+  banking:
+    url: http://banking:8074
+  member:
+    url: http://user-api:8070
+  money:
+    url: http://money:8073
+
+kafka:
+  topic:
+    payment-request:
+      inbox:
+        events:
+          name: payment-request.inbox.events
+    confirm-payment:
+      inbox:
+        events:
+          name: confirm-payment.inbox.events
