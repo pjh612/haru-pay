@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: orchestrator
+  datasource:
+    url: jdbc:mysql://mysql:3306/haru
+    password: password
+    username: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database: mysql
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+  kafka:
+    bootstrap-servers: kafka:29092
+    client-id: haru-orchestrator
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      group-id: haru-orchestrator
+    listener:
+      concurrency: 2
+      missing-topics-fatal: true
+server:
+  port: 8077
+kafka:
+  topic:
+    saga:
+      load-money-request:
+        inbox:
+          events: LoadMoneyRequestEvent.inbox.events
+      load-money:
+        inbox:
+          events: LoadMoneyRequestCreatedEvent.inbox.events
+      check-bank-account:
+        inbox:
+          events: CheckedRegisteredBankAccountEvent.inbox.events
+      firm-banking:
+        inbox:
+          events: RequestFirmBankingFinishedEvent.inbox.events
+      load-money-finish:
+        inbox:
+          events: LoadMoneyFinishedEvent.inbox.events
+      payment-request:
+        inbox:
+          events: PaymentRequestEvent.inbox.events
+      payment-request-created:
+        inbox:
+          events: PaymentRequestCreatedEvent.inbox.events
+      decreased-money:
+        inbox:
+          events: DecreasedMoneyEvent.inbox.events
+      payment-confirmed:
+        inbox:
+          events: PaymentConfirmedEvent.inbox.events
