@@ -1,0 +1,3 @@
+rootProject.name = 'haru'
+
+include "user-api"
