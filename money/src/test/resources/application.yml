@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: money
+  datasource:
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 50
+    url: jdbc:h2:mem:haru;DB_CLOSE_DELAY=-1;MODE=MySQL
+    password: password
+    username: root
+    driver-class-name: org.h2.Driver
+  jpa:
+    database: h2
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.H2Dialect
+  kafka:
+    client-id: haru-money
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      group-id: haru-money
+    bootstrap-servers: localhost:9092
+    listener:
+      concurrency: 1
+      missing-topics-fatal: true
+kafka:
+  topic:
+    load-money-request:
+      inbox:
+        events:
+          name: load-money-request.inbox.events
+    load-money:
+      inbox:
+        events:
+          name: load-money.inbox.events
+    decrease-money:
+      inbox:
+        events:
+          name: decrease-money.inbox.events
+server:
+  port: 8073
+
