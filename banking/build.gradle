@@ -1,0 +1,76 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.4.3'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id("com.google.cloud.tools.jib") version "3.4.4"
+}
+
+group = 'com.haru'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext{
+    queryDslVersion = "6.6"
+}
+
+dependencies {
+    implementation(project(":common"))
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation("io.github.openfeign.querydsl:querydsl-core:$queryDslVersion")
+    implementation("io.github.openfeign.querydsl:querydsl-jpa:$queryDslVersion")
+    annotationProcessor("io.github.openfeign.querydsl:querydsl-apt:$queryDslVersion:jpa")
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.kafka:spring-kafka'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    implementation 'com.fasterxml.uuid:java-uuid-generator:5.1.0'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+def querydslSrcDir = 'src/main/generated'
+
+clean {
+    delete file(querydslSrcDir)
+}
+
+tasks.withType(JavaCompile) {
+    options.generatedSourceOutputDirectory = file(querydslSrcDir)
+}
+
+tasks.register("prepareKotlinBuildScriptModel"){}
+
+jib {
+    from {
+        image = 'openjdk:17-jdk-slim' // 기본 이미지
+    }
+    to {
+        image = rootProject.name + '-' + project.name + ":" + version
+        tags = ['latest']
+    }
+}
+
+tasks.register('buildDockerImage') {
+    dependsOn 'build'
+    finalizedBy 'jibDockerBuild'
+}
