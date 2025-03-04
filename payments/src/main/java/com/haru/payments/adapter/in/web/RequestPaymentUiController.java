@@ -40,9 +40,10 @@ public class RequestPaymentUiController {
         String userId = oAuth2User.getAttribute("id");
         MoneyResponse moneyResponse = moneyClient.getMemberById(UUID.fromString(userId));
         PaymentResponse paymentResponse = queryPaymentUseCase.queryById(UUID.fromString(paymentRequestKey));
-        //ClientResponse clientResponse = queryClientUseCase.queryById(paymentResponse.clientId());
+        ClientResponse clientResponse = queryClientUseCase.queryById(paymentResponse.clientId());
         //RegisteredBankAccountResponse registeredBankAccount = bankingClient.getRegisteredBankAccount(UUID.fromString(userId));
 
+        model.addAttribute("clientName", clientResponse.name());
         model.addAttribute("paymentId", paymentRequestKey);
         model.addAttribute("amount", paymentResponse.requestPrice());
         model.addAttribute("moneyBalance", moneyResponse.balance());

@@ -3,6 +3,7 @@ package com.haru.payments.adapter.in.web;
 import com.haru.payments.application.dto.*;
 import com.haru.payments.application.usecase.RequestPaymentUseCase;
 import com.haru.payments.application.usecase.SubscribePaymentResultUseCase;
+import com.haru.payments.domain.model.Client;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -23,8 +24,8 @@ public class RequestPaymentController {
 
     @ResponseBody
     @PostMapping("/api/payment/prepare")
-    public UUID preparePaymentRequest(@RequestBody PreparePaymentRequest request) {
-        PreparePaymentCommand command = new PreparePaymentCommand(request.clientId(), request.requestPrice(), request.productName());
+    public UUID preparePaymentRequest(@RequestBody PreparePaymentRequest request, @AuthenticationPrincipal Client client) {
+        PreparePaymentCommand command = new PreparePaymentCommand(client.getId(), request.requestPrice(), request.productName());
         return requestPaymentUseCase.preparePayment(command).requestId();
     }
 
