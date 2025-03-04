@@ -44,8 +44,14 @@ tasks.named('test') {
 tasks.register("prepareKotlinBuildScriptModel") {}
 
 jib {
-    from {
-        image = 'openjdk:17-jdk-slim' // 기본 이미지
+  from {
+        image = 'openjdk:17-jdk-slim'
+        platforms {
+            platform {
+                architecture = "arm64"
+                os = "linux"
+            }
+        } // 기본 이미지
     }
     to {
         image = rootProject.name + '-' + project.name + ":" + version

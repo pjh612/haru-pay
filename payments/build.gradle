@@ -68,8 +68,14 @@ compileJava {
 }
 
 jib {
-    from {
-        image = 'openjdk:17-jdk-slim' // 기본 이미지
+  from {
+        image = 'openjdk:17-jdk-slim'
+        platforms {
+            platform {
+                architecture = "arm64"
+                os = "linux"
+            }
+        }
     }
     to {
         image = rootProject.name + '-' + project.name + ":" + version
