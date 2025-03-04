@@ -26,11 +26,6 @@ public class CommonAlertManager implements AlertManager {
     }
 
     @Override
-    public void notice(AlertChannel alertChannel, String targetId, String message) {
-        messagePublisher.publish(alertChannel.name(), MessageDto.of(targetId, message));
-    }
-
-    @Override
     public SseEmitter subscribe(AlertChannel alertChannel, String subscriberId, String lastEventId, Long timeoutMillis) {
         SseEmitter emitter = new SseEmitter(timeoutMillis);
         emitter.onTimeout(() -> {
