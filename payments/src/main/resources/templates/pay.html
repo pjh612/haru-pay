@@ -4,48 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script type="text/javascript" th:src="@{/js/pay.js}"></script>
     <title>Haru Pay</title>
 </head>
-<body class="bg-gray-900 text-gray-100">
+<body class="bg-gray-900 text-gray-200 font-sans">
 <!-- Header -->
-<div class="bg-gray-800 shadow rounded-lg p-4 mb-4">
-    <h1 class="text-xl font-bold flex items-center">
-        <span class="mr-2 text-yellow-400">Haru pay</span>
-        <span class="text-gray-400">머니</span>
+<div class="bg-gray-800 shadow-lg rounded-2xl p-6 mb-6">
+    <h1 class="text-2xl font-extrabold flex items-center space-x-3">
+        <span class="text-blue-400">Haru Pay</span>
+        <span class="text-pink-400">머니</span>
     </h1>
     <div class="mt-4">
         <div class="flex justify-between items-center">
             <div>
-                <p class="text-gray-500">보유</p>
-                <p class="text-lg font-bold">머니</p>
+                <p class="text-gray-400 text-sm">보유</p>
+                <p class="text-xl font-semibold">머니</p>
             </div>
             <div class="text-right">
-                <p class="text-2xl font-bold text-yellow-400" th:text="${#numbers.formatDecimal(moneyBalance, 0, 'POINT', 0,'COMMA').concat('원')}"></p>
+                <p class="text-3xl font-bold text-blue-300" th:text="${#numbers.formatDecimal(moneyBalance, 0, 'POINT', 0,'COMMA').concat('원')}"></p>
             </div>
         </div>
     </div>
 </div>
 
 <!-- 결제수단 -->
-<div class="bg-gray-800 shadow rounded-lg p-4 mb-4">
-    <h2 class="text-lg font-bold flex justify-between items-center">
+<div class="bg-gray-800 shadow-lg rounded-2xl p-6 mb-6">
+    <h2 class="text-xl font-bold flex justify-between items-center">
         <span>결제수단</span>
-        <span class="text-yellow-300 text-xl font-bold" th:text="${#numbers.formatDecimal(amount, 0, 'POINT', 0,'COMMA').concat('원')}"></span>
+        <span class="text-pink-300 text-2xl font-extrabold" th:text="${#numbers.formatDecimal(amount, 0, 'POINT', 0,'COMMA').concat('원')}"></span>
     </h2>
     <div class="mt-4">
-        <div class="flex items-center space-x-2">
-            <div class="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center text-gray-300">O</div>
-            <p class="text-gray-300">Haru pay 머니 충전결제</p>
-            <span class="bg-yellow-600 text-yellow-100 text-sm px-2 py-1 rounded-full">최대 3% 적립</span>
+        <div class="flex items-center space-x-4">
+            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-gray-200 font-bold">O</div>
+            <p class="text-gray-300">Haru Pay 머니 충전결제</p>
+            <span class="bg-pink-600 text-pink-100 text-sm px-3 py-1 rounded-full font-medium">최대 3% 적립</span>
         </div>
         <div class="mt-4 border-t border-gray-700 pt-4">
-            <label for="charge" class="block text-gray-400">충전</label>
-            <select id="charge" class="border border-gray-600 bg-gray-700 rounded-lg w-full px-3 py-2 text-white">
+            <label for="charge" class="block text-gray-400 mb-2">충전 금액</label>
+            <select id="charge" class="border border-gray-600 bg-gray-700 rounded-lg w-full px-4 py-2 text-gray-200 focus:ring-2 focus:ring-blue-500">
                 <option>10,000원</option>
             </select>
-            <select id="bank" class="border border-gray-600 bg-gray-700 rounded-lg w-full px-3 py-2 mt-2 text-white">
+            <label for="bank" class="block text-gray-400 mt-4 mb-2">결제 계좌</label>
+            <select id="bank" class="border border-gray-600 bg-gray-700 rounded-lg w-full px-4 py-2 text-gray-200 focus:ring-2 focus:ring-pink-500">
                 <option>KB국민 842********7139</option>
             </select>
         </div>
@@ -53,20 +52,19 @@
 </div>
 
 <!-- 최종 결제 -->
-<div class="bg-gray-800 shadow rounded-lg p-4">
-    <p class="text-gray-400">거래정보 제공 동의: <span class="text-yellow-400">조이(유)</span></p>
+<div class="bg-gray-800 shadow-lg rounded-2xl p-6">
+    <p class="text-gray-400">거래정보 제공 동의: <span class="text-blue-400">조이(유)</span></p>
     <p class="text-gray-400 mt-4">주문 내용을 확인하였으며, 정보 제공 등에 동의합니다.</p>
-    <button id="submitPay" class="bg-yellow-400 text-gray-900 w-full py-3 rounded-lg mt-4 hover:bg-yellow-300 transition">
+    <button id="submitPay" class="bg-blue-600 text-gray-100 w-full py-3 rounded-lg mt-4 font-semibold hover:bg-blue-500 transition duration-200">
         충전 후 결제하기
     </button>
 </div>
-</body>
-</html>
 
 <script th:inline="javascript">
-    console.log($("#submitPay"));
-    $("#submitPay").on("click",function () {
+    $("#submitPay").on("click", function () {
         requestPay();
     });
     var paymentId = [[${paymentId}]];
 </script>
+</body>
+</html>
