@@ -1,37 +1,52 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Please Log In</title>
-    <link rel="stylesheet" type="text/css" href="/css/styles.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<header>
-    <div class="logo-container">
-        <img src="/images/logo.png" alt="Logo" class="logo">
-    </div>
-    <div class="header-text">
-        <h1>Haru</h1>
-        <p>로그인을 해주세요</p>
-    </div>
-</header>
-<div class="container">
-    <h1 class="form-title">Log In</h1>
-    <div th:if="${param.error}" class="error-message">
-        Invalid username and password.
-    </div>
-    <div th:if="${param.logout}" class="info-message">
-        You have been logged out.
-    </div>
-    <form th:action="${loginProcessingUrl}" method="post" class="login-form">
-        <div class="form-group">
-            <input type="text" name="username" placeholder="Username" class="form-input"/>
+<body class="bg-gray-900 text-gray-200 font-sans flex items-center justify-center h-screen">
+<!-- Header -->
+<div class="w-full max-w-md">
+    <header class="text-center mb-8">
+        <div class="mb-4">
+            <img src="/images/logo.png" alt="Logo" class="mx-auto w-20 h-20">
         </div>
-        <div class="form-group">
-            <input type="password" name="password" placeholder="Password" class="form-input"/>
+        <div>
+            <h1 class="text-3xl font-bold text-blue-400">Haru</h1>
+            <p class="text-gray-400">로그인을 해주세요</p>
         </div>
-        <input type="hidden" name="redirect_uri" th:value="${redirectUri}">
-        <input type="submit" value="Log in" class="btn"/>
-    </form>
+    </header>
+
+    <!-- Form Container -->
+    <div class="bg-gray-800 shadow-lg rounded-2xl p-6">
+        <h1 class="text-2xl font-bold text-center mb-4">Log In</h1>
+
+        <!-- Error and Logout Messages -->
+        <div th:if="${param.error}" class="bg-pink-600 text-pink-100 text-sm p-3 rounded-lg mb-4">
+            Invalid username and password.
+        </div>
+        <div th:if="${param.logout}" class="bg-blue-600 text-blue-100 text-sm p-3 rounded-lg mb-4">
+            You have been logged out.
+        </div>
+
+        <!-- Login Form -->
+        <form th:action="${loginProcessingUrl}" method="post" class="space-y-4">
+            <div>
+                <input type="text" name="username" placeholder="Username"
+                       class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+            <div>
+                <input type="password" name="password" placeholder="Password"
+                       class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            </div>
+            <input type="hidden" name="redirect_uri" th:value="${redirectUri}">
+            <div>
+                <input type="submit" value="Log in"
+                       class="w-full bg-blue-600 text-gray-100 py-3 rounded-lg font-semibold hover:bg-blue-500 transition duration-200">
+            </div>
+        </form>
+    </div>
 </div>
 </body>
 </html>
