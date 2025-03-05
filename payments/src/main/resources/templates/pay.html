@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" th:src="@{/js/pay.js}"></script>
     <title>Haru Pay</title>
 </head>
 <body class="bg-gray-900 text-gray-200 font-sans">
@@ -56,14 +58,11 @@
     <p class="text-gray-400">거래정보 제공 동의: <span class="text-blue-400" th:text="${clientName}"></span></p>
     <p class="text-gray-400 mt-4">주문 내용을 확인하였으며, 정보 제공 등에 동의합니다.</p>
     <button id="submitPay" class="bg-blue-600 text-gray-100 w-full py-3 rounded-lg mt-4 font-semibold hover:bg-blue-500 transition duration-200">
-        충전 후 결제하기
+        결제하기
     </button>
 </div>
 
 <script th:inline="javascript">
-    $("#submitPay").on("click", function () {
-        requestPay();
-    });
     var paymentId = [[${paymentId}]];
 </script>
 </body>

@@ -1,3 +1,9 @@
+$(document).ready(function () {
+    $('#submitPay').on("click", function () {
+        requestPay();
+    });
+})
+
 const requestPay = () => {
     $.ajax({
         type: "post",
