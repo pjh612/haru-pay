@@ -12,19 +12,17 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentRequestCreatedEvent implements OutboxEvent<UUID, PaymentRequestCreatedEvent> {
-    private UUID sagaId;
     private UUID requestId;
-    private UUID sellerId;
+    private UUID clientId;
     private UUID requestMemberId;
     private Instant timestamp;
     private BigDecimal requestPrice;
     private String type;
 
 
-    public PaymentRequestCreatedEvent(UUID sagaId, UUID requestId, UUID sellerId, UUID requestMemberId, BigDecimal requestPrice, String type) {
-        this.sagaId = sagaId;
+    public PaymentRequestCreatedEvent(UUID requestId, UUID clientId, UUID requestMemberId, BigDecimal requestPrice, String type) {
         this.requestId = requestId;
-        this.sellerId = sellerId;
+        this.clientId = clientId;
         this.requestMemberId = requestMemberId;
         this.requestPrice = requestPrice;
         this.timestamp = Instant.now();
@@ -34,7 +32,7 @@ public class PaymentRequestCreatedEvent implements OutboxEvent<UUID, PaymentRequ
 
     @Override
     public UUID aggregateId() {
-        return this.sagaId;
+        return this.requestId;
     }
 
     @Override
@@ -57,11 +55,11 @@ public class PaymentRequestCreatedEvent implements OutboxEvent<UUID, PaymentRequ
         return this;
     }
 
-    public static PaymentRequestCreatedEvent success(UUID sagaId, UUID requestId, UUID sellerId, UUID requestMemberId, BigDecimal requestPrice) {
-        return new PaymentRequestCreatedEvent(sagaId, requestId, sellerId, requestMemberId, requestPrice, "SUCCEEDED");
+    public static PaymentRequestCreatedEvent success(UUID requestId, UUID sellerId, UUID requestMemberId, BigDecimal requestPrice) {
+        return new PaymentRequestCreatedEvent(requestId, sellerId, requestMemberId, requestPrice, "SUCCEEDED");
     }
 
-    public static PaymentRequestCreatedEvent fail(UUID sagaId, UUID requestId, UUID sellerId, UUID requestMemberId, BigDecimal requestPrice) {
-        return new PaymentRequestCreatedEvent(sagaId, requestId, sellerId, requestMemberId, requestPrice, "FAILED");
+    public static PaymentRequestCreatedEvent fail(UUID requestId, UUID sellerId, UUID requestMemberId, BigDecimal requestPrice) {
+        return new PaymentRequestCreatedEvent(requestId, sellerId, requestMemberId, requestPrice, "FAILED");
     }
 }

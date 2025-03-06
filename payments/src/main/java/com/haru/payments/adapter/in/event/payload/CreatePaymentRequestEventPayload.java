@@ -15,6 +15,6 @@ public class CreatePaymentRequestEventPayload {
     private UUID requestId;
     private UUID requestMemberId;
     private BigDecimal requestPrice;
-    private UUID sellerId;
+    private UUID clientId;
     private String type;
 }

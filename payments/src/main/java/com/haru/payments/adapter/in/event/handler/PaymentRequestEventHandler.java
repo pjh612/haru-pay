@@ -30,11 +30,9 @@ public class PaymentRequestEventHandler {
                         payload.getRequestId(),
                         payload.getRequestMemberId(),
                         payload.getRequestPrice(),
-                        payload.getSellerId()));
-                publishSuccessEvent(sagaId, payload);
+                        payload.getClientId()));
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
-                publishFailEvent(sagaId, payload);
+                requestPaymentUseCase.failRequest(payload.getRequestId());
             }
         }
     }

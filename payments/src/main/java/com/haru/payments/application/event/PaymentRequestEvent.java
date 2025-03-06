@@ -13,14 +13,14 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentRequestEvent implements OutboxEvent<UUID, PaymentRequestEvent> {
     private UUID requestId;
-    private UUID sellerId;
+    private UUID clientId;
     private UUID requestMemberId;
     private BigDecimal requestPrice;
     private Instant timestamp;
 
-    public PaymentRequestEvent(UUID requestId, UUID sellerId, UUID requestMemberId, BigDecimal requestPrice) {
+    public PaymentRequestEvent(UUID requestId, UUID clientId, UUID requestMemberId, BigDecimal requestPrice) {
         this.requestId = requestId;
-        this.sellerId = sellerId;
+        this.clientId = clientId;
         this.requestMemberId = requestMemberId;
         this.requestPrice = requestPrice;
         this.timestamp = Instant.now();
