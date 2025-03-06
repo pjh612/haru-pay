@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DecreaseMoneyEvent {
     private UUID requestId;
-    private UUID sellerId;
+    private UUID clientId;
     private UUID requestMemberId;
     private BigDecimal requestPrice;
 }

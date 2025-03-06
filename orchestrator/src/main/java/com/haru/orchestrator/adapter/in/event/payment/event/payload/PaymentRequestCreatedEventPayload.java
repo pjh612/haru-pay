@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentRequestCreatedEventPayload implements SagaPayload {
     private UUID requestId;
-    private UUID sellerId;
+    private UUID clientId;
     private UUID requestMemberId;
     private BigDecimal requestPrice;
     private PayloadType type;
@@ -27,7 +27,7 @@ public class PaymentRequestCreatedEventPayload implements SagaPayload {
     public Object toEvent() {
         return new DecreaseMoneyEvent(
                 this.requestId,
-                this.sellerId,
+                this.clientId,
                 this.requestMemberId,
                 this.requestPrice
         );

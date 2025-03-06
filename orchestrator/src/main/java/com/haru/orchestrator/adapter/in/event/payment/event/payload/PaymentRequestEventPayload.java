@@ -9,6 +9,6 @@ public record PaymentRequestEventPayload(
         UUID requestId,
         UUID requestMemberId,
         BigDecimal requestPrice,
-        UUID sellerId,
+        UUID clientId,
         PayloadType type) {
 }
