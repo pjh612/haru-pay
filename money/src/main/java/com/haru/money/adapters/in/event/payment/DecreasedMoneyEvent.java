@@ -12,7 +12,6 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class DecreasedMoneyEvent implements OutboxEvent<UUID, DecreasedMoneyEvent> {
-    private UUID sagaId;
     private UUID requestId;
     private UUID moneyChangingRequestId;
     private UUID requestMemberId;
@@ -21,8 +20,7 @@ public class DecreasedMoneyEvent implements OutboxEvent<UUID, DecreasedMoneyEven
     private String type;
     private Instant timestamp;
 
-    public DecreasedMoneyEvent(UUID sagaId, UUID requestId, UUID moneyChangingRequestId, UUID requestMemberId, BigDecimal requestPrice, BigDecimal balance, String type) {
-        this.sagaId = sagaId;
+    public DecreasedMoneyEvent(UUID requestId, UUID moneyChangingRequestId, UUID requestMemberId, BigDecimal requestPrice, BigDecimal balance, String type) {
         this.requestId = requestId;
         this.moneyChangingRequestId = moneyChangingRequestId;
         this.requestMemberId = requestMemberId;
@@ -34,7 +32,7 @@ public class DecreasedMoneyEvent implements OutboxEvent<UUID, DecreasedMoneyEven
 
     @Override
     public UUID aggregateId() {
-        return this.sagaId;
+        return this.requestId;
     }
 
     @Override
@@ -57,9 +55,8 @@ public class DecreasedMoneyEvent implements OutboxEvent<UUID, DecreasedMoneyEven
         return this;
     }
 
-    public static DecreasedMoneyEvent fail(UUID sagaId, UUID requestId, UUID moneyChangingRequestId, UUID requestMemberId, BigDecimal requestPrice, BigDecimal balance) {
+    public static DecreasedMoneyEvent fail(UUID requestId, UUID moneyChangingRequestId, UUID requestMemberId, BigDecimal requestPrice, BigDecimal balance) {
         return new DecreasedMoneyEvent(
-                sagaId,
                 requestId,
                 moneyChangingRequestId,
                 requestMemberId,
@@ -68,9 +65,8 @@ public class DecreasedMoneyEvent implements OutboxEvent<UUID, DecreasedMoneyEven
                 "FAILED");
     }
 
-    public static DecreasedMoneyEvent success(UUID sagaId, UUID requestId, UUID moneyChangingRequestId, UUID requestMemberId, BigDecimal requestPrice, BigDecimal balance) {
+    public static DecreasedMoneyEvent success(UUID requestId, UUID moneyChangingRequestId, UUID requestMemberId, BigDecimal requestPrice, BigDecimal balance) {
         return new DecreasedMoneyEvent(
-                sagaId,
                 requestId,
                 moneyChangingRequestId,
                 requestMemberId,

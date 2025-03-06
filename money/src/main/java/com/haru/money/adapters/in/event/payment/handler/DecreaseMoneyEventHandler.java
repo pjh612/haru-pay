@@ -24,21 +24,20 @@ public class DecreaseMoneyEventHandler {
     public void handle(UUID sagaId, DecreaseMoneyEventPayload payload) {
         if ("CANCEL".equals(payload.getType())) {
             decreaseMoneyUseCase.onDecreaseFailed(payload.getRequestId(), payload.getRequestMemberId(), payload.getRequestPrice());
-            publishFailEvent(sagaId, payload);
+            publishFailEvent(payload);
         } else {
             try {
                 DecreaseMoneyResponse response = decreaseMoneyUseCase.decrease(payload.getRequestId(), payload.getRequestMemberId(), payload.getRequestPrice());
-                publishSuccessEvent(sagaId, payload, response.balance());
+                publishSuccessEvent(payload, response.balance());
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
-                publishFailEvent(sagaId, payload);
+                publishFailEvent(payload);
             }
         }
     }
 
-    private void publishSuccessEvent(UUID sagaId, DecreaseMoneyEventPayload payload, BigDecimal balance) {
+    private void publishSuccessEvent(DecreaseMoneyEventPayload payload, BigDecimal balance) {
         DecreasedMoneyEvent event = DecreasedMoneyEvent.success(
-                sagaId,
                 payload.getRequestId(),
                 payload.getRequestId(),
                 payload.getRequestMemberId(),
@@ -47,9 +46,8 @@ public class DecreaseMoneyEventHandler {
         eventPublisher.publishEvent(event);
     }
 
-    private void publishFailEvent(UUID sagaId, DecreaseMoneyEventPayload payload) {
+    private void publishFailEvent(DecreaseMoneyEventPayload payload) {
         eventPublisher.publishEvent(DecreasedMoneyEvent.fail(
-                sagaId,
                 payload.getRequestId(),
                 payload.getRequestId(),
                 payload.getRequestMemberId(),
