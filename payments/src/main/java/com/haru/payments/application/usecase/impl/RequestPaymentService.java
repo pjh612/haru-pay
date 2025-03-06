@@ -1,6 +1,7 @@
 package com.haru.payments.application.usecase.impl;
 
 import com.fasterxml.uuid.Generators;
+import com.haru.payments.adapter.in.event.PaymentRequestCreatedEvent;
 import com.haru.payments.application.cache.PaymentCacheRepository;
 import com.haru.payments.application.client.BankingClient;
 import com.haru.payments.application.client.MemberClient;
@@ -110,6 +111,12 @@ public class RequestPaymentService implements RequestPaymentUseCase {
     public PaymentResponse requestPayment(CreatePaymentRequest request) {
         PaymentRequest paymentRequest = PaymentRequest.createNew(request.requestId(), request.requestMemberId(), request.requestPrice(), request.clientId());
 
+        eventPublisher.publishEvent(PaymentRequestCreatedEvent.success(
+                paymentRequest.getRequestId(),
+                paymentRequest.getClientId(),
+                paymentRequest.getRequestMemberId(),
+                paymentRequest.getRequestPrice()));
+
         return PaymentResponse.of(paymentRequestRepository.save(paymentRequest));
     }
 
@@ -124,6 +131,11 @@ public class RequestPaymentService implements RequestPaymentUseCase {
         paymentRequest.fail();
 
         paymentRequestRepository.save(paymentRequest);
+        eventPublisher.publishEvent(PaymentRequestCreatedEvent.fail(
+                null,
+                paymentRequest.getClientId(),
+                paymentRequest.getRequestMemberId(),
+                paymentRequest.getRequestPrice()));
     }
 
 

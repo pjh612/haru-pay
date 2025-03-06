@@ -23,7 +23,6 @@ public class PaymentRequestEventHandler {
     public void handle(UUID sagaId, CreatePaymentRequestEventPayload payload) {
         if ("CANCEL".equals(payload.getType())) {
             requestPaymentUseCase.failRequest(payload.getRequestId());
-            publishFailEvent(sagaId, payload);
         } else {
             try {
                 requestPaymentUseCase.requestPayment(new CreatePaymentRequest(
@@ -35,23 +34,5 @@ public class PaymentRequestEventHandler {
                 requestPaymentUseCase.failRequest(payload.getRequestId());
             }
         }
-    }
-
-    private void publishSuccessEvent(UUID sagaId, CreatePaymentRequestEventPayload payload) {
-        eventPublisher.publishEvent(PaymentRequestCreatedEvent.success(
-                sagaId,
-                payload.getRequestId(),
-                payload.getSellerId(),
-                payload.getRequestMemberId(),
-                payload.getRequestPrice()));
-    }
-
-    private void publishFailEvent(UUID sagaId, CreatePaymentRequestEventPayload payload) {
-        eventPublisher.publishEvent(PaymentRequestCreatedEvent.fail(
-                sagaId,
-                null,
-                payload.getSellerId(),
-                payload.getRequestMemberId(),
-                payload.getRequestPrice()));
     }
 }
