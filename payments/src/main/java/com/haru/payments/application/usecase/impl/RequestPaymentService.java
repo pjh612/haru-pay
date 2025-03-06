@@ -42,12 +42,14 @@ public class RequestPaymentService implements RequestPaymentUseCase {
     public PaymentResponse preparePayment(PreparePaymentCommand command) {
         PaymentRequest paymentRequest = PaymentRequest.createNew(
                 Generators.timeBasedEpochGenerator().generate(),
+                command.orderId(),
                 null,
                 command.requestPrice(),
                 command.clientId());
 
         return new PaymentResponse(
                 paymentRequest.getRequestId(),
+                paymentRequest.getOrderId(),
                 paymentRequest.getRequestMemberId(),
                 paymentRequest.getRequestPrice(),
                 paymentRequest.getClientId(),
@@ -84,6 +86,7 @@ public class RequestPaymentService implements RequestPaymentUseCase {
 
         return new RequestPaymentResponse(
                 paymentRequest.requestId(),
+                paymentRequest.orderId(),
                 command.requestMemberId(),
                 paymentRequest.requestPrice(),
                 paymentRequest.clientId(),
@@ -100,6 +103,7 @@ public class RequestPaymentService implements RequestPaymentUseCase {
                 .orElseThrow(() -> new EntityNotFoundException("결제 정보를 찾을 수 없습니다."));
 
         PaymentRequestEvent event = new PaymentRequestEvent(paymentRequest.requestId(),
+                paymentRequest.orderId(),
                 paymentRequest.clientId(),
                 paymentRequest.requestMemberId(),
                 paymentRequest.requestPrice());
@@ -109,7 +113,7 @@ public class RequestPaymentService implements RequestPaymentUseCase {
     @Override
     @Transactional
     public PaymentResponse requestPayment(CreatePaymentRequest request) {
-        PaymentRequest paymentRequest = PaymentRequest.createNew(request.requestId(), request.requestMemberId(), request.requestPrice(), request.clientId());
+        PaymentRequest paymentRequest = PaymentRequest.createNew(request.requestId(), request.orderId(),request.requestMemberId(), request.requestPrice(), request.clientId());
 
         eventPublisher.publishEvent(PaymentRequestCreatedEvent.success(
                 paymentRequest.getRequestId(),

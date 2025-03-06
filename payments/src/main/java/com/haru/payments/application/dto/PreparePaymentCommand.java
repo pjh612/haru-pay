@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public record PreparePaymentCommand(
         UUID clientId,
+        String orderId,
         BigDecimal requestPrice,
         String productName
 ) {

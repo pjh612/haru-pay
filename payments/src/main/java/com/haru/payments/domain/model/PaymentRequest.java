@@ -14,6 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentRequest {
     private UUID requestId;
+    private String orderId;
     private UUID requestMemberId;
     private BigDecimal requestPrice;
     private UUID clientId;
@@ -21,8 +22,8 @@ public class PaymentRequest {
     private Instant approvedAt;
     private Instant createdAt;
 
-    public static PaymentRequest createNew(UUID requestId, UUID requestMemberId, BigDecimal requestPrice, UUID clientId) {
-        return new PaymentRequest(requestId, requestMemberId, requestPrice, clientId, 0, null, Instant.now());
+    public static PaymentRequest createNew(UUID requestId, String orderId, UUID requestMemberId, BigDecimal requestPrice, UUID clientId) {
+        return new PaymentRequest(requestId, orderId, requestMemberId, requestPrice, clientId, 0, null, Instant.now());
     }
 
     public void success() {

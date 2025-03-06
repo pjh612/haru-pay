@@ -7,6 +7,7 @@ public class PaymentRequestConverter {
     public static PaymentRequest toDomain(PaymentRequestJpaEntity entity) {
         return new PaymentRequest(
                 entity.getRequestId(),
+                entity.getOrderId(),
                 entity.getRequestMemberId(),
                 entity.getRequestPrice(),
                 entity.getClientId(),
@@ -19,6 +20,7 @@ public class PaymentRequestConverter {
     public static PaymentRequestJpaEntity toEntity(PaymentRequest domain) {
         return new PaymentRequestJpaEntity(
                 domain.getRequestId(),
+                domain.getOrderId(),
                 domain.getRequestMemberId(),
                 domain.getRequestPrice(),
                 domain.getClientId(),

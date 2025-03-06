@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record PaymentResponse(UUID requestId,
+                              String orderId,
                               UUID requestMemberId,
                               BigDecimal requestPrice,
                               UUID clientId,
@@ -16,6 +17,7 @@ public record PaymentResponse(UUID requestId,
     public static PaymentResponse of(PaymentRequest paymentRequest) {
         return new PaymentResponse(
                 paymentRequest.getRequestId(),
+                paymentRequest.getOrderId(),
                 paymentRequest.getRequestMemberId(),
                 paymentRequest.getRequestPrice(),
                 paymentRequest.getClientId(),

@@ -13,6 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CreatePaymentRequestEventPayload {
     private UUID requestId;
+    private String orderId;
     private UUID requestMemberId;
     private BigDecimal requestPrice;
     private UUID clientId;

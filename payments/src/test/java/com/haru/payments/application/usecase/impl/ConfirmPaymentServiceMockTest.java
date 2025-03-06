@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class ConfirmPaymentServiceMockTest {
     @InjectMocks
@@ -31,7 +32,7 @@ class ConfirmPaymentServiceMockTest {
         PaymentRequest paymentRequest = mock(PaymentRequest.class);
 
         when(repository.findById(requestId)).thenReturn(Optional.of(paymentRequest));
-
+        when(repository.save(paymentRequest)).thenReturn(paymentRequest);
         // Act
         confirmPaymentService.confirm(request);
 

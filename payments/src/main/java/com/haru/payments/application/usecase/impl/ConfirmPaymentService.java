@@ -2,6 +2,7 @@ package com.haru.payments.application.usecase.impl;
 
 import com.haru.payments.application.dto.CompletePaymentRequest;
 import com.haru.payments.application.usecase.ConfirmPaymentUseCase;
+import com.haru.payments.application.usecase.dto.PaymentConfirmResponse;
 import com.haru.payments.domain.model.PaymentRequest;
 import com.haru.payments.domain.repository.PaymentRequestRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -20,12 +21,12 @@ public class ConfirmPaymentService implements ConfirmPaymentUseCase {
 
     @Override
     @Transactional
-    public void confirm(CompletePaymentRequest request) {
+    public PaymentConfirmResponse confirm(CompletePaymentRequest request) {
         PaymentRequest foundRequest = repository.findById(request.requestId())
                 .orElseThrow(() -> new EntityNotFoundException("결제 요청을 찾을 수 없습니다."));
         foundRequest.success();
 
-        repository.save(foundRequest);
+        return PaymentConfirmResponse.of(repository.save(foundRequest));
     }
 
     @Override

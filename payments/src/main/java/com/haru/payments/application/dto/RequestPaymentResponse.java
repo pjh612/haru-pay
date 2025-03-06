@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record RequestPaymentResponse(UUID requestId,
+                                     String orderId,
                                      UUID requestMemberId,
                                      BigDecimal requestPrice,
                                      UUID clientId,

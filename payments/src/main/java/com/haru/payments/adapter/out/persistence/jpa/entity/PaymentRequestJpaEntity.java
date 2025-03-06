@@ -22,6 +22,7 @@ public class PaymentRequestJpaEntity {
     @Id
     @UuidV7Generator
     private UUID requestId;
+    private String orderId;
     private UUID requestMemberId;
     private BigDecimal requestPrice;
     private UUID clientId;

@@ -7,6 +7,7 @@ import java.util.UUID;
 
 public record PaymentRequestEventPayload(
         UUID requestId,
+        String orderId,
         UUID requestMemberId,
         BigDecimal requestPrice,
         UUID clientId,

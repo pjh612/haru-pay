@@ -25,7 +25,7 @@ public class RequestPaymentController {
     @ResponseBody
     @PostMapping("/api/payment/prepare")
     public PreparePaymentResponse preparePaymentRequest(@RequestBody PreparePaymentRequest request, @AuthenticationPrincipal Client client) {
-        PreparePaymentCommand command = new PreparePaymentCommand(client.getId(), request.requestPrice(), request.productName());
+        PreparePaymentCommand command = new PreparePaymentCommand(client.getId(), request.orderId(), request.requestPrice(), request.productName());
         return new PreparePaymentResponse(requestPaymentUseCase.preparePayment(command).requestId());
     }
 

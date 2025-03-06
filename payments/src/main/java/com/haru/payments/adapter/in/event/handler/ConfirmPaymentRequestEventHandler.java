@@ -4,6 +4,7 @@ import com.haru.payments.adapter.in.event.PaymentConfirmedEvent;
 import com.haru.payments.adapter.in.event.payload.ConfirmPaymentRequestEventPayload;
 import com.haru.payments.application.dto.CompletePaymentRequest;
 import com.haru.payments.application.usecase.ConfirmPaymentUseCase;
+import com.haru.payments.application.usecase.dto.PaymentConfirmResponse;
 import com.haru.payments.common.alert.AlertChannel;
 import com.haru.payments.common.alert.AlertManager;
 import jakarta.transaction.Transactional;
@@ -29,8 +30,8 @@ public class ConfirmPaymentRequestEventHandler {
             eventPublisher.publishEvent(PaymentConfirmedEvent.fail(sagaId, payload.getRequestId()));
         } else {
             try {
-                paymentConfirmUseCase.confirm(new CompletePaymentRequest(payload.getRequestId()));
-                alarmManager.notice(AlertChannel.PAYMENT_RESULT, payload.getRequestId().toString(), payload);
+                PaymentConfirmResponse confirmResponse = paymentConfirmUseCase.confirm(new CompletePaymentRequest(payload.getRequestId()));
+                alarmManager.notice(AlertChannel.PAYMENT_RESULT, payload.getRequestId().toString(), confirmResponse);
                 eventPublisher.publishEvent(PaymentConfirmedEvent.success(sagaId, payload.getRequestId()));
             } catch (Exception e) {
                 log.error(e.getMessage(), e);

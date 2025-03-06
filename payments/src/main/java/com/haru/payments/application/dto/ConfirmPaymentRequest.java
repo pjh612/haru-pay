@@ -1,4 +1,4 @@
-package com.haru.payments.adapter.in.web;
+package com.haru.payments.application.dto;
 
 import java.util.UUID;
 
