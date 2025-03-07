@@ -1,7 +1,7 @@
 package com.haru.money.adapters.in.event.loadmoney.handler;
 
 import com.haru.money.adapters.in.event.loadmoney.payload.LoadMoneyRequestedEventPayload;
-import com.haru.money.application.usecase.LoadMoneyUseCase;
+import com.haru.money.application.usecase.LoadMoneyEdaUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +11,7 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class LoadMoneyRequestEventHandler {
-    private final LoadMoneyUseCase loadMoneyUseCase;
+    private final LoadMoneyEdaUseCase loadMoneyUseCase;
 
     @Transactional
     public void handle(UUID sagaId, LoadMoneyRequestedEventPayload payload) {

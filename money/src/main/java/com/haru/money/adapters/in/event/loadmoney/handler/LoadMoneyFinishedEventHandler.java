@@ -1,7 +1,7 @@
 package com.haru.money.adapters.in.event.loadmoney.handler;
 
 import com.haru.money.adapters.in.event.loadmoney.payload.FirmBankingFinishedPayload;
-import com.haru.money.application.usecase.LoadMoneyUseCase;
+import com.haru.money.application.usecase.LoadMoneyEdaUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class LoadMoneyFinishedEventHandler {
-    private final LoadMoneyUseCase loadMoneyUseCase;
+    private final LoadMoneyEdaUseCase loadMoneyUseCase;
 
     @Transactional
     public void handle(UUID sagaId, FirmBankingFinishedPayload payload) {

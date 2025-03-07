@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
 @SpringBootTest
 class MoneyTransactionServiceTest {
     @Autowired
-    private MoneyTransactionService moneyTransactionService;
+    private MoneyTransactionEdaService moneyTransactionService;
     @Autowired
     private MoneyRepository moneyRepository;
 

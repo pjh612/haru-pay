@@ -13,7 +13,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
@@ -26,7 +25,7 @@ import static org.mockito.Mockito.*;
 public class MoneyTransactionServiceUnitTest {
 
     @InjectMocks
-    private MoneyTransactionService moneyTransactionService;
+    private MoneyTransactionEdaService moneyTransactionService;
 
     @Mock
     private MoneyChangingRequestRepository moneyChangingRequestRepository;

@@ -1,19 +1,10 @@
 package com.haru.money.application.usecase;
 
-import com.haru.money.application.dto.MoneyChangingResponse;
-import org.springframework.transaction.annotation.Transactional;
+import com.haru.money.application.dto.LoadMoneyResponse;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 public interface LoadMoneyUseCase {
-    void loadMoneySaga(String memberId, BigDecimal request);
-
-    MoneyChangingResponse requestLoadMoney(UUID requestId, UUID memberId, BigDecimal amount);
-
-    void failRequestLoadMoney(UUID requestId);
-
-    void loadMoney(UUID requestId);
-
-    void increaseMoney(UUID memberId, BigDecimal amount);
+    LoadMoneyResponse loadMoney(UUID memberId, BigDecimal amount);
 }

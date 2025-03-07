@@ -46,6 +46,9 @@ kafka:
       inbox:
         events:
           name: decrease-money.inbox.events
+client:
+  banking:
+    url: "http://banking:8074"
 server:
   port: 8073
 
