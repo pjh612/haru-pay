@@ -6,6 +6,7 @@ import com.haru.payments.application.cache.PaymentCacheRepository;
 import com.haru.payments.application.client.BankingClient;
 import com.haru.payments.application.client.MemberClient;
 import com.haru.payments.application.client.MoneyClient;
+import com.haru.payments.application.client.dto.LoadMoneyResponse;
 import com.haru.payments.application.client.dto.MemberResponse;
 import com.haru.payments.application.client.dto.MoneyResponse;
 import com.haru.payments.application.client.dto.RegisteredBankAccountResponse;
@@ -23,6 +24,8 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.UUID;
 
 @Slf4j
@@ -74,7 +77,14 @@ public class RequestPaymentService implements RequestPaymentUseCase {
         }
 
         if (moneyResponse.balance().compareTo(paymentRequest.requestPrice()) < 0) {
-            throw new IllegalArgumentException("충전이 필요합니다.");
+            BigDecimal shortage = paymentRequest.requestPrice().subtract(moneyResponse.balance());
+            BigDecimal loadAmount = shortage.divide(BigDecimal.TEN.pow(4), RoundingMode.UP);
+            loadAmount = loadAmount.setScale(0, RoundingMode.UP).multiply(BigDecimal.TEN.pow(4));
+
+            LoadMoneyResponse loadMoneyResponse = moneyClient.loadMoney(command.requestMemberId(), loadAmount);
+            if (!"SUCCEEDED".equals(loadMoneyResponse.status())) {
+                throw new IllegalArgumentException("머니 충전에 실패했습니다.");
+            }
         }
 
         return new RequestPaymentResponse(
