@@ -7,6 +7,7 @@ import java.util.UUID;
 public record RequestPaymentResponse(UUID requestId,
                                      String orderId,
                                      UUID requestMemberId,
+                                     String productName,
                                      BigDecimal requestPrice,
                                      UUID clientId,
                                      int paymentStatus,

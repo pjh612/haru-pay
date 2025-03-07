@@ -26,6 +26,7 @@ public class PaymentRequestEventHandler {
                         payload.getRequestId(),
                         payload.getOrderId(),
                         payload.getRequestMemberId(),
+                        payload.getProductName(),
                         payload.getRequestPrice(),
                         payload.getClientId()));
             } catch (Exception e) {

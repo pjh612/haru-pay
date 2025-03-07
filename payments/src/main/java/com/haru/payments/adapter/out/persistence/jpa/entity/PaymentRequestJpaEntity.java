@@ -24,6 +24,7 @@ public class PaymentRequestJpaEntity {
     private UUID requestId;
     private String orderId;
     private UUID requestMemberId;
+    private String productName;
     private BigDecimal requestPrice;
     private UUID clientId;
     private int paymentStatus;

@@ -49,6 +49,7 @@ public class RequestPaymentController {
     @ResponseBody
     @GetMapping(value = "/api/payment-result/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribeAlarm(@RequestParam UUID paymentId, @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
-        return subscribePaymentResultUseCase.subscribe(paymentId.toString(), lastEventId);
+        SseEmitter subscribe = subscribePaymentResultUseCase.subscribe(paymentId.toString(), lastEventId);
+        return subscribe;
     }
 }

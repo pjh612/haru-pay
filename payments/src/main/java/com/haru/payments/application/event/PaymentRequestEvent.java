@@ -16,13 +16,15 @@ public class PaymentRequestEvent implements OutboxEvent<UUID, PaymentRequestEven
     private String orderId;
     private UUID clientId;
     private UUID requestMemberId;
+    private String productName;
     private BigDecimal requestPrice;
     private Instant timestamp;
 
-    public PaymentRequestEvent(UUID requestId, String orderId, UUID clientId, UUID requestMemberId, BigDecimal requestPrice) {
+    public PaymentRequestEvent(UUID requestId, String orderId, UUID clientId, UUID requestMemberId, String productName, BigDecimal requestPrice) {
         this.requestId = requestId;
         this.orderId = orderId;
         this.clientId = clientId;
+        this.productName = productName;
         this.requestMemberId = requestMemberId;
         this.requestPrice = requestPrice;
         this.timestamp = Instant.now();

@@ -44,18 +44,11 @@ public class RequestPaymentService implements RequestPaymentUseCase {
                 Generators.timeBasedEpochGenerator().generate(),
                 command.orderId(),
                 null,
+                command.productName(),
                 command.requestPrice(),
                 command.clientId());
 
-        return new PaymentResponse(
-                paymentRequest.getRequestId(),
-                paymentRequest.getOrderId(),
-                paymentRequest.getRequestMemberId(),
-                paymentRequest.getRequestPrice(),
-                paymentRequest.getClientId(),
-                paymentRequest.getPaymentStatus(),
-                null
-        );
+        return PaymentResponse.of(paymentRequest);
     }
 
     @Override
@@ -88,6 +81,7 @@ public class RequestPaymentService implements RequestPaymentUseCase {
                 paymentRequest.requestId(),
                 paymentRequest.orderId(),
                 command.requestMemberId(),
+                paymentRequest.productName(),
                 paymentRequest.requestPrice(),
                 paymentRequest.clientId(),
                 paymentRequest.paymentStatus(),
@@ -106,6 +100,7 @@ public class RequestPaymentService implements RequestPaymentUseCase {
                 paymentRequest.orderId(),
                 paymentRequest.clientId(),
                 paymentRequest.requestMemberId(),
+                paymentRequest.productName(),
                 paymentRequest.requestPrice());
         eventPublisher.publishEvent(event);
     }
@@ -113,7 +108,12 @@ public class RequestPaymentService implements RequestPaymentUseCase {
     @Override
     @Transactional
     public PaymentResponse requestPayment(CreatePaymentRequest request) {
-        PaymentRequest paymentRequest = PaymentRequest.createNew(request.requestId(), request.orderId(),request.requestMemberId(), request.requestPrice(), request.clientId());
+        PaymentRequest paymentRequest = PaymentRequest.createNew(request.requestId(),
+                request.orderId(),
+                request.requestMemberId(),
+                request.productName(),
+                request.requestPrice(),
+                request.clientId());
 
         eventPublisher.publishEvent(PaymentRequestCreatedEvent.success(
                 paymentRequest.getRequestId(),

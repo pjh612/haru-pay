@@ -7,6 +7,7 @@ public record CreatePaymentRequest(
         UUID requestId,
         String orderId,
         UUID requestMemberId,
+        String productName,
         BigDecimal requestPrice,
         UUID clientId
 ) {
