@@ -4,6 +4,7 @@ import com.haru.payments.application.dto.*;
 import com.haru.payments.application.usecase.RequestPaymentUseCase;
 import com.haru.payments.application.usecase.SubscribePaymentResultUseCase;
 import com.haru.payments.domain.model.Client;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -24,14 +25,14 @@ public class RequestPaymentController {
 
     @ResponseBody
     @PostMapping("/api/payment/prepare")
-    public PreparePaymentResponse preparePaymentRequest(@RequestBody PreparePaymentRequest request, @AuthenticationPrincipal Client client) {
+    public PreparePaymentResponse preparePaymentRequest(@Valid @RequestBody PreparePaymentRequest request, @AuthenticationPrincipal Client client) {
         PreparePaymentCommand command = new PreparePaymentCommand(client.getId(), request.orderId(), request.requestPrice(), request.productName());
         return new PreparePaymentResponse(requestPaymentUseCase.preparePayment(command).requestId());
     }
 
     @ResponseBody
     @PostMapping("/api/payment/request")
-    public RequestPaymentResponse requestPayment(@RequestBody RequestPaymentRequest request, @AuthenticationPrincipal OAuth2User oAuth2User) {
+    public RequestPaymentResponse requestPayment(@Valid @RequestBody RequestPaymentRequest request, @AuthenticationPrincipal OAuth2User oAuth2User) {
         UUID userId = UUID.fromString(oAuth2User.getAttribute("id"));
         RequestPaymentCommand command = new RequestPaymentCommand(request.paymentRequestId(), userId);
 
@@ -40,7 +41,7 @@ public class RequestPaymentController {
 
     @ResponseBody
     @PostMapping("/api/payment/confirm")
-    public void confirmPayment(@RequestBody ConfirmPaymentRequest request) {
+    public void confirmPayment(@Valid @RequestBody ConfirmPaymentRequest request) {
         PaymentCommand command = new PaymentCommand(request.paymentId());
 
         requestPaymentUseCase.confirmPayment(command);
@@ -49,7 +50,6 @@ public class RequestPaymentController {
     @ResponseBody
     @GetMapping(value = "/api/payment-result/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter subscribeAlarm(@RequestParam UUID paymentId, @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
-        SseEmitter subscribe = subscribePaymentResultUseCase.subscribe(paymentId.toString(), lastEventId);
-        return subscribe;
+        return subscribePaymentResultUseCase.subscribe(paymentId.toString(), lastEventId);
     }
 }
