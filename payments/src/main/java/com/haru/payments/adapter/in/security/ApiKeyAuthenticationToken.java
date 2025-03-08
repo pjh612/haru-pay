@@ -3,6 +3,9 @@ package com.haru.payments.adapter.in.security;
 import com.haru.payments.domain.model.Client;
 import lombok.Getter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.List;
 
 @Getter
 public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
@@ -11,7 +14,7 @@ public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
     private final Client client;
 
     public ApiKeyAuthenticationToken(String apiKey, String clientId, Client client) {
-        super(null);
+        super(List.of(new SimpleGrantedAuthority("ROLE_PAYMENT_CLIENT")));
         this.apiKey = apiKey;
         this.clientId = clientId;
         this.client = client;

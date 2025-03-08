@@ -61,7 +61,8 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
-                                .requestMatchers("/api/payment/prepare", "/api/clients").permitAll()
+                                .requestMatchers("/api/clients").permitAll()
+                                .requestMatchers("/api/payment/prepare","/api/payment/confirm", "/api/payment-result/subscribe").hasRole("PAYMENT_CLIENT")
                                 .anyRequest().authenticated())
                 .oauth2Login(oauth2Login -> oauth2Login.loginPage("/oauth2/authorization/payments-oidc"))
                 .oauth2Client(Customizer.withDefaults())
