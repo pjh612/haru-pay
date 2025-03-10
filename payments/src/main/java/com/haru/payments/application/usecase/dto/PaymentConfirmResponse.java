@@ -1,6 +1,6 @@
 package com.haru.payments.application.usecase.dto;
 
-import com.haru.payments.domain.model.PaymentRequest;
+import com.haru.payments.adapter.in.event.PaymentConfirmRequestedEvent;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -13,17 +13,19 @@ public record PaymentConfirmResponse(
         BigDecimal requestPrice,
         UUID clientId,
         int paymentStatus,
+        String failureReason,
         Instant approvedAt
 ) {
-    public static PaymentConfirmResponse of(PaymentRequest request) {
+    public static PaymentConfirmResponse of(PaymentConfirmRequestedEvent event) {
         return new PaymentConfirmResponse(
-                request.getRequestId(),
-                request.getOrderId(),
-                request.getRequestMemberId(),
-                request.getRequestPrice(),
-                request.getClientId(),
-                request.getPaymentStatus(),
-                request.getCreatedAt()
+                event.getRequestId(),
+                null,
+                event.getRequestMemberId(),
+                event.getRequestPrice(),
+                null,
+                "SUCCEEDED".equals(event.getType()) ? 1 : -1,
+                event.getFailureReason(),
+                null
         );
     }
 }

@@ -1,7 +1,7 @@
 package com.haru.payments.adapter.in.event;
 
-import com.haru.payments.adapter.in.event.handler.PaymentRequestEventHandler;
-import com.haru.payments.adapter.in.event.payload.CreatePaymentRequestEventPayload;
+import com.haru.payments.adapter.in.event.handler.PaymentConfirmRequestedEventHandler;
+import com.haru.payments.adapter.in.event.payload.PaymentConfirmRequestedEventPayload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,11 +15,11 @@ import java.util.UUID;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PaymentRequestEventListener {
-    private final PaymentRequestEventHandler handler;
+public class PaymentConfirmRequestedEventListener {
+    private final PaymentConfirmRequestedEventHandler handler;
 
     @KafkaListener(
-            topics = "${kafka.topic.payment-request.inbox.events.name}",
+            topics = "${kafka.topic.payment-confirm-request.inbox.events.name}",
             groupId = "${spring.kafka.consumer.group-id}",
             containerFactory = "kafkaListenerContainerFactory"
     )
@@ -27,9 +27,9 @@ public class PaymentRequestEventListener {
             @Header(KafkaHeaders.RECEIVED_KEY) UUID sagaId,
             @Header("id") String eventId,
             @Header("eventType") String eventType,
-            @Payload CreatePaymentRequestEventPayload payload) {
+            @Payload PaymentConfirmRequestedEventPayload payload) {
         log.info("paymentRequest event received");
-        handler.handle(sagaId, payload);
+        handler.handle(payload);
     }
 
 }

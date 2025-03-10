@@ -17,16 +17,18 @@ public class PaymentRequestCreatedEvent implements OutboxEvent<UUID, PaymentRequ
     private UUID requestMemberId;
     private Instant timestamp;
     private BigDecimal requestPrice;
+    private String failureReason;
     private String type;
 
 
-    public PaymentRequestCreatedEvent(UUID requestId, UUID clientId, UUID requestMemberId, BigDecimal requestPrice, String type) {
+    public PaymentRequestCreatedEvent(UUID requestId, UUID clientId, UUID requestMemberId, BigDecimal requestPrice, String type, String failureReason) {
         this.requestId = requestId;
         this.clientId = clientId;
         this.requestMemberId = requestMemberId;
         this.requestPrice = requestPrice;
         this.timestamp = Instant.now();
         this.type = type;
+        this.failureReason = failureReason;
 
     }
 
@@ -56,10 +58,10 @@ public class PaymentRequestCreatedEvent implements OutboxEvent<UUID, PaymentRequ
     }
 
     public static PaymentRequestCreatedEvent success(UUID requestId, UUID sellerId, UUID requestMemberId, BigDecimal requestPrice) {
-        return new PaymentRequestCreatedEvent(requestId, sellerId, requestMemberId, requestPrice, "SUCCEEDED");
+        return new PaymentRequestCreatedEvent(requestId, sellerId, requestMemberId, requestPrice, "SUCCEEDED",null);
     }
 
-    public static PaymentRequestCreatedEvent fail(UUID requestId, UUID sellerId, UUID requestMemberId, BigDecimal requestPrice) {
-        return new PaymentRequestCreatedEvent(requestId, sellerId, requestMemberId, requestPrice, "FAILED");
+    public static PaymentRequestCreatedEvent fail(UUID requestId, UUID sellerId, UUID requestMemberId, BigDecimal requestPrice, String failureReason) {
+        return new PaymentRequestCreatedEvent(requestId, sellerId, requestMemberId, requestPrice, "FAILED", failureReason);
     }
 }

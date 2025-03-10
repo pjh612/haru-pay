@@ -11,7 +11,7 @@ import com.haru.payments.application.client.dto.MemberResponse;
 import com.haru.payments.application.client.dto.MoneyResponse;
 import com.haru.payments.application.client.dto.RegisteredBankAccountResponse;
 import com.haru.payments.application.dto.*;
-import com.haru.payments.application.event.PaymentRequestEvent;
+import com.haru.payments.application.event.ConfirmPaymentRequestEvent;
 import com.haru.payments.application.usecase.RequestPaymentUseCase;
 import com.haru.payments.domain.model.PaymentRequest;
 import com.haru.payments.domain.repository.PaymentRequestRepository;
@@ -55,75 +55,97 @@ public class RequestPaymentService implements RequestPaymentUseCase {
     }
 
     @Override
-    @CachePut(value = "paymentRequest", key = "#result.requestId", cacheManager = "cacheManager")
     @CacheEvict(value = "provisionalPayment", key = "#result.requestId", cacheManager = "cacheManager")
     public RequestPaymentResponse requestPayment(RequestPaymentCommand command) {
-        PaymentResponse paymentRequest = paymentCacheRepository.findProvisionalPaymentById(command.paymentRequestId())
+        PaymentResponse paymentResponse = paymentCacheRepository.findProvisionalPaymentById(command.paymentRequestId())
                 .orElseThrow(() -> new EntityNotFoundException("결제 정보를 찾을 수 없습니다."));
 
+        PaymentRequest paymentRequest = PaymentRequest.createNew(paymentResponse.requestId(),
+                paymentResponse.orderId(),
+                command.requestMemberId(),
+                paymentResponse.productName(),
+                paymentResponse.requestPrice(),
+                paymentResponse.clientId());
+
+
+        validateMember(command, paymentRequest);
+        validateBankAccount(command, paymentRequest);
+        validateAndLoadMoneyIfNeeded(command, paymentRequest);
+
+        paymentRequestRepository.save(paymentRequest);
+
+        return new RequestPaymentResponse(
+                paymentRequest.getRequestId(),
+                paymentRequest.getOrderId(),
+                command.requestMemberId(),
+                paymentRequest.getProductName(),
+                paymentRequest.getRequestPrice(),
+                paymentRequest.getClientId(),
+                paymentRequest.getPaymentStatus(),
+                null
+        );
+    }
+
+    private void validateMember(RequestPaymentCommand command, PaymentRequest paymentRequest) {
         MemberResponse member = memberClient.getMemberById(command.requestMemberId());
         if (member == null) {
-            throw new IllegalArgumentException("잘못된 유저 정보");
+            handleValidationFailure(paymentRequest, "잘못된 유저 정보");
         }
+    }
 
+    private void validateBankAccount(RequestPaymentCommand command, PaymentRequest paymentRequest) {
         RegisteredBankAccountResponse registeredBankAccount = bankingClient.getRegisteredBankAccount(command.requestMemberId());
         if (registeredBankAccount == null) {
-            throw new IllegalArgumentException("유효하지 않은 계좌");
+            handleValidationFailure(paymentRequest, "유효하지 않은 계좌");
         }
+    }
 
+    private void validateAndLoadMoneyIfNeeded(RequestPaymentCommand command, PaymentRequest paymentRequest) {
         MoneyResponse moneyResponse = moneyClient.getMemberById(command.requestMemberId());
         if (moneyResponse == null) {
-            throw new IllegalArgumentException("머니 정보가 없습니다.");
+            handleValidationFailure(paymentRequest, "머니 정보가 없습니다.");
         }
 
-        if (moneyResponse.balance().compareTo(paymentRequest.requestPrice()) < 0) {
-            BigDecimal shortage = paymentRequest.requestPrice().subtract(moneyResponse.balance());
-            BigDecimal loadAmount = shortage.divide(BigDecimal.TEN.pow(4), RoundingMode.UP);
-            loadAmount = loadAmount.setScale(0, RoundingMode.UP).multiply(BigDecimal.TEN.pow(4));
+        if (moneyResponse.balance().compareTo(paymentRequest.getRequestPrice()) < 0) {
+            BigDecimal shortage = paymentRequest.getRequestPrice().subtract(moneyResponse.balance());
+            BigDecimal loadAmount = calculateLoadAmount(shortage);
 
             LoadMoneyResponse loadMoneyResponse = moneyClient.loadMoney(command.requestMemberId(), loadAmount);
             if (!"SUCCEEDED".equals(loadMoneyResponse.status())) {
-                throw new IllegalArgumentException("머니 충전에 실패했습니다.");
+                handleValidationFailure(paymentRequest, "머니 충전에 실패했습니다.");
             }
         }
+    }
 
-        return new RequestPaymentResponse(
-                paymentRequest.requestId(),
-                paymentRequest.orderId(),
-                command.requestMemberId(),
-                paymentRequest.productName(),
-                paymentRequest.requestPrice(),
-                paymentRequest.clientId(),
-                paymentRequest.paymentStatus(),
-                null
-        );
+    private BigDecimal calculateLoadAmount(BigDecimal shortage) {
+        return shortage.divide(BigDecimal.TEN.pow(4), RoundingMode.UP)
+                .setScale(0, RoundingMode.UP)
+                .multiply(BigDecimal.TEN.pow(4));
+    }
+
+    private void handleValidationFailure(PaymentRequest paymentRequest, String errorMessage) {
+        paymentRequest.fail();
+        paymentRequestRepository.save(paymentRequest);
+        throw new IllegalArgumentException(errorMessage);
     }
 
     @Override
     @Transactional
     @CacheEvict(value = "paymentRequest", key = "#command.paymentRequestId", cacheManager = "cacheManager")
     public void confirmPayment(PaymentCommand command) {
-        RequestPaymentResponse paymentRequest = paymentCacheRepository.findPaymentRequestById(command.paymentRequestId())
+        PaymentRequest paymentRequest = paymentRequestRepository.findById(command.paymentRequestId())
                 .orElseThrow(() -> new EntityNotFoundException("결제 정보를 찾을 수 없습니다."));
 
-        PaymentRequestEvent event = new PaymentRequestEvent(paymentRequest.requestId(),
-                paymentRequest.orderId(),
-                paymentRequest.clientId(),
-                paymentRequest.requestMemberId(),
-                paymentRequest.productName(),
-                paymentRequest.requestPrice());
+        ConfirmPaymentRequestEvent event = new ConfirmPaymentRequestEvent(paymentRequest.getRequestId(), paymentRequest.getRequestMemberId(), paymentRequest.getRequestPrice());
         eventPublisher.publishEvent(event);
     }
 
     @Override
     @Transactional
     public PaymentResponse requestPayment(CreatePaymentRequest request) {
-        PaymentRequest paymentRequest = PaymentRequest.createNew(request.requestId(),
-                request.orderId(),
-                request.requestMemberId(),
-                request.productName(),
-                request.requestPrice(),
-                request.clientId());
+        PaymentRequest paymentRequest = paymentRequestRepository.findById(request.requestId())
+                .orElseThrow(() -> new EntityNotFoundException("결제 정보를 찾을 수 없습니다."));
+
 
         eventPublisher.publishEvent(PaymentRequestCreatedEvent.success(
                 paymentRequest.getRequestId(),
@@ -136,7 +158,7 @@ public class RequestPaymentService implements RequestPaymentUseCase {
 
     @Override
     @Transactional
-    public void failRequest(UUID requestId) {
+    public void failRequest(UUID requestId, String failureReason) {
         PaymentRequest paymentRequest = paymentRequestRepository.findById(requestId)
                 .orElse(null);
         if (paymentRequest == null) {
@@ -146,10 +168,11 @@ public class RequestPaymentService implements RequestPaymentUseCase {
 
         paymentRequestRepository.save(paymentRequest);
         eventPublisher.publishEvent(PaymentRequestCreatedEvent.fail(
-                null,
+                paymentRequest.getRequestId(),
                 paymentRequest.getClientId(),
                 paymentRequest.getRequestMemberId(),
-                paymentRequest.getRequestPrice()));
+                paymentRequest.getRequestPrice(),
+                failureReason));
     }
 
 

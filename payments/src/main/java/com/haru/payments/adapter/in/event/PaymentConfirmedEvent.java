@@ -14,13 +14,15 @@ public class PaymentConfirmedEvent implements OutboxEvent<UUID, PaymentConfirmed
     private UUID sagaId;
     private UUID requestId;
     private String type;
+    private String failureReason;
     private Instant timestamp;
 
-    public PaymentConfirmedEvent(UUID sagaId, UUID requestId, String type) {
+    public PaymentConfirmedEvent(UUID sagaId, UUID requestId, String type,String failureReason) {
         this.sagaId = sagaId;
         this.requestId = requestId;
         this.type = type;
         this.timestamp = Instant.now();
+        this.failureReason =failureReason;
     }
 
     @Override
@@ -49,10 +51,10 @@ public class PaymentConfirmedEvent implements OutboxEvent<UUID, PaymentConfirmed
     }
 
     public static PaymentConfirmedEvent success(UUID sagaId, UUID requestId) {
-        return new PaymentConfirmedEvent(sagaId, requestId, "SUCCEEDED");
+        return new PaymentConfirmedEvent(sagaId, requestId, "SUCCEEDED", null);
     }
 
-    public static PaymentConfirmedEvent fail(UUID sagaId, UUID requestId) {
-        return new PaymentConfirmedEvent(sagaId, requestId, "FAILED");
+    public static PaymentConfirmedEvent fail(UUID sagaId, UUID requestId, String failureReason) {
+        return new PaymentConfirmedEvent(sagaId, requestId, "FAILED", failureReason);
     }
 }

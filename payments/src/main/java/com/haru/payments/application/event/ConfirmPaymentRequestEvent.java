@@ -11,20 +11,14 @@ import java.util.UUID;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PaymentRequestEvent implements OutboxEvent<UUID, PaymentRequestEvent> {
+public class ConfirmPaymentRequestEvent implements OutboxEvent<UUID, ConfirmPaymentRequestEvent> {
     private UUID requestId;
-    private String orderId;
-    private UUID clientId;
     private UUID requestMemberId;
-    private String productName;
     private BigDecimal requestPrice;
     private Instant timestamp;
 
-    public PaymentRequestEvent(UUID requestId, String orderId, UUID clientId, UUID requestMemberId, String productName, BigDecimal requestPrice) {
+    public ConfirmPaymentRequestEvent(UUID requestId, UUID requestMemberId, BigDecimal requestPrice) {
         this.requestId = requestId;
-        this.orderId = orderId;
-        this.clientId = clientId;
-        this.productName = productName;
         this.requestMemberId = requestMemberId;
         this.requestPrice = requestPrice;
         this.timestamp = Instant.now();
@@ -37,7 +31,7 @@ public class PaymentRequestEvent implements OutboxEvent<UUID, PaymentRequestEven
 
     @Override
     public String aggregateType() {
-        return "PaymentRequestEvent";
+        return "ConfirmPaymentRequestEvent";
     }
 
     @Override
@@ -51,7 +45,7 @@ public class PaymentRequestEvent implements OutboxEvent<UUID, PaymentRequestEven
     }
 
     @Override
-    public PaymentRequestEvent payload() {
+    public ConfirmPaymentRequestEvent payload() {
         return this;
     }
 }

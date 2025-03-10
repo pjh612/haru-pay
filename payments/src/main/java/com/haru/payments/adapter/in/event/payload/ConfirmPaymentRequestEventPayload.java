@@ -16,5 +16,6 @@ public class ConfirmPaymentRequestEventPayload {
     private UUID requestMemberId;
     private BigDecimal requestPrice;
     private BigDecimal balance;
+    private String failureReason;
     private String type;
 }

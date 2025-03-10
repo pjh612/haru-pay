@@ -1,5 +1,7 @@
 package com.haru.payments.adapter.in.event;
 
+import com.haru.common.RequiresNewExecutor;
+import lombok.experimental.WithBy;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
@@ -33,5 +35,10 @@ public class EventKafkaConfig {
                 new StringDeserializer(),
                 new StringDeserializer()
         );
+    }
+
+    @Bean
+    RequiresNewExecutor requiresNewExecutor() {
+        return new RequiresNewExecutor();
     }
 }

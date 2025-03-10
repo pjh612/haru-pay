@@ -29,6 +29,6 @@ public class ConfirmPaymentRequestEventListener {
             @Header("eventType") String eventType,
             @Payload ConfirmPaymentRequestEventPayload payload) {
         log.info("confirmPayment event received : {}", payload);
-        handler.handle(sagaId, payload);
+        handler.handle(payload);
     }
 }

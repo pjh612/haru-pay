@@ -11,12 +11,10 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CreatePaymentRequestEventPayload {
+public class PaymentConfirmRequestedEventPayload {
     private UUID requestId;
-    private String orderId;
     private UUID requestMemberId;
-    private String productName;
     private BigDecimal requestPrice;
-    private UUID clientId;
+    private String failureReason;
     private String type;
 }

@@ -64,10 +64,10 @@ client:
 
 kafka:
   topic:
-    payment-request:
+    payment-confirm-request:
       inbox:
         events:
-          name: payment-request.inbox.events
+          name: payment-confirm-request.inbox.events
     confirm-payment:
       inbox:
         events:
