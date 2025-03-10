@@ -38,4 +38,9 @@ public class CheckedRegisteredBankAccountEventPayload implements SagaPayload {
                 "joy",
                 this.amount);
     }
+
+    @Override
+    public String failureReason() {
+        return "";
+    }
 }

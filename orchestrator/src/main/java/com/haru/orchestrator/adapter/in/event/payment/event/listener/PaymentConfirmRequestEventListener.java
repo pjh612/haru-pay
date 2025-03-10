@@ -1,6 +1,6 @@
 package com.haru.orchestrator.adapter.in.event.payment.event.listener;
 
-import com.haru.orchestrator.adapter.in.event.payment.event.payload.PaymentRequestEventPayload;
+import com.haru.orchestrator.adapter.in.event.payment.event.payload.PaymentConfirmRequestEventPayload;
 import com.haru.orchestrator.application.SagaManager;
 import com.haru.orchestrator.domain.model.PayloadType;
 import lombok.RequiredArgsConstructor;
@@ -17,14 +17,14 @@ import java.util.UUID;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PaymentRequestEventListener {
+public class PaymentConfirmRequestEventListener {
     private final SagaManager sagaManager;
 
     @Transactional
-    @KafkaListener(topics = "${kafka.topic.saga.payment-request.inbox.events}", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topic.saga.payment-confirm-request.inbox.events}", containerFactory = "kafkaListenerContainerFactory")
     void listen(@Header(KafkaHeaders.RECEIVED_KEY) UUID sagaId,
                 @Header("id") String eventId,
-                @Payload PaymentRequestEventPayload payload) {
+                @Payload PaymentConfirmRequestEventPayload payload) {
         if (payload.type() != PayloadType.FAILED) {
             sagaManager.begin(sagaId, "PAYMENT_SAGA", payload);
         }

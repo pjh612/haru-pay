@@ -7,6 +7,7 @@ public record ConfirmPaymentRequestEvent(
         UUID requestId,
         UUID requestMemberId,
         BigDecimal requestPrice,
-        BigDecimal balance
+        BigDecimal balance,
+        String failureReason
 ) {
 }

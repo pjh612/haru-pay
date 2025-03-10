@@ -18,6 +18,7 @@ public class DecreasedMoneyEventPayload implements SagaPayload {
     private UUID requestMemberId;
     private BigDecimal requestPrice;
     private BigDecimal balance;
+    private String failureReason;
     private PayloadType type;
 
     @Override
@@ -27,6 +28,11 @@ public class DecreasedMoneyEventPayload implements SagaPayload {
 
     @Override
     public Object toEvent() {
-        return new ConfirmPaymentRequestEvent(this.requestId, this.requestMemberId, this.requestPrice, this.balance);
+        return new ConfirmPaymentRequestEvent(this.requestId, this.requestMemberId, this.requestPrice, this.balance, this.failureReason);
+    }
+
+    @Override
+    public String failureReason() {
+        return this.failureReason;
     }
 }

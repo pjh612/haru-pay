@@ -33,4 +33,9 @@ public class LoadMoneyRequestCreatedEventPayload implements SagaPayload {
                 this.moneyId,
                 this.amount);
     }
+
+    @Override
+    public String failureReason() {
+        return "";
+    }
 }

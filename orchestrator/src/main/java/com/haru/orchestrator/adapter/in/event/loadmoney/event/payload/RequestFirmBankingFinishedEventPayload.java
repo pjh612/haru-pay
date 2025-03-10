@@ -34,4 +34,9 @@ public class RequestFirmBankingFinishedEventPayload implements SagaPayload {
     public RequestLoadMoneyFinishedEvent toEvent() {
         return new RequestLoadMoneyFinishedEvent(this.loadMoneyRequestId, this.memberId, this.amount);
     }
+
+    @Override
+    public String failureReason() {
+        return "";
+    }
 }

@@ -32,9 +32,9 @@ public class Saga {
 
         ensureProcessed(eventId, () -> {
                     if (eventPayload.type().isSucceeded()) {
-                        onStepEvent(SagaStepStatus.SUCCEEDED, nextEventPayload);
+                        onStepEvent(SagaStepStatus.SUCCEEDED, nextEventPayload, null);
                     } else {
-                        onStepEvent(SagaStepStatus.FAILED, nextEventPayload);
+                        onStepEvent(SagaStepStatus.FAILED, nextEventPayload, eventPayload.failureReason());
                     }
                 }
         );
@@ -69,7 +69,7 @@ public class Saga {
         state.updateCurrentStep(next.topic());
     }
 
-    private void goBack() {
+    private void goBack(String failureReason) {
         SagaStep step = sagaStepFlow.getStep(state.getCurrentStep());
         var prev = step.prev();
         if (prev.topic() == null) {
@@ -80,20 +80,22 @@ public class Saga {
 
         var payload = ((ObjectNode) state.getPayload().deepCopy());
         payload.put("type", PayloadType.CANCEL.name());
-
+        if(failureReason != null) {
+            payload.put("failureReason", failureReason);
+        }
         eventPublisher.publishEvent(new SagaEvent(state.getId(), prev.topic(), PayloadType.CANCEL.name(), payload));
 
         state.updateStepStatus(prev.topic(), SagaStepStatus.COMPENSATING);
         state.updateCurrentStep(prev.topic());
     }
 
-    private void onStepEvent(SagaStepStatus status, Object payload) {
+    private void onStepEvent(SagaStepStatus status, Object payload, String failureReason) {
         state.updateStepStatus(state.getCurrentStep(), status);
 
         if (status.isSucceeded()) {
             advance(payload);
         } else if (status.isFailedOrCompensated()) {
-            goBack();
+            goBack(failureReason);
         }
 
         state.advanceSagaStatus();

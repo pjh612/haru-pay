@@ -13,6 +13,7 @@ import java.util.UUID;
 public class PaymentConfirmedEventPayload implements SagaPayload {
     private UUID sagaId;
     private UUID requestId;
+    private String failureReason;
     private PayloadType type;
 
     @Override
@@ -23,5 +24,10 @@ public class PaymentConfirmedEventPayload implements SagaPayload {
     @Override
     public Object toEvent() {
         return null;
+    }
+
+    @Override
+    public String failureReason() {
+        return this.failureReason;
     }
 }

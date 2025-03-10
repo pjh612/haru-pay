@@ -11,11 +11,11 @@ import java.util.UUID;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PaymentRequestCreatedEventPayload implements SagaPayload {
+public class PaymentConfirmRequestedEventPayload implements SagaPayload {
     private UUID requestId;
-    private UUID clientId;
     private UUID requestMemberId;
     private BigDecimal requestPrice;
+    private String failureReason;
     private PayloadType type;
 
     @Override
@@ -27,9 +27,14 @@ public class PaymentRequestCreatedEventPayload implements SagaPayload {
     public Object toEvent() {
         return new DecreaseMoneyEvent(
                 this.requestId,
-                this.clientId,
                 this.requestMemberId,
-                this.requestPrice
+                this.requestPrice,
+                this.failureReason
         );
     }
+    @Override
+    public String failureReason() {
+        return this.failureReason;
+    }
 }
+

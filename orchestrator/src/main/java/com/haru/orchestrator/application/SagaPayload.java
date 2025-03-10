@@ -6,4 +6,6 @@ public interface SagaPayload {
     PayloadType type();
 
     Object toEvent();
+
+    String failureReason();
 }

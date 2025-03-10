@@ -20,7 +20,7 @@ public class SagaConfig {
                 .build());
 
         registry.register("PAYMENT_SAGA", SagaStepFlow.builder()
-                .addStep("payment-request")
+                .addStep("payment-confirm-request")
                 .addStep("decrease-money")
                 .addStep("confirm-payment")
                 .build());

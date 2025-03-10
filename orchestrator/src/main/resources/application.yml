@@ -2,7 +2,7 @@ spring:
   application:
     name: joy-orchestrator
   datasource:
-    url: jdbc:mysql://localhost:3308/joy
+    url: jdbc:mysql://localhost:3306/haru
     password: password
     username: root
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -17,11 +17,11 @@ spring:
       ddl-auto: update
   kafka:
     bootstrap-servers: localhost:9092
-    client-id: joy-orchestrator
+    client-id: haru-orchestrator
     consumer:
       auto-offset-reset: earliest
       enable-auto-commit: true
-      group-id: joy-orchestrator
+      group-id: haru-orchestrator
     listener:
       concurrency: 2
       missing-topics-fatal: true
@@ -45,12 +45,12 @@ kafka:
       load-money-finish:
         inbox:
           events: LoadMoneyFinishedEvent.inbox.events
-      payment-request:
+      payment-confirm-request:
         inbox:
-          events: PaymentRequestEvent.inbox.events
-      payment-request-created:
+          events: ConfirmPaymentRequestEvent.inbox.events
+      payment-confirm-requested:
         inbox:
-          events: PaymentRequestCreatedEvent.inbox.events
+          events: PaymentConfirmRequestedEvent.inbox.events
       decreased-money:
         inbox:
           events: DecreasedMoneyEvent.inbox.events

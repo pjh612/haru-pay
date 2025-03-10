@@ -22,4 +22,9 @@ public class LoadMoneyFinishedEventPayload implements SagaPayload {
     public Object toEvent() {
         return null;
     }
+
+    @Override
+    public String failureReason() {
+        return "";
+    }
 }
