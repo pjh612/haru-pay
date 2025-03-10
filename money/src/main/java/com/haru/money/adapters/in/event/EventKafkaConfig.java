@@ -1,5 +1,6 @@
 package com.haru.money.adapters.in.event;
 
+import com.haru.common.RequiresNewExecutor;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
@@ -36,5 +37,10 @@ public class EventKafkaConfig {
         factory.setBatchMessageConverter(new BatchMessagingMessageConverter(jsonMessageConverter()));
         factory.setConcurrency(props.getListener().getConcurrency());
         return factory;
+    }
+
+    @Bean
+    RequiresNewExecutor requiresNewExecutor() {
+        return new RequiresNewExecutor();
     }
 }

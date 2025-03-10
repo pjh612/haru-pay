@@ -17,10 +17,11 @@ public class DecreasedMoneyEvent implements OutboxEvent<UUID, DecreasedMoneyEven
     private UUID requestMemberId;
     private BigDecimal requestPrice;
     private BigDecimal balance;
+    private String failureReason;
     private String type;
     private Instant timestamp;
 
-    public DecreasedMoneyEvent(UUID requestId, UUID moneyChangingRequestId, UUID requestMemberId, BigDecimal requestPrice, BigDecimal balance, String type) {
+    public DecreasedMoneyEvent(UUID requestId, UUID moneyChangingRequestId, UUID requestMemberId, BigDecimal requestPrice, BigDecimal balance, String type, String failureReason) {
         this.requestId = requestId;
         this.moneyChangingRequestId = moneyChangingRequestId;
         this.requestMemberId = requestMemberId;
@@ -28,6 +29,7 @@ public class DecreasedMoneyEvent implements OutboxEvent<UUID, DecreasedMoneyEven
         this.balance = balance;
         this.type = type;
         this.timestamp = Instant.now();
+        this.failureReason = failureReason;
     }
 
     @Override
@@ -55,14 +57,15 @@ public class DecreasedMoneyEvent implements OutboxEvent<UUID, DecreasedMoneyEven
         return this;
     }
 
-    public static DecreasedMoneyEvent fail(UUID requestId, UUID moneyChangingRequestId, UUID requestMemberId, BigDecimal requestPrice, BigDecimal balance) {
+    public static DecreasedMoneyEvent fail(UUID requestId, UUID moneyChangingRequestId, UUID requestMemberId, BigDecimal requestPrice, BigDecimal balance, String failureReason) {
         return new DecreasedMoneyEvent(
                 requestId,
                 moneyChangingRequestId,
                 requestMemberId,
                 requestPrice,
                 balance,
-                "FAILED");
+                "FAILED",
+                failureReason);
     }
 
     public static DecreasedMoneyEvent success(UUID requestId, UUID moneyChangingRequestId, UUID requestMemberId, BigDecimal requestPrice, BigDecimal balance) {
@@ -72,6 +75,7 @@ public class DecreasedMoneyEvent implements OutboxEvent<UUID, DecreasedMoneyEven
                 requestMemberId,
                 requestPrice,
                 balance,
-                "SUCCEEDED");
+                "SUCCEEDED",
+                null);
     }
 }

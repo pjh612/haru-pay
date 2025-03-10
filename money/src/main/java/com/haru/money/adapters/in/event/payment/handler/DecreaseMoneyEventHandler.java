@@ -1,5 +1,6 @@
 package com.haru.money.adapters.in.event.payment.handler;
 
+import com.haru.common.RequiresNewExecutor;
 import com.haru.money.adapters.in.event.payment.DecreasedMoneyEvent;
 import com.haru.money.adapters.in.event.payment.payload.DecreaseMoneyEventPayload;
 import com.haru.money.application.dto.DecreaseMoneyResponse;
@@ -19,19 +20,20 @@ import java.util.UUID;
 public class DecreaseMoneyEventHandler {
     private final DecreaseMoneyUseCase decreaseMoneyUseCase;
     private final ApplicationEventPublisher eventPublisher;
+    private final RequiresNewExecutor requiresNewExecutor;
 
     @Transactional
-    public void handle(UUID sagaId, DecreaseMoneyEventPayload payload) {
+    public void handle(DecreaseMoneyEventPayload payload) {
         if ("CANCEL".equals(payload.getType())) {
-            decreaseMoneyUseCase.onDecreaseFailed(payload.getRequestId(), payload.getRequestMemberId(), payload.getRequestPrice());
-            publishFailEvent(payload);
+            decreaseMoneyUseCase.cancelDecreaseMoneyRequest(payload.getRequestId(), payload.getRequestMemberId(), payload.getRequestPrice());
+            publishFailEvent(payload, payload.getFailureReason());
         } else {
             try {
                 DecreaseMoneyResponse response = decreaseMoneyUseCase.decrease(payload.getRequestId(), payload.getRequestMemberId(), payload.getRequestPrice());
                 publishSuccessEvent(payload, response.balance());
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
-                publishFailEvent(payload);
+                requiresNewExecutor.execute(() -> publishFailEvent(payload, e.getMessage()));
             }
         }
     }
@@ -46,12 +48,15 @@ public class DecreaseMoneyEventHandler {
         eventPublisher.publishEvent(event);
     }
 
-    private void publishFailEvent(DecreaseMoneyEventPayload payload) {
-        eventPublisher.publishEvent(DecreasedMoneyEvent.fail(
+    private void publishFailEvent(DecreaseMoneyEventPayload payload, String failureReason) {
+        DecreasedMoneyEvent failedEvent = DecreasedMoneyEvent.fail(
                 payload.getRequestId(),
                 payload.getRequestId(),
                 payload.getRequestMemberId(),
                 payload.getRequestPrice(),
-                null));
+                null,
+                failureReason
+        );
+        eventPublisher.publishEvent(failedEvent);
     }
 }

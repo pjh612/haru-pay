@@ -30,6 +30,6 @@ public class DecreaseMoneyEventListener {
                        @Payload DecreaseMoneyEventPayload payload) {
         logger.debug("Kafka message received: key = {}, eventType = {}", sagaId, eventType);
 
-        handler.handle(sagaId, payload);
+        handler.handle(payload);
     }
 }

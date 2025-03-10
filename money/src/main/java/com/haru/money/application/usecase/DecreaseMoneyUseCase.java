@@ -8,5 +8,5 @@ import java.util.UUID;
 public interface DecreaseMoneyUseCase {
     DecreaseMoneyResponse decrease(UUID requestId, UUID memberId, BigDecimal amount);
 
-    void onDecreaseFailed(UUID requestId, UUID memberId, BigDecimal amount);
+    void cancelDecreaseMoneyRequest(UUID requestId, UUID memberId, BigDecimal amount);
 }

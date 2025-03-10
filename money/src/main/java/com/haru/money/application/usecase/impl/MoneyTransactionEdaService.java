@@ -122,7 +122,7 @@ public class MoneyTransactionEdaService implements LoadMoneyEdaUseCase, Decrease
 
     @Override
     @Transactional
-    public void onDecreaseFailed(UUID requestId, UUID memberId, BigDecimal amount) {
+    public void cancelDecreaseMoneyRequest(UUID requestId, UUID memberId, BigDecimal amount) {
         MoneyChangingRequest foundMoneyChangingRequest = moneyChangingRequestRepository.findById(requestId)
                 .orElseThrow(() -> new EntityNotFoundException("요청 정보를 찾을 수 없습니다."));
         rollbackDecreasedMoney(memberId, amount);
