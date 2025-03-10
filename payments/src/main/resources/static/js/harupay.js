@@ -11,22 +11,42 @@ class HaruPaySDK {
 
     // 결제창 열기
     open(options) {
-        const {paymentId, productName, amount, onSuccess, onError} = options;
+        const {orderId, paymentId, productName, amount, onSuccess, onError} = options;
         const paymentUrl = `${this.baseUrl}/pay/${paymentId}`;
-        const popup = window.open(
-            paymentUrl,
-            "paymentWindow",
-            "width=500,height=700,scrollbars=no,resizable=no"
-        );
 
-        window.addEventListener("message", (event) => {
-            const data = event.data;
-            const url = new URL(this.successUrl);
-            url.searchParams.append('orderId', data.orderId);
-            url.searchParams.append('paymentId', data.requestId);
-            url.searchParams.append('requestPrice', data.requestPrice);
-            popup.location.href = url.toString();
+        $.ajax({
+            type: "post",
+            url: "/api/payment/prepare",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                "orderId": orderId,
+                "requestPrice": amount,
+                "productName": productName
+            }),
+            success: function (data) {
+                const popup = window.open(
+                    paymentUrl,
+                    "paymentWindow",
+                    "width=500,height=700,scrollbars=no,resizable=no"
+                );
+
+                window.addEventListener("message", (event) => {
+                    const data = event.data;
+                    const url = new URL(this.successUrl);
+                    url.searchParams.append('orderId', data.orderId);
+                    url.searchParams.append('paymentId', data.requestId);
+                    url.searchParams.append('requestPrice', data.requestPrice);
+                    popup.location.href = url.toString();
+                });
+            },
+            error: function (e) {
+                alert("결제에 실패했습니다.");
+            }
         });
+
+
+
+
     }
 }
 

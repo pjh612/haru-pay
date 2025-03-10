@@ -33,8 +33,8 @@ public class RequestPaymentUiController {
     @GetMapping("/{paymentRequestKey}")
     public String payRequest(Model model, @PathVariable String paymentRequestKey, @AuthenticationPrincipal OAuth2User oAuth2User) {
         String userId = oAuth2User.getAttribute("id");
-        MoneyResponse moneyResponse = moneyClient.getMemberById(UUID.fromString(userId));
         PaymentResponse paymentResponse = queryPaymentUseCase.queryById(UUID.fromString(paymentRequestKey));
+        MoneyResponse moneyResponse = moneyClient.getMemberById(UUID.fromString(userId));
         ClientResponse clientResponse = queryClientUseCase.queryById(paymentResponse.clientId());
         RegisteredBankAccountResponse registeredBankAccount = bankingClient.getRegisteredBankAccount(UUID.fromString(userId));
 

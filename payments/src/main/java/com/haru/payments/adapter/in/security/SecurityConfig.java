@@ -4,6 +4,7 @@ import com.haru.payments.application.usecase.QueryClientUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -21,6 +22,7 @@ import org.springframework.security.oauth2.client.web.client.OAuth2ClientHttpReq
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.cors.CorsUtils;
 
 @Configuration
 @EnableWebSecurity
@@ -62,7 +64,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers("/api/clients").permitAll()
-                                .requestMatchers("/api/payment/prepare","/api/payment/confirm", "/api/payment-result/subscribe").hasRole("PAYMENT_CLIENT")
+                                .requestMatchers(HttpMethod.POST,"/api/payment/prepare", "/api/payment/confirm", "/api/payment-result/subscribe").hasRole("PAYMENT_CLIENT")
+                                .requestMatchers("/api/payment-result/subscribe").hasRole("PAYMENT_CLIENT")
+                                .requestMatchers("/api/payment/confirm", "/api/payment-result/subscribe").hasRole("PAYMENT_CONFIRM")
+                                .requestMatchers(HttpMethod.POST,"/api/payment/prepare").hasAuthority("PAYMENT_PREPARE")
+                                .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                                 .anyRequest().authenticated())
                 .oauth2Login(oauth2Login -> oauth2Login.loginPage("/oauth2/authorization/payments-oidc"))
                 .oauth2Client(Customizer.withDefaults())

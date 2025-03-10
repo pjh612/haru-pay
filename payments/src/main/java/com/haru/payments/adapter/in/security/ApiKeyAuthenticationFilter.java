@@ -23,7 +23,7 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String authorization = request.getHeader("Authorization");
         String clientId = request.getHeader("X-PAY-CLIENT-ID");
-        ApiKeyAuthenticationToken authentication = new ApiKeyAuthenticationToken(authorization, clientId, null);
+        ApiKeyAuthenticationToken authentication = new ApiKeyAuthenticationToken(authorization, clientId, null, null);
 
         return this.authenticationManager.authenticate(authentication);
     }
@@ -31,15 +31,24 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
     protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
         String authorization = request.getHeader("Authorization");
         String clientId = request.getHeader("X-PAY-CLIENT-ID");
-        return authorization != null && clientId != null;
+        return authorization != null || clientId != null;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (requiresAuthentication(request, response)) {
+        boolean needsAuthentication = requiresAuthentication(request, response);
+        if (needsAuthentication) {
             Authentication authentication = attemptAuthentication(request, response);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+
+        if(request.getMethod().equalsIgnoreCase("OPTIONS") || needsAuthentication) {
+            response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Access-Control-Allow-Headers", "X-PAY-CLIENT-ID, Authorization, content-type");
+            response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+        }
+
         filterChain.doFilter(request, response);
     }
 }

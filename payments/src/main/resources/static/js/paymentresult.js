@@ -13,5 +13,6 @@ const subscribe = () => {
 
     alarm.onmessage = (e) => {
         window.opener.postMessage(e.data, "*");
+        alarm.close();
     }
 }
