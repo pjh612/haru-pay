@@ -42,6 +42,7 @@ dependencies {
     testRuntimeOnly 'com.h2database:h2'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.15.2'
+    testImplementation 'it.ozimov:embedded-redis:0.7.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
