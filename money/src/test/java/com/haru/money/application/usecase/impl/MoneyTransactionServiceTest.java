@@ -1,6 +1,7 @@
 package com.haru.money.application.usecase.impl;
 
 import com.fasterxml.uuid.Generators;
+import com.haru.money.application.TestRedisConfiguration;
 import com.haru.money.domain.model.Money;
 import com.haru.money.domain.repository.MoneyRepository;
 import org.assertj.core.api.Assertions;
@@ -16,7 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @ActiveProfiles("test")
-@SpringBootTest
+@SpringBootTest(classes = TestRedisConfiguration.class)
 class MoneyTransactionServiceTest {
     @Autowired
     private MoneyTransactionEdaService moneyTransactionService;
