@@ -96,6 +96,7 @@ services:
       - mysql
       - kafka
       - auth
+      - redis
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
   money:
@@ -108,6 +109,7 @@ services:
       - mysql
       - kafka
       - auth
+      - redis
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
   orchestrator:
