@@ -64,9 +64,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers("/api/clients").permitAll()
-                                .requestMatchers(HttpMethod.POST,"/api/payment/prepare", "/api/payment/confirm", "/api/payment-result/subscribe").hasRole("PAYMENT_CLIENT")
+                                .requestMatchers(HttpMethod.POST,"/api/payment/prepare", "/api/payment/confirm").hasRole("PAYMENT_CLIENT")
                                 .requestMatchers("/api/payment-result/subscribe").hasRole("PAYMENT_CLIENT")
-                                .requestMatchers("/api/payment/confirm", "/api/payment-result/subscribe").hasRole("PAYMENT_CONFIRM")
+                                .requestMatchers("/api/payment/confirm", "/api/payment-result/subscribe").hasAuthority("PAYMENT_CONFIRM")
                                 .requestMatchers(HttpMethod.POST,"/api/payment/prepare").hasAuthority("PAYMENT_PREPARE")
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                                 .anyRequest().authenticated())

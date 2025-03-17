@@ -1,7 +1,6 @@
 package com.haru.payments.application.usecase.impl;
 
 import com.fasterxml.uuid.Generators;
-import com.haru.payments.adapter.in.event.PaymentRequestCreatedEvent;
 import com.haru.payments.application.cache.PaymentCacheRepository;
 import com.haru.payments.application.client.BankingClient;
 import com.haru.payments.application.client.MemberClient;
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.UUID;
 
 @Slf4j
 @Service
@@ -139,41 +137,4 @@ public class RequestPaymentService implements RequestPaymentUseCase {
         ConfirmPaymentRequestEvent event = new ConfirmPaymentRequestEvent(paymentRequest.getRequestId(), paymentRequest.getRequestMemberId(), paymentRequest.getRequestPrice());
         eventPublisher.publishEvent(event);
     }
-
-    @Override
-    @Transactional
-    public PaymentResponse requestPayment(CreatePaymentRequest request) {
-        PaymentRequest paymentRequest = paymentRequestRepository.findById(request.requestId())
-                .orElseThrow(() -> new EntityNotFoundException("결제 정보를 찾을 수 없습니다."));
-
-
-        eventPublisher.publishEvent(PaymentRequestCreatedEvent.success(
-                paymentRequest.getRequestId(),
-                paymentRequest.getClientId(),
-                paymentRequest.getRequestMemberId(),
-                paymentRequest.getRequestPrice()));
-
-        return PaymentResponse.of(paymentRequestRepository.save(paymentRequest));
-    }
-
-    @Override
-    @Transactional
-    public void failRequest(UUID requestId, String failureReason) {
-        PaymentRequest paymentRequest = paymentRequestRepository.findById(requestId)
-                .orElse(null);
-        if (paymentRequest == null) {
-            return;
-        }
-        paymentRequest.fail();
-
-        paymentRequestRepository.save(paymentRequest);
-        eventPublisher.publishEvent(PaymentRequestCreatedEvent.fail(
-                paymentRequest.getRequestId(),
-                paymentRequest.getClientId(),
-                paymentRequest.getRequestMemberId(),
-                paymentRequest.getRequestPrice(),
-                failureReason));
-    }
-
-
 }
