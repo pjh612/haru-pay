@@ -72,7 +72,13 @@ kafka:
       inbox:
         events:
           name: confirm-payment.inbox.events
-
 logging:
-  level:
-    org.springframework: trace
+  config: classpath:log4j2-spring.xml
+management:
+  zipkin:
+    tracing:
+      export:
+        enabled: false
+  tracing:
+    sampling:
+      probability: 1

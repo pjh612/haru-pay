@@ -25,5 +25,12 @@ client:
 server:
   port: 8072
 logging:
-  level:
-    root: debug
+  config: classpath:log4j2-spring-docker.xml
+management:
+  zipkin:
+    tracing:
+      export:
+        enabled: false
+  tracing:
+    sampling:
+      probability: 1

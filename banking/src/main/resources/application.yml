@@ -38,3 +38,13 @@ kafka:
       inbox:
         events:
           name: request-firm-banking.inbox.events
+logging:
+  config: classpath:log4j2-spring.xml
+management:
+  zipkin:
+    tracing:
+      export:
+        enabled: false
+  tracing:
+    sampling:
+      probability: 1

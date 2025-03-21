@@ -18,6 +18,10 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+
+    all*.exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    all*.exclude group: 'org.springframework.boot', module: 'logback-classic'
+    all*.exclude group: 'ch.qos.logback', module: 'logback-classic'
 }
 
 repositories {
@@ -40,6 +44,11 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     implementation 'com.fasterxml.uuid:java-uuid-generator:5.1.0'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    runtimeOnly 'org.apache.logging.log4j:log4j-layout-template-json'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+    implementation 'io.opentelemetry:opentelemetry-exporter-zipkin'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

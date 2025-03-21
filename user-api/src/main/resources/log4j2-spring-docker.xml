@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Properties>
+        <Property name="LOG_PATH">logs/${spring:spring.application.name}</Property>
+        <Property name="DEFAULT_PATTERN">[%d{yyyy-MM-dd HH:mm:ss.SSS}] %5p ${sys:PID} --- [%15.15t] %-40.40c{1.} : %m%n%xwEx
+        </Property>
+        <Property name="COLOR_PATTERN">[%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint}] [traceId=%X{traceId} spanId=%X{spanId}] %clr{%5p} %clr{${sys:PID}}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c}{cyan} %clr{:}{faint} %m%n%xwEx
+        </Property>
+        <Property name="TEST_PATTERN">%d %5p [%c] %m%n</Property>
+        <!--        <Property name="COLOR_PATTERN">[%clr{%d{yyyy-MM-dd HH:mm:ss.SSS}}{faint}] %clr{%5p} %clr{${sys:PID}}{magenta} %clr{-&#45;&#45;}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n%xwEx</Property>-->
+    </Properties>
+
+    <Appenders>
+        <Console name="ConsoleAppender" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="${COLOR_PATTERN}"/>
+        </Console>
+
+        <RollingFile name="RollingFileAppender">
+            <FileName>${LOG_PATH}/log4j2.log</FileName>
+            <FilePattern>${LOG_PATH}/log4j2.%d{yyyy-MM-dd-hh-mm}.%i.log.gz</FilePattern>
+            <PatternLayout>
+                <Pattern>${DEFAULT_PATTERN}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100MB"/>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="${LOG_PATH}" maxDepth="1">
+                    <IfAccumulatedFileCount exceeds="3"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+        <Kafka name="kafka" topic="logs">
+            <JsonTemplateLayout eventTemplateUri="classpath:logJsonLayout.json"/>
+            <Property name="bootstrap.servers">kafka-1:29092,kafka-2:29092,kafka-3:29092</Property>
+        </Kafka>
+    </Appenders>
+
+
+    <Loggers>
+        <!-- Root : 일반적인 로그 정책, 반드시 하나 정의해야함 -->
+        <Root level="INFO" additivity="false">
+            <AppenderRef ref="ConsoleAppender"/>
+            <AppenderRef ref="RollingFileAppender"/>
+            <AppenderRef ref="kafka"/>
+        </Root>
+
+        <Logger name="org.apache.kafka" level="INFO">
+            <AppenderRef ref="kafka"/>
+            <AppenderRef ref="ConsoleAppender"/>
+            <AppenderRef ref="RollingFileAppender"/>
+        </Logger>
+    </Loggers>
+</Configuration>

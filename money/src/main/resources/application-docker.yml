@@ -24,7 +24,7 @@ spring:
       auto-offset-reset: earliest
       enable-auto-commit: true
       group-id: haru-money
-    bootstrap-servers: kafka:29092
+    bootstrap-servers: kafka-1:29092,kafka-2:29092,kafka-3:29092
     listener:
       concurrency: 1
       missing-topics-fatal: true
@@ -51,4 +51,13 @@ client:
     url: "http://banking:8074"
 server:
   port: 8073
-
+logging:
+  config: classpath:log4j2-spring-docker.xml
+management:
+  zipkin:
+    tracing:
+      export:
+        enabled: false
+  tracing:
+    sampling:
+      probability: 1

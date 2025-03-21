@@ -14,7 +14,7 @@ curl --location --request POST 'http://localhost:8075/connectors' \
 "topic.prefix": "haru",
 "database.include.list": "haru",
 "table.include.list": "haru.outbox_event",
-"schema.history.internal.kafka.bootstrap.servers": "kafka:29092",
+"schema.history.internal.kafka.bootstrap.servers": "kafka-1:29092,kafka-2:29092,kafka-3:29092",
 "schema.history.internal.kafka.topic": "banking.outbox",
 "database.allowPublicKeyRetrieval": "true",
 "key.converter": "org.apache.kafka.connect.storage.StringConverter",
@@ -26,7 +26,7 @@ curl --location --request POST 'http://localhost:8075/connectors' \
 "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
 "transforms.outbox.route.topic.replacement": "${routedByValue}.inbox.events",
 "transforms.outbox.table.fields.additional.placement" : "type:header:eventType",
-"database.connectionTimeZone": "Asia/Seoul"
+"database.connectionTimeZone": "Asia/Seoul",
 }
 }'
 
@@ -58,7 +58,7 @@ curl --location --request POST 'http://localhost:8083/connectors' \
 "transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
 "transforms.outbox.route.topic.replacement": "${routedByValue}.inbox.events",
 "transforms.outbox.table.fields.additional.placement" : "type:header:eventType",
-"database.connectionTimeZone": "Asia/Seoul"
+"database.connectionTimeZone": "Asia/Seoul",
 }
 }'
 

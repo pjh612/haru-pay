@@ -24,5 +24,4 @@ server:
   port: 8070
 
 logging:
-  level:
-    org.springframework: trace
+  config: classpath:log4j2-spring.xml

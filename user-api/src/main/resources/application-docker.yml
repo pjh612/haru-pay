@@ -22,3 +22,5 @@ spring:
           issuer-uri: http://auth:8072
 server:
   port: 8070
+logging:
+  config: classpath:log4j2-spring-docker.xml

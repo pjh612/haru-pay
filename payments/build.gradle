@@ -18,6 +18,8 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    all*.exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    all*.exclude group: 'org.springframework.boot', module: 'logback-classic'
 }
 
 repositories {
@@ -36,12 +38,17 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+    implementation 'io.opentelemetry:opentelemetry-exporter-zipkin'
     implementation 'com.fasterxml.uuid:java-uuid-generator:5.1.0'
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2' // 최신 버전
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+    runtimeOnly 'org.apache.logging.log4j:log4j-layout-template-json'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
