@@ -6,7 +6,7 @@
 # 연동 예시
 
 ## Joy Store와 Haru Pay 연동 예시
-<img width="863" alt="image" src="https://github.com/user-attachments/assets/02bf7dd7-047c-46e9-9857-d35d16cfa969" />
+![image](https://github.com/user-attachments/assets/4243651d-734f-43dd-8a3f-60eccbe8d9af)
 <img width="612" alt="image" src="https://github.com/user-attachments/assets/325e3859-6b1b-4e7a-a25e-4f1e86c91e39" />
 
 머니가 충분할 시 충전하지 않고 결제합니다.
