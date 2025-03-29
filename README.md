@@ -36,7 +36,6 @@
 docker-compose up
 ```
 
-#연동 가이드
 # 연동 가이드
 
 ## 결제 준비 요청 API
