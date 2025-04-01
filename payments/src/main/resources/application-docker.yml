@@ -51,7 +51,9 @@ spring:
             client-name: payments-authorization-code
         provider:
           spring:
-            issuer-uri: http://auth:8072
+            authorization-uri: http://auth:8072/oauth2/authorize
+            token-uri: http://auth:8072/oauth2/token
+            jwk-set-uri: http://auth:8072/oauth2/jwks
 server.port: 8071
 
 client:
