@@ -12,7 +12,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Slf4j
 @Component
@@ -33,6 +32,7 @@ public class DecreaseMoneyEventHandler {
                 publishSuccessEvent(payload, response.balance());
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
+                decreaseMoneyUseCase.cancelDecreaseMoneyRequest(payload.getRequestId(), payload.getRequestMemberId(), payload.getRequestPrice());
                 requiresNewExecutor.execute(() -> publishFailEvent(payload, e.getMessage()));
             }
         }
