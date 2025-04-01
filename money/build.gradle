@@ -71,7 +71,7 @@ tasks.register("prepareKotlinBuildScriptModel") {}
 
 jib {
   from {
-        image = 'openjdk:17-jdk-slim'
+        image = 'bellsoft/liberica-openjre-alpine:17'
         platforms {
             platform {
                 architecture = "arm64"
