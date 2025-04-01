@@ -47,10 +47,10 @@ public class LoadMoneyFinishedEvent implements OutboxEvent<String, LoadMoneyFini
     }
 
     public static LoadMoneyFinishedEvent success(UUID requestId) {
-        return new LoadMoneyFinishedEvent(requestId, "success");
+        return new LoadMoneyFinishedEvent(requestId, "SUCCEEDED");
     }
 
     public static LoadMoneyFinishedEvent fail(UUID requestId) {
-        return new LoadMoneyFinishedEvent(requestId, "fail");
+        return new LoadMoneyFinishedEvent(requestId, "FAILED");
     }
 }
