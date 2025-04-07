@@ -45,12 +45,12 @@ kafka:
       load-money-finish:
         inbox:
           events: LoadMoneyFinishedEvent.inbox.events
-      payment-request:
+      payment-confirm-request:
         inbox:
-          events: PaymentRequestEvent.inbox.events
-      payment-request-created:
+          events: ConfirmPaymentRequestEvent.inbox.events
+      payment-confirm-requested:
         inbox:
-          events: PaymentRequestCreatedEvent.inbox.events
+          events: PaymentConfirmRequestedEvent.inbox.events
       decreased-money:
         inbox:
           events: DecreasedMoneyEvent.inbox.events
