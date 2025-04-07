@@ -1,13 +1,13 @@
 package com.haru.payments.adapter.in.event.handler;
 
+import com.alert.core.manager.AlertManager;
 import com.haru.common.RequiresNewExecutor;
 import com.haru.payments.adapter.in.event.PaymentConfirmedEvent;
 import com.haru.payments.adapter.in.event.payload.ConfirmPaymentRequestEventPayload;
+import com.haru.payments.adapter.out.alert.CommonAlertChannel;
 import com.haru.payments.application.dto.CompletePaymentRequest;
 import com.haru.payments.application.usecase.ConfirmPaymentUseCase;
 import com.haru.payments.application.usecase.dto.PaymentConfirmResponse;
-import com.haru.payments.common.alert.AlertChannel;
-import com.haru.payments.common.alert.AlertManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class ConfirmPaymentRequestEventHandler {
         } else {
             try {
                 PaymentConfirmResponse confirmResponse = paymentConfirmUseCase.confirm(new CompletePaymentRequest(payload.getRequestId()));
-                alertManager.notice(AlertChannel.PAYMENT_RESULT, payload.getRequestId().toString(), confirmResponse);
+                alertManager.notice(CommonAlertChannel.PAYMENT_RESULT, payload.getRequestId().toString(), confirmResponse);
                 eventPublisher.publishEvent(PaymentConfirmedEvent.success(payload.getRequestId(), payload.getRequestId()));
             } catch (Exception e) {
                 log.error(e.getMessage(), e);

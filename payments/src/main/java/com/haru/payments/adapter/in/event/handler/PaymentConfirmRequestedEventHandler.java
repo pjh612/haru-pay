@@ -1,10 +1,10 @@
 package com.haru.payments.adapter.in.event.handler;
 
+import com.alert.core.manager.AlertManager;
 import com.haru.payments.adapter.in.event.PaymentConfirmRequestedEvent;
 import com.haru.payments.adapter.in.event.payload.PaymentConfirmRequestedEventPayload;
+import com.haru.payments.adapter.out.alert.CommonAlertChannel;
 import com.haru.payments.application.usecase.dto.PaymentConfirmResponse;
-import com.haru.payments.common.alert.AlertChannel;
-import com.haru.payments.common.alert.AlertManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ public class PaymentConfirmRequestedEventHandler {
     public void handle(PaymentConfirmRequestedEventPayload payload) {
         if ("CANCEL".equals(payload.getType())) {
             PaymentConfirmRequestedEvent event = PaymentConfirmRequestedEvent.fail(payload.getRequestId(), payload.getRequestMemberId(), payload.getRequestPrice(), payload.getFailureReason());
-            alertManager.notice(AlertChannel.PAYMENT_RESULT, payload.getRequestId().toString(), PaymentConfirmResponse.of(event));
+            alertManager.notice(CommonAlertChannel.PAYMENT_RESULT, payload.getRequestId().toString(), PaymentConfirmResponse.of(event));
             eventPublisher.publishEvent(event);
         } else {
             PaymentConfirmRequestedEvent event = PaymentConfirmRequestedEvent.success(payload.getRequestId(), payload.getRequestMemberId(), payload.getRequestPrice());

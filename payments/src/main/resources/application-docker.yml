@@ -84,3 +84,11 @@ management:
   tracing:
     sampling:
       probability: 1
+
+alert:
+  bridge: kafka
+  slack:
+    webhook:
+      url: https://hooks.slack.com/services/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
+  topics:
+    - PAYMENT_RESULT
