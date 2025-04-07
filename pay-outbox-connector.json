@@ -15,7 +15,7 @@ curl --location --request POST 'http://localhost:8075/connectors' \
 "database.include.list": "haru",
 "table.include.list": "haru.outbox_event",
 "schema.history.internal.kafka.bootstrap.servers": "kafka-1:29092,kafka-2:29092,kafka-3:29092",
-"schema.history.internal.kafka.topic": "banking.outbox",
+"schema.history.internal.kafka.topic": "haru.outbox",
 "database.allowPublicKeyRetrieval": "true",
 "key.converter": "org.apache.kafka.connect.storage.StringConverter",
 "value.converter": "org.apache.kafka.connect.json.JsonConverter",
@@ -27,41 +27,12 @@ curl --location --request POST 'http://localhost:8075/connectors' \
 "transforms.outbox.route.topic.replacement": "${routedByValue}.inbox.events",
 "transforms.outbox.table.fields.additional.placement" : "type:header:eventType",
 "database.connectionTimeZone": "Asia/Seoul",
+"topic.creation.default.replication.factor" : 3,
+"topic.creation.default.partitions": 3
 }
 }'
 
-curl --location --request POST 'http://localhost:8083/connectors' \
---header 'Content-Type: application/json' \
---data-raw '{
-"name": "haru-orchestrator-outbox-connector",
-"config": {
-"connector.class": "io.debezium.connector.mysql.MySqlConnector",
-"tasks.max": "1",
-"database.hostname": "mysql",
-"database.port": "3306",
-"database.user": "root",
-"database.password": "password",
-"database.server.id": "184054",
-"database.server.name": "mysql",
-"topic.prefix": "haru",
-"database.include.list": "haru",
-"table.include.list": "haru.outbox_event",
-"schema.history.internal.kafka.bootstrap.servers": "kafka:29092",
-"schema.history.internal.kafka.topic": "orchestrator.outbox",
-"database.allowPublicKeyRetrieval": "true",
-"key.converter": "org.apache.kafka.connect.storage.StringConverter",
-"value.converter": "org.apache.kafka.connect.json.JsonConverter",
-"key.converter.schemas.enable": "false",
-"value.converter.schemas.enable": "false",
-"transforms": "outbox",
-"transforms.outbox.table.expand.json.payload": "true",
-"transforms.outbox.type": "io.debezium.transforms.outbox.EventRouter",
-"transforms.outbox.route.topic.replacement": "${routedByValue}.inbox.events",
-"transforms.outbox.table.fields.additional.placement" : "type:header:eventType",
-"database.connectionTimeZone": "Asia/Seoul",
-}
-}'
 
-curl --location --request DELETE 'http://localhost:8075/connectors/haru-money-outbox-connector'
+curl --location --request DELETE 'http://localhost:8075/connectors/haru-outbox-connector'
 
 curl --location --request GET 'http://localhost:8075/connectors'
