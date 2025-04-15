@@ -2,34 +2,15 @@
 하루페이는 하루 머니를 충전해 결제에 사용할 수 있는 간편 결제를 서비스입니다.
 하루 서비스 회원이라면 하루 머니가 연동된 서비스에서 하루 페이머니로 결제할 수 있습니다.
 
+[자세한 구현 과정 및 트러블 슈팅 Link](https://docs.google.com/document/d/1Vn3GW8Ee16jpYBVr9buV8TqgRKxyDjpv0vMxdo4A9mY/edit?usp=sharing)
 
-# 연동 예시
+| ![Image 1](https://github.com/user-attachments/assets/440c2429-0c12-4de1-81bd-b345947bc933) | ![Image 2](https://github.com/user-attachments/assets/ee3f9500-1715-4993-a9b0-faa10357a0cf) |
+|------------------|------------------|
+| ![Image 3](https://github.com/user-attachments/assets/52dc2933-a21c-4851-9adc-45e4391f363f) | |
 
-## Joy Store와 Haru Pay 연동 예시
-![image](https://github.com/user-attachments/assets/4243651d-734f-43dd-8a3f-60eccbe8d9af)
-<img width="612" alt="image" src="https://github.com/user-attachments/assets/325e3859-6b1b-4e7a-a25e-4f1e86c91e39" />
-
-머니가 충분할 시 충전하지 않고 결제합니다.
-
-<img width="612" alt="image" src="https://github.com/user-attachments/assets/02ae3fc9-e306-4acb-90de-33aefd1e7dcb" />
-
-머니가 충분하지 않으면 만원 단위로 자동 충전 후 결제를 진행합니다.
-
-<img width="612" alt="image" src="https://github.com/user-attachments/assets/2c4cb694-30ef-4bf8-a91f-2a66a271a70e" />
-
-
-결제 버튼을 누르면 Joy-Store가 결제 승인을 요청합니다. 이 단계에서 최종적으로 결제가 진행됩니다.
-
-<img width="612" alt="image" src="https://github.com/user-attachments/assets/712b28f7-285f-4c40-9754-e85cb6a6d6e6" />
-
-결제 승인 요청을 보내고 결제 승인 완료 이벤트 수신을 대기합니다.
-
-<img width="612" alt="image" src="https://github.com/user-attachments/assets/0139661e-40b8-475e-b367-3a899228fe2e" />
-
-결제 완료 페이지로 결제 승인 결과를 받습니다.
-
-<img width="612" alt="image" src="https://github.com/user-attachments/assets/6db75f1a-006c-4b96-aec2-227509009975" />
-<img width="612" alt="image" src="https://github.com/user-attachments/assets/7671189a-4730-4ac5-a655-9f9ee037e978" />
+| ![image1](https://github.com/user-attachments/assets/712b28f7-285f-4c40-9754-e85cb6a6d6e6) | ![image2](https://github.com/user-attachments/assets/0139661e-40b8-475e-b367-3a899228fe2e) |
+|---------------------------------------------------|---------------------------------------------------|
+| ![image3](https://github.com/user-attachments/assets/6db75f1a-006c-4b96-aec2-227509009975) | ![image4](https://github.com/user-attachments/assets/7671189a-4730-4ac5-a655-9f9ee037e978) |
 
 # Start
 ```
