@@ -1,0 +1,101 @@
+spring:
+  application:
+    name: paymentsmoney
+  datasource:
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 50
+    url: jdbc:h2:mem:haru;DB_CLOSE_DELAY=-1;MODE=MySQL
+    password: password
+    username: root
+    driver-class-name: org.h2.Driver
+  jpa:
+    database: h2
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.H2Dialect
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  kafka:
+    client-id: payments
+    consumer:
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      group-id: haru-payments
+    bootstrap-servers: localhost:9092
+    listener:
+      concurrency: 1
+      missing-topics-fatal: true
+  security:
+    oauth2:
+      client:
+        registration:
+          payments-oidc:
+            provider: spring
+            client-id: payments
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://payments:8071/login/oauth2/code/{registrationId}"
+            scope: openid
+            client-name: payments-oidc
+          payments-authorization-code:
+            provider: spring
+            client-id: payments
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://payments:8071/authorized"
+            scope: members.read
+            client-name: payments-authorization-code
+        provider:
+          spring:
+            authorization-uri: http://auth:8072/oauth2/authorize
+            token-uri: http://auth:8072/oauth2/token
+            jwk-set-uri: http://auth:8072/oauth2/jwks
+server.port: 8071
+
+client:
+  banking:
+    url: http://banking:8074
+  member:
+    url: http://user-api:8070
+  money:
+    url: http://localhost:8073
+
+kafka:
+  topic:
+    payment-confirm-request:
+      inbox:
+        events:
+          name: payment-confirm-request.inbox.events
+    confirm-payment:
+      inbox:
+        events:
+          name: confirm-payment.inbox.events
+logging:
+  config: classpath:log4j2-spring.xml
+management:
+  zipkin:
+    tracing:
+      export:
+        enabled: false
+  tracing:
+    sampling:
+      probability: 1
+
+alert:
+  group-id: node-1
+  bridge: kafka
+  slack:
+    webhook:
+      url: https://hooks.slack.com/services/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
+  topics:
+    - PAYMENT_RESULT
+
+

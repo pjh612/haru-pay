@@ -1,6 +1,7 @@
 package com.haru.payments.application.usecase.impl;
 
 import com.fasterxml.uuid.Generators;
+import com.haru.common.lock.RedisLock;
 import com.haru.payments.application.cache.PaymentCacheRepository;
 import com.haru.payments.application.client.BankingClient;
 import com.haru.payments.application.client.MemberClient;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -53,6 +55,7 @@ public class RequestPaymentService implements RequestPaymentUseCase {
     }
 
     @Override
+    @RedisLock(waitTime = 1, unit = TimeUnit.SECONDS, key = "#command.paymentRequestId")
     @CacheEvict(value = "provisionalPayment", key = "#result.requestId", cacheManager = "cacheManager")
     public RequestPaymentResponse requestPayment(RequestPaymentCommand command) {
         PaymentResponse paymentResponse = paymentCacheRepository.findProvisionalPaymentById(command.paymentRequestId())
