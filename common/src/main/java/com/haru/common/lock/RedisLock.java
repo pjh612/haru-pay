@@ -1,4 +1,4 @@
-package com.haru.money.common.lock;
+package com.haru.common.lock;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -13,4 +13,5 @@ public @interface RedisLock {
     long leaseTime() default 1;
     TimeUnit unit() default TimeUnit.SECONDS;
     String key() default "";
+    RedisLockType type() default RedisLockType.REENTRANT;
 }

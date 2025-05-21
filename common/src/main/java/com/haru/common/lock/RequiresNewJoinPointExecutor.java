@@ -1,4 +1,4 @@
-package com.haru.money.common.lock;
+package com.haru.common.lock;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.stereotype.Component;

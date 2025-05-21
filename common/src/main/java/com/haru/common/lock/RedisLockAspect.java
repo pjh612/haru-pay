@@ -1,4 +1,4 @@
-package com.haru.money.common.lock;
+package com.haru.common.lock;
 
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -31,13 +31,13 @@ public class RedisLockAspect {
         this.parser = new SpelExpressionParser();
     }
 
-    @Around("@annotation(com.haru.money.common.lock.RedisLock)")
+    @Around("@annotation(RedisLock)")
     public Object lock(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         RedisLock redisLock = method.getAnnotation(RedisLock.class);
         String lockKey = getKey(joinPoint.getArgs(), signature.getParameterNames(), redisLock.key());
-        RLock lock = redissonClient.getLock(lockKey);
+        RLock lock = resolveLock(redisLock, lockKey);
         try {
             if (lock.tryLock(redisLock.waitTime(), redisLock.leaseTime(), redisLock.unit())) {
                 return joinPoint.proceed();
@@ -57,6 +57,13 @@ public class RedisLockAspect {
             }
         }
         return parser.parseExpression(keyExpression).getValue(context, String.class);
+    }
+
+    private RLock resolveLock(RedisLock redisLock, String lockKey) {
+        return switch (redisLock.type()) {
+            case SPIN -> redissonClient.getSpinLock(lockKey);
+            case REENTRANT -> redissonClient.getLock(lockKey);
+        };
     }
 
 
