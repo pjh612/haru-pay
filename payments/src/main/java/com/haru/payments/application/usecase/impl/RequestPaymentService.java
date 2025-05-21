@@ -132,6 +132,7 @@ public class RequestPaymentService implements RequestPaymentUseCase {
 
     @Override
     @Transactional
+    @RedisLock(waitTime = 1, unit = TimeUnit.SECONDS, key = "#command.paymentRequestId")
     @CacheEvict(value = "paymentRequest", key = "#command.paymentRequestId", cacheManager = "cacheManager")
     public void confirmPayment(PaymentCommand command) {
         PaymentRequest paymentRequest = paymentRequestRepository.findById(command.paymentRequestId())
