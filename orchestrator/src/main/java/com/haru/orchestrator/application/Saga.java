@@ -1,13 +1,13 @@
 package com.haru.orchestrator.application;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.haru.orchestrator.domain.model.*;
 import com.haru.orchestrator.domain.repository.EventLogRepository;
 import com.haru.orchestrator.domain.repository.SagaStateRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.UUID;
 
@@ -15,7 +15,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class Saga {
     private final SagaEventPublisher eventPublisher;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
     private final EventLogRepository eventLogRepository;
     private final SagaStateRepository sagaStateRepository;
     private final SagaState state;
@@ -63,7 +63,7 @@ public class Saga {
             return;
         }
 
-        eventPublisher.publishEvent(new SagaEvent(state.getId(), next.topic(), PayloadType.REQUEST.name(), objectMapper.convertValue(payload, JsonNode.class)));
+        eventPublisher.publishEvent(new SagaEvent(state.getId(), next.topic(), PayloadType.REQUEST.name(), jsonMapper.convertValue(payload, JsonNode.class)));
 
         state.updateStepStatus(next.topic(), SagaStepStatus.STARTED);
         state.updateCurrentStep(next.topic());

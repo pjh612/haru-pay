@@ -1,8 +1,8 @@
 package com.haru.common.event;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 import jakarta.persistence.EntityManager;
 import org.hibernate.Session;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ class OutboxEventDispatcher {
             if (removeAfterInsert) {
                 session.remove(outbox);
             }
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new RuntimeException(e);
         }
     }

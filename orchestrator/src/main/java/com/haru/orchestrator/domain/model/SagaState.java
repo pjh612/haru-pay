@@ -1,12 +1,12 @@
 package com.haru.orchestrator.domain.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.EnumSet;
 import java.util.UUID;
@@ -66,8 +66,8 @@ public class SagaState {
 
     private EnumSet<SagaStepStatus> stepStatusToSet() {
         EnumSet<SagaStepStatus> allStatus = EnumSet.noneOf(SagaStepStatus.class);
-        stepStatus.fields()
-                .forEachRemaining(entry -> allStatus.add(SagaStepStatus.valueOf(entry.getValue().asText())));
+        stepStatus.properties()
+                .forEach(entry -> allStatus.add(SagaStepStatus.valueOf(entry.getValue().asText())));
 
         return allStatus;
     }

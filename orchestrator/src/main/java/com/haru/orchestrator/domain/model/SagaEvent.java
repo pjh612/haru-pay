@@ -1,7 +1,7 @@
 package com.haru.orchestrator.domain.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.haru.common.event.OutboxEvent;
+import tools.jackson.databind.JsonNode;
 
 import java.time.Instant;
 import java.util.UUID;

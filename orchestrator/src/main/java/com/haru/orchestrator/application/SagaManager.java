@@ -1,10 +1,10 @@
 package com.haru.orchestrator.application;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.UUID;
 
@@ -13,11 +13,11 @@ import java.util.UUID;
 public class SagaManager {
 
     private final SagaFactory sagaFactory;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
     @Transactional
     public void begin(UUID sagaId, String sagaType, Object payload) {
-        JsonNode jsonNode = objectMapper.convertValue(payload, JsonNode.class);
+        JsonNode jsonNode = jsonMapper.convertValue(payload, JsonNode.class);
         Saga saga = sagaFactory.createInstance(sagaId, sagaType, jsonNode);
         saga.init(jsonNode);
 

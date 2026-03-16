@@ -1,7 +1,7 @@
 package com.haru.orchestrator.adapter.out.persistence.jpa.entity;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.haru.orchestrator.domain.model.SagaStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
