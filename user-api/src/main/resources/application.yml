@@ -20,8 +20,11 @@ spring:
       resourceserver:
         jwt:
           issuer-uri: http://auth:8072
+          jwk-set-uri: http://auth:8072/.well-known/jwks.json
 server:
   port: 8070
 
 logging:
   config: classpath:log4j2-spring.xml
+  level:
+    root: debug

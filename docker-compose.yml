@@ -12,7 +12,7 @@ services:
       - MYSQL_USER=user
       - MYSQL_PASSWORD=password
     volumes:
-      - ./mysql:/var/lib/mysql
+      - ./infrastructure/volumes/mysql:/var/lib/mysql
   connect:
     image: quay.io/debezium/connect
     links:
@@ -36,7 +36,7 @@ services:
     ports:
       - "9092:9092"
     volumes:
-      - ./data/${KAFKA_DIR}/kafka-1:/var/lib/kafka/data
+      - ./infrastructure/volumes/kafka/kafka-1:/var/lib/kafka/data
     networks:
       - haru_network
     environment:
@@ -56,7 +56,7 @@ services:
     ports:
       - "9095:9095"
     volumes:
-      - ./data/${KAFKA_DIR}/kafka-2:/var/lib/kafka/data
+      - ./infrastructure/volumes/kafka/kafka-2:/var/lib/kafka/data
     networks:
       - haru_network
     environment:
@@ -76,7 +76,7 @@ services:
     ports:
       - "9096:9096"
     volumes:
-      - ./data/${KAFKA_DIR}/kafka-3:/var/lib/kafka/data
+      - ./infrastructure/volumes/kafka/kafka-3:/var/lib/kafka/data
     networks:
       - haru_network
     environment:
@@ -209,14 +209,14 @@ services:
     profiles:
       - setup
     build:
-      context: setup/
+      context: infrastructure/setup/
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
     init: true
     volumes:
-      - ./setup/entrypoint.sh:/entrypoint.sh:ro,Z
-      - ./setup/lib.sh:/lib.sh:ro,Z
-      - ./setup/roles:/roles:ro,Z
+      - ./infrastructure/setup/entrypoint.sh:/entrypoint.sh:ro,Z
+      - ./infrastructure/setup/lib.sh:/lib.sh:ro,Z
+      - ./infrastructure/setup/roles:/roles:ro,Z
     environment:
       ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
       LOGSTASH_INTERNAL_PASSWORD: ${LOGSTASH_INTERNAL_PASSWORD:-}
@@ -231,11 +231,11 @@ services:
       - elasticsearch
   elasticsearch:
     build:
-      context: elasticsearch/
+      context: infrastructure/elasticsearch/
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
     volumes:
-      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
+      - ./infrastructure/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,Z
       - elasticsearch:/usr/share/elasticsearch/data:Z
     ports:
       - 9200:9200
@@ -250,12 +250,12 @@ services:
     restart: unless-stopped
   logstash:
     build:
-      context: logstash/
+      context: infrastructure/logstash/
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
     volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
+      - ./infrastructure/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro,Z
+      - ./infrastructure/logstash/pipeline:/usr/share/logstash/pipeline:ro,Z
     ports:
       - 5044:5044
       - 50000:50000/tcp
@@ -271,11 +271,11 @@ services:
     restart: unless-stopped
   kibana:
     build:
-      context: kibana/
+      context: infrastructure/kibana/
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
     volumes:
-      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
+      - ./infrastructure/kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,Z
     ports:
       - 5601:5601
     environment:
@@ -415,7 +415,6 @@ services:
       - redis-node-3
       - redis-node-4
       - redis-node-5
-
   # Test Client
   test-client:
     image: haru-test-client:0.0.1-SNAPSHOT
@@ -429,7 +428,6 @@ services:
       - PAYMENTS_BASE_URL=http://payments:8071
     depends_on:
       - payments
-
 networks:
   haru_network:
     driver: bridge

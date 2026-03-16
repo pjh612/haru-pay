@@ -27,8 +27,16 @@ spring:
       missing-topics-fatal: true
   data:
     redis:
-      host: localhost
+      cluster:
+        nodes:
+          - localhost:6479
+          - localhost:6480
+          - localhost:6481
+          - localhost:6482
+          - localhost:6483
+          - localhost:6484
       port: 6379
+      password: bitnami
   security:
     oauth2:
       client:
@@ -86,10 +94,11 @@ management:
       probability: 1
 
 alert:
+  group-id: node-1
   bridge: kafka
   slack:
     webhook:
-      url: https://hooks.slack.com/services/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
+      url: https://hooks.slack.com/services/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
   topics:
     - PAYMENT_RESULT
 
