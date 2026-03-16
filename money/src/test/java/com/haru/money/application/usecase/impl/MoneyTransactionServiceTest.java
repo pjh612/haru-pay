@@ -1,14 +1,14 @@
 package com.haru.money.application.usecase.impl;
 
 import com.fasterxml.uuid.Generators;
-import com.haru.money.application.TestRedisConfiguration;
 import com.haru.money.domain.model.Money;
 import com.haru.money.domain.repository.MoneyRepository;
+import com.haru.money.support.ContainerizedIntegrationTest;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -16,9 +16,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@ActiveProfiles("test")
-@SpringBootTest(classes = TestRedisConfiguration.class)
-class MoneyTransactionServiceTest {
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@SpringBootTest
+class MoneyTransactionServiceTest extends ContainerizedIntegrationTest {
     @Autowired
     private MoneyTransactionEdaService moneyTransactionService;
     @Autowired

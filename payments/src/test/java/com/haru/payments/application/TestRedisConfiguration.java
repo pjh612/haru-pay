@@ -2,7 +2,7 @@ package com.haru.payments.application;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.boot.data.redis.autoconfigure.DataRedisProperties;
 import org.springframework.boot.test.context.TestConfiguration;
 import redis.embedded.RedisServer;
 
@@ -13,7 +13,7 @@ public class TestRedisConfiguration {
 
     private RedisServer redisServer;
 
-    public TestRedisConfiguration(RedisProperties redisProperties) {
+    public TestRedisConfiguration(DataRedisProperties redisProperties) {
         this.redisServer = new RedisServer(redisProperties.getPort());
     }
 

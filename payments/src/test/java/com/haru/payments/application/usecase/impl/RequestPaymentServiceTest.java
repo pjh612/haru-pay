@@ -1,7 +1,6 @@
 package com.haru.payments.application.usecase.impl;
 
 import com.fasterxml.uuid.Generators;
-import com.haru.payments.application.cache.PaymentCacheRepository;
 import com.haru.payments.application.client.BankingClient;
 import com.haru.payments.application.client.MemberClient;
 import com.haru.payments.application.client.MoneyClient;
@@ -13,6 +12,7 @@ import com.haru.payments.application.dto.PaymentResponse;
 import com.haru.payments.application.dto.PreparePaymentCommand;
 import com.haru.payments.application.dto.RequestPaymentCommand;
 import com.haru.payments.domain.repository.PaymentRequestRepository;
+import com.haru.payments.support.ContainerizedIntegrationTest;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @SpringBootTest
-class RequestPaymentServiceTest {
+class RequestPaymentServiceTest extends ContainerizedIntegrationTest {
     @Autowired
     private PaymentRequestRepository paymentRequestRepository;
 
@@ -91,10 +91,10 @@ class RequestPaymentServiceTest {
             });
         }
         latch.await();
+        executorService.shutdown();
 
         // Then
         verify(moneyClient, times(1)).loadMoney(any(UUID.class), any(BigDecimal.class));
-
         assertThat(paymentRequestRepository.findById(paymentResponse.requestId())).isPresent();
     }
 }
