@@ -1,7 +1,5 @@
 package com.haru.payments.adapter.out.cache;
 
-import com.haru.payments.application.dto.PaymentResponse;
-import com.haru.payments.application.dto.RequestPaymentResponse;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +10,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Duration;
@@ -23,10 +22,17 @@ public class CacheConfig {
 
     @Bean
     RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory, JsonMapper jsonMapper) {
-        JsonMapper redisMapper = jsonMapper.rebuild().build();
-        
-        GenericJacksonJsonRedisSerializer jsonSerializer = new GenericJacksonJsonRedisSerializer(redisMapper);
-        
+        BasicPolymorphicTypeValidator typeValidator = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType("com.haru.payments")
+                .allowIfSubType("java.util")
+                .allowIfSubType("java.math")
+                .allowIfSubType("java.time")
+                .build();
+
+        GenericJacksonJsonRedisSerializer jsonSerializer = GenericJacksonJsonRedisSerializer.create(builder ->
+                builder.enableDefaultTyping(typeValidator)
+        );
+
         RedisCacheConfiguration predefined = RedisCacheConfiguration.defaultCacheConfig()
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(jsonSerializer))

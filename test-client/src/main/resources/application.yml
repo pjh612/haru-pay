@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: test-client
+server:
+  port: 8080
+
+payments:
+  base-url: http://localhost:8071
+  connect-timeout: 3s
+  read-timeout: 10s
+  sse:
+    reconnect-delay: 2s
+
+logging:
+  config: classpath:log4j2-spring.xml
+
+management:
+  zipkin:
+    tracing:
+      export:
+        enabled: false
+  tracing:
+    sampling:
+      probability: 1

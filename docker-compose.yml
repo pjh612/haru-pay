@@ -431,5 +431,6 @@ services:
 networks:
   haru_network:
     driver: bridge
+
 volumes:
   elasticsearch:

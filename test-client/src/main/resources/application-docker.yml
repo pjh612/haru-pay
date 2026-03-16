@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: test-client
+
+server:
+  port: 8080
+
+payments:
+  base-url: http://payments:8071
