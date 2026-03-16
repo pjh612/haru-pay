@@ -37,3 +37,47 @@ out/
 .vscode/
 
 generated/
+
+### macOS ###
+.DS_Store
+**/.DS_Store
+
+### AI Generated Documentation ###
+AGENTS.md
+**/AGENTS.md
+
+### Service Logs ###
+logs/
+**/logs/
+
+### Binary Tools ###
+/kompose
+
+### Infrastructure Runtime Data ###
+# All runtime volumes data (MySQL, Kafka, Redis, logs)
+/infrastructure/volumes/**
+
+# Elasticsearch runtime data
+/infrastructure/elasticsearch/_state/
+/infrastructure/elasticsearch/indices/
+/infrastructure/elasticsearch/node.lock
+/infrastructure/elasticsearch/snapshot_cache/
+
+# RabbitMQ runtime data
+/infrastructure/rabbitmq/data/
+/infrastructure/rabbitmq/logs/
+
+
+# Keep infrastructure config directories
+!/infrastructure/*/
+!/infrastructure/*/config/
+!/infrastructure/*/etc/
+!/infrastructure/*/pipeline/
+!/infrastructure/*/*.sh
+!/infrastructure/*/*.sql
+!/infrastructure/volumes/.gitkeep
+
+### Local Gradle ###
+# Module-level gradle directories (root level gradle/ is tracked)
+/*/gradle/
+**/.gradle/
