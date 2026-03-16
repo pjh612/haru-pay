@@ -285,6 +285,151 @@ services:
     depends_on:
       - elasticsearch
     restart: unless-stopped
+
+  redis-node-0:
+    networks:
+      - haru_network
+    image: docker.io/bitnami/redis-cluster:7.2
+    ports:
+      - 6479:6479
+      - 16479:16479
+    volumes:
+      - ./infrastructure/volumes/redis/redis-cluster_data-0:/bitnami/redis/data
+    environment:
+      - 'REDIS_PORT_NUMBER=6479'
+      - 'REDIS_PASSWORD=bitnami'
+      - 'REDIS_CLUSTER_DYNAMIC_IPS=no'
+      - 'REDIS_CLUSTER_ANNOUNCE_IP=192.168.45.76'
+      - 'REDIS_CLUSTER_ANNOUNCE_PORT=6479'
+      - 'REDIS_CLUSTER_ANNOUNCE_BUS_PORT=16479'
+      - 'REDIS_NODES=redis-node-0:6479 redis-node-1:6480 redis-node-2:6481 redis-node-3:6482 redis-node-4:6483 redis-node-5:6484'
+
+  redis-node-1:
+    networks:
+      - haru_network
+    image: docker.io/bitnami/redis-cluster:7.2
+    ports:
+      - 6480:6480
+      - 16480:16480
+    volumes:
+      - ./infrastructure/volumes/redis/redis-cluster_data-1:/bitnami/redis/data
+    environment:
+      - 'REDIS_PORT_NUMBER=6480'
+      - 'REDIS_CLUSTER_DYNAMIC_IPS=no'
+      - 'REDIS_CLUSTER_ANNOUNCE_IP=192.168.45.76'
+      - 'REDIS_CLUSTER_ANNOUNCE_PORT=6480'
+      - 'REDIS_CLUSTER_ANNOUNCE_BUS_PORT=16480'
+      - 'REDIS_PASSWORD=bitnami'
+      - 'REDIS_NODES=redis-node-0:6479 redis-node-1:6480 redis-node-2:6481 redis-node-3:6482 redis-node-4:6483 redis-node-5:6484'
+  redis-node-2:
+    networks:
+      - haru_network
+    image: docker.io/bitnami/redis-cluster:7.2
+    ports:
+      - 6481:6481
+      - 16481:16481
+    volumes:
+      - ./infrastructure/volumes/redis/redis-cluster_data-2:/bitnami/redis/data
+    environment:
+      - 'REDIS_PORT_NUMBER=6481'
+      - 'REDIS_CLUSTER_DYNAMIC_IPS=no'
+      - 'REDIS_CLUSTER_ANNOUNCE_IP=192.168.45.76'
+      - 'REDIS_CLUSTER_ANNOUNCE_PORT=6481'
+      - 'REDIS_CLUSTER_ANNOUNCE_BUS_PORT=16481'
+      - 'REDIS_PASSWORD=bitnami'
+      - 'REDIS_NODES=redis-node-0:6479 redis-node-1:6480 redis-node-2:6481 redis-node-3:6482 redis-node-4:6483 redis-node-5:6484'
+
+  redis-node-3:
+    networks:
+      - haru_network
+    image: docker.io/bitnami/redis-cluster:7.2
+    ports:
+      - 6482:6482
+      - 16482:16482
+    volumes:
+      - ./infrastructure/volumes/redis/redis-cluster_data-3:/bitnami/redis/data
+    environment:
+      - 'REDIS_PORT_NUMBER=6482'
+      - 'REDIS_CLUSTER_DYNAMIC_IPS=no'
+      - 'REDIS_CLUSTER_ANNOUNCE_IP=192.168.45.76'
+      - 'REDIS_CLUSTER_ANNOUNCE_PORT=6482'
+      - 'REDIS_CLUSTER_ANNOUNCE_BUS_PORT=16482'
+      - 'REDIS_PASSWORD=bitnami'
+      - 'REDIS_NODES=redis-node-0:6479 redis-node-1:6480 redis-node-2:6481 redis-node-3:6482 redis-node-4:6483 redis-node-5:6484'
+
+  redis-node-4:
+    networks:
+      - haru_network
+    image: docker.io/bitnami/redis-cluster:7.2
+    ports:
+      - 6483:6483
+      - 16483:16483
+    volumes:
+      - ./infrastructure/volumes/redis/redis-cluster_data-4:/bitnami/redis/data
+    environment:
+      - 'REDIS_PORT_NUMBER=6483'
+      - 'REDIS_CLUSTER_DYNAMIC_IPS=no'
+      - 'REDIS_CLUSTER_ANNOUNCE_IP=192.168.45.76'
+      - 'REDIS_CLUSTER_ANNOUNCE_PORT=6483'
+      - 'REDIS_CLUSTER_ANNOUNCE_BUS_PORT=16483'
+      - 'REDIS_PASSWORD=bitnami'
+      - 'REDIS_NODES=redis-node-0:6479 redis-node-1:6480 redis-node-2:6481 redis-node-3:6482 redis-node-4:6483 redis-node-5:6484'
+
+  redis-node-5:
+    networks:
+      - haru_network
+    image: docker.io/bitnami/redis-cluster:7.2
+    ports:
+      - 6484:6484
+      - 16484:16484
+    volumes:
+      - ./infrastructure/volumes/redis/redis-cluster_data-5:/bitnami/redis/data
+    depends_on:
+      - redis-node-0
+      - redis-node-1
+      - redis-node-2
+      - redis-node-3
+      - redis-node-4
+    environment:
+      - 'REDIS_PORT_NUMBER=6484'
+      - 'REDIS_CLUSTER_DYNAMIC_IPS=no'
+      - 'REDIS_CLUSTER_ANNOUNCE_IP=192.168.45.76'
+      - 'REDIS_CLUSTER_ANNOUNCE_PORT=6484'
+      - 'REDIS_CLUSTER_ANNOUNCE_BUS_PORT=16484'
+      - 'REDIS_PASSWORD=bitnami'
+      - 'REDISCLI_AUTH=bitnami'
+      - 'REDIS_CLUSTER_REPLICAS=1'
+      - 'REDIS_NODES=redis-node-0:6479 redis-node-1:6480 redis-node-2:6481 redis-node-3:6482 redis-node-4:6483 redis-node-5:6484'
+      - 'REDIS_CLUSTER_CREATOR=yes'
+  redis-cluster-creator:
+    image: redis:latest
+    ports:
+      - 6999:6999
+    networks:
+      - haru_network
+    command: redis-cli -p 6379 -a bitnami --cluster create redis-node-0:6479 redis-node-1:6480 redis-node-2:26481 redis-node-3:6482 redis-node-4:6483 redis-node-5:6484 --cluster-replicas 1 --cluster-yes
+    depends_on:
+      - redis-node-0
+      - redis-node-1
+      - redis-node-2
+      - redis-node-3
+      - redis-node-4
+      - redis-node-5
+
+  # Test Client
+  test-client:
+    image: haru-test-client:0.0.1-SNAPSHOT
+    networks:
+      - haru_network
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8080
+      - PAYMENTS_BASE_URL=http://payments:8071
+    depends_on:
+      - payments
+
 networks:
   haru_network:
     driver: bridge

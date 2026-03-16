@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.4.3'
+    id 'org.springframework.boot' version '4.0.3'
     id 'io.spring.dependency-management' version '1.1.7'
     id("com.google.cloud.tools.jib") version "3.4.4"
 }
@@ -10,7 +10,7 @@ version = '0.0.1-SNAPSHOT'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -29,7 +29,8 @@ repositories {
 }
 
 ext{
-    queryDslVersion = "6.6"
+    queryDslVersion = "7.1"
+    testcontainersVersion = "1.20.0"
 }
 
 dependencies {
@@ -38,8 +39,9 @@ dependencies {
     implementation("io.github.openfeign.querydsl:querydsl-core:$queryDslVersion")
     implementation("io.github.openfeign.querydsl:querydsl-jpa:$queryDslVersion")
     annotationProcessor("io.github.openfeign.querydsl:querydsl-apt:$queryDslVersion:jpa")
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+    implementation 'org.springframework.boot:spring-boot-starter-restclient'
+    implementation 'org.springframework.boot:spring-boot-starter-kafka'
     runtimeOnly 'com.mysql:mysql-connector-j'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -49,8 +51,13 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'io.micrometer:micrometer-tracing-bridge-otel'
     implementation 'io.opentelemetry:opentelemetry-exporter-zipkin'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-kafka-test'
+    testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+    testImplementation "org.testcontainers:junit-jupiter:$testcontainersVersion"
+    testImplementation "org.testcontainers:mysql:$testcontainersVersion"
+    testImplementation "org.testcontainers:kafka:$testcontainersVersion"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
@@ -71,7 +78,7 @@ tasks.register("prepareKotlinBuildScriptModel"){}
 
 jib {
   from {
-        image = 'bellsoft/liberica-openjre-alpine:17'
+        image = 'bellsoft/liberica-openjre-alpine:21'
         platforms {
             platform {
                 architecture = "arm64"
