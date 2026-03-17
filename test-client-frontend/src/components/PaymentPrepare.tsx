@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { preparePayment } from '../api/client'
 
 interface Props {
-  onPrepared: () => void
+  onPrepared: (paymentId: string) => void
 }
 
 export default function PaymentPrepare({ onPrepared }: Props) {
@@ -18,10 +18,10 @@ export default function PaymentPrepare({ onPrepared }: Props) {
     }
     setLoading(true)
     try {
-      await preparePayment(orderId, productName, requestPrice)
+      const payment = await preparePayment(orderId, productName, requestPrice)
       setOrderId('')
       setProductName('')
-      onPrepared()
+      onPrepared(payment.paymentId)
     } catch (e) {
       alert('준비 실패: ' + (e instanceof Error ? e.message : e))
     } finally {
@@ -31,7 +31,7 @@ export default function PaymentPrepare({ onPrepared }: Props) {
 
   return (
     <div className="section">
-      <h2>2. 결제 준비</h2>
+      <h2>2. 결제 주문 생성</h2>
       <div className="form-group">
         <label>주문 ID:</label>
         <input type="text" value={orderId} onChange={e => setOrderId(e.target.value)} placeholder="ORDER-001" />
@@ -45,7 +45,7 @@ export default function PaymentPrepare({ onPrepared }: Props) {
         <input type="number" value={requestPrice} onChange={e => setRequestPrice(Number(e.target.value))} />
       </div>
       <button onClick={handleSubmit} disabled={loading}>
-        {loading ? '준비 중...' : '결제 준비'}
+        {loading ? '생성 중...' : '주문 생성'}
       </button>
     </div>
   )

@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import type { StreamEvent } from '../types'
+import type { PaymentStatus, StreamEvent } from '../types'
 
-export function useEventSource(paymentId: string | null) {
+export function useEventSource(
+  paymentId: string | null,
+  onStatusChange?: (paymentId: string, status: PaymentStatus) => void,
+) {
   const [events, setEvents] = useState<StreamEvent[]>([])
   const [connected, setConnected] = useState(false)
   const esRef = useRef<EventSource | null>(null)
@@ -15,13 +18,16 @@ export function useEventSource(paymentId: string | null) {
     setConnected(true)
 
     es.onmessage = (event) => {
-      let status: string | undefined
+      let status: PaymentStatus | undefined
       try {
         const data = JSON.parse(event.data)
         if (data.paymentStatus !== undefined) {
-          status = data.paymentStatus === 2 ? 'SUCCEEDED'
-            : data.paymentStatus === 3 ? 'FAILED'
+          status = data.paymentStatus === 1 ? 'SUCCEEDED'
+            : data.paymentStatus === -1 ? 'FAILED'
             : 'CONFIRMING'
+          if (status && onStatusChange) {
+            onStatusChange(paymentId, status)
+          }
         }
       } catch { /* raw text event */ }
 
@@ -45,7 +51,7 @@ export function useEventSource(paymentId: string | null) {
       esRef.current = null
       setConnected(false)
     }
-  }, [paymentId])
+  }, [paymentId, onStatusChange])
 
   return { events, connected }
 }

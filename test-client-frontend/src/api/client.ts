@@ -1,9 +1,13 @@
-import type { MerchantSession, PreparedPayment } from '../types'
+import type { AppConfig, MerchantSession, PreparedPayment } from '../types'
 
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, { credentials: 'same-origin', ...options })
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
   return res.json()
+}
+
+export function getConfig(): Promise<AppConfig> {
+  return request('/demo/api/config')
 }
 
 export function getMerchant(): Promise<MerchantSession | null> {
