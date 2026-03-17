@@ -14,7 +14,7 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
   kafka:
     client-id: payments
     consumer:
@@ -49,20 +49,17 @@ spring:
             redirect-uri: "http://payments:8071/login/oauth2/code/{registrationId}"
             scope: openid
             client-name: payments-oidc
-          payments-authorization-code:
-            provider: spring
-            client-id: payments
-            client-secret: secret
-            authorization-grant-type: authorization_code
-            redirect-uri: "http://payments:8071/authorized"
-            scope: members.read
-            client-name: payments-authorization-code
         provider:
           spring:
             authorization-uri: http://auth:8072/oauth2/authorize
             token-uri: http://auth:8072/oauth2/token
             jwk-set-uri: http://auth:8072/oauth2/jwks
-server.port: 8071
+server:
+  port: 8071
+  servlet:
+    session:
+      cookie:
+        name: PAYMENTS_SESSION
 
 client:
   banking:

@@ -36,7 +36,7 @@ public class MerchantPaymentService {
         );
         
         PreparedPayment payment = new PreparedPayment(
-                response.requestId(),
+                response.paymentId(),
                 orderId,
                 productName,
                 requestPrice,

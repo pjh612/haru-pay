@@ -21,7 +21,7 @@ public class PaymentsSseClient {
                         .path("/api/payment-result/subscribe")
                         .queryParam("paymentId", paymentId.toString())
                         .build())
-                .header("Authorization", "apiKey " + apiKey)
+                .header("Authorization", apiKey)
                 .header("X-PAY-CLIENT-ID", clientId)
                 .retrieve()
                 .bodyToFlux(String.class);

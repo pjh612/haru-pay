@@ -18,7 +18,7 @@ public class PaymentsCommandClient {
     public PreparePaymentResponse preparePayment(String clientId, String apiKey, PreparePaymentRequest request) {
         return restClient.post()
                 .uri("/api/payment/prepare")
-                .header("Authorization", "apiKey " + apiKey)
+                .header("Authorization", apiKey)
                 .header("X-PAY-CLIENT-ID", clientId)
                 .body(request)
                 .retrieve()
@@ -28,7 +28,7 @@ public class PaymentsCommandClient {
     public void confirmPayment(String clientId, String apiKey, ConfirmPaymentRequest request) {
         restClient.post()
                 .uri("/api/payment/confirm")
-                .header("Authorization", "apiKey " + apiKey)
+                .header("Authorization", apiKey)
                 .header("X-PAY-CLIENT-ID", clientId)
                 .body(request)
                 .retrieve()

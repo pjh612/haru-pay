@@ -36,7 +36,6 @@ public class PaymentResultRelayService {
                         event -> {
                             try {
                                 emitter.send(SseEmitter.event()
-                                        .name("payment-result")
                                         .data(event));
                             } catch (IOException e) {
                                 emitter.completeWithError(e);

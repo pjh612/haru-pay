@@ -6,6 +6,7 @@ server:
 
 payments:
   base-url: http://localhost:8071
+  checkout-url: http://localhost:8071
   connect-timeout: 3s
   read-timeout: 10s
   sse:

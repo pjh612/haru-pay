@@ -5,11 +5,13 @@ import com.haru.testclient.application.service.MerchantRegistrationService;
 import com.haru.testclient.domain.model.MerchantSession;
 import com.haru.testclient.domain.model.PreparedPayment;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -18,11 +20,19 @@ public class MerchantApiController {
 
     private final MerchantRegistrationService registrationService;
     private final MerchantPaymentService paymentService;
+    private final String paymentsCheckoutUrl;
 
     public MerchantApiController(MerchantRegistrationService registrationService,
-                                 MerchantPaymentService paymentService) {
+                                 MerchantPaymentService paymentService,
+                                 @Value("${payments.checkout-url}") String paymentsCheckoutUrl) {
         this.registrationService = registrationService;
         this.paymentService = paymentService;
+        this.paymentsCheckoutUrl = paymentsCheckoutUrl;
+    }
+
+    @GetMapping("/config")
+    public Map<String, String> getConfig() {
+        return Map.of("paymentsCheckoutUrl", paymentsCheckoutUrl);
     }
 
     @GetMapping("/merchant")

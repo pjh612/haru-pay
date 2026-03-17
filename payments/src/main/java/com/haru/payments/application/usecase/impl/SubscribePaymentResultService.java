@@ -16,6 +16,6 @@ public class SubscribePaymentResultService implements SubscribePaymentResultUseC
 
     @Override
     public SseEmitter subscribe(String paymentId, String lastEventId) {
-        return alarmManager.subscribe(CommonAlertChannel.PAYMENT_RESULT, paymentId, null, lastEventId, Duration.ofSeconds(10).toMillis());
+        return alarmManager.subscribe(CommonAlertChannel.PAYMENT_RESULT, paymentId, null, lastEventId, Duration.ofMinutes(10).toMillis());
     }
 }

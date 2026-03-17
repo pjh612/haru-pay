@@ -7,8 +7,6 @@ spring:
         registration:
           payments-oidc:
             redirect-uri: http://localhost:8071/login/oauth2/code/{registrationId}
-          payments-authorization-code:
-            redirect-uri: http://localhost:8071/authorized
         provider:
           spring:
             authorization-uri: http://localhost:8072/oauth2/authorize

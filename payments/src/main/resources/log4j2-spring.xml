@@ -46,6 +46,10 @@
             <AppenderRef ref="kafka"/>
         </Root>
 
+        <Logger name="org.springframework.security" level="TRACE" additivity="false">
+            <AppenderRef ref="ConsoleAppender"/>
+        </Logger>
+
         <Logger name="org.apache.kafka" level="INFO" additivity="false">
             <AppenderRef ref="ConsoleAppender"/>
             <AppenderRef ref="RollingFileAppender"/>
