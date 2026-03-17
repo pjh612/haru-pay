@@ -34,7 +34,6 @@ dependencies {
     implementation("io.github.openfeign.querydsl:querydsl-core:$queryDslVersion")
     implementation("io.github.openfeign.querydsl:querydsl-jpa:$queryDslVersion")
     annotationProcessor("io.github.openfeign.querydsl:querydsl-apt:$queryDslVersion:jpa")
-    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-webmvc'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'com.fasterxml.uuid:java-uuid-generator:5.1.0'

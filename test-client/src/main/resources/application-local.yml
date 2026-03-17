@@ -1,0 +1,5 @@
+payments:
+  base-url: http://localhost:8071
+
+logging:
+  config: classpath:log4j2-spring.xml

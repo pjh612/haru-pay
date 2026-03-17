@@ -1,0 +1,27 @@
+spring:
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9095,localhost:9096
+  security:
+    oauth2:
+      client:
+        registration:
+          payments-oidc:
+            redirect-uri: http://localhost:8071/login/oauth2/code/{registrationId}
+          payments-authorization-code:
+            redirect-uri: http://localhost:8071/authorized
+        provider:
+          spring:
+            authorization-uri: http://localhost:8072/oauth2/authorize
+            token-uri: http://localhost:8072/oauth2/token
+            jwk-set-uri: http://localhost:8072/oauth2/jwks
+
+client:
+  banking:
+    url: http://localhost:8074
+  member:
+    url: http://localhost:8070
+  money:
+    url: http://localhost:8073
+
+logging:
+  config: classpath:log4j2-spring.xml

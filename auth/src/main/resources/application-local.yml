@@ -1,0 +1,12 @@
+spring:
+  security:
+    oauth2:
+      authorizationserver:
+        issuer: http://localhost:8072
+
+client:
+  user:
+    url: http://localhost:8070
+
+logging:
+  config: classpath:log4j2-spring.xml
