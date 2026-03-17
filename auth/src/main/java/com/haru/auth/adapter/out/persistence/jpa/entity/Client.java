@@ -27,9 +27,9 @@ public class Client {
     private String postLogoutRedirectUris;
     @Column(length = 1000)
     private String scopes;
-    @Column(length = 2000)
+    @Column(columnDefinition = "TEXT")
     private String clientSettings;
-    @Column(length = 2000)
+    @Column(columnDefinition = "TEXT")
     private String tokenSettings;
 
     public String getId() {

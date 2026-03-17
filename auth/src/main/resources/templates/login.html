@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Please Log In</title>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-gray-200 font-sans flex items-center justify-center h-screen">
-<!-- Header -->
 <div class="w-full max-w-md">
     <header class="text-center mb-8">
         <div class="mb-4">
@@ -18,35 +19,90 @@
         </div>
     </header>
 
-    <!-- Form Container -->
     <div class="bg-gray-800 shadow-lg rounded-2xl p-6">
         <h1 class="text-2xl font-bold text-center mb-4">Log In</h1>
 
-        <!-- Error and Logout Messages -->
-        <div th:if="${param.error}" class="bg-pink-600 text-pink-100 text-sm p-3 rounded-lg mb-4">
-            Invalid username and password.
+        <div id="error-credentials" class="bg-pink-600 text-pink-100 text-sm p-3 rounded-lg mb-4 hidden">
+            아이디 또는 비밀번호를 확인하세요.
         </div>
-        <div th:if="${param.logout}" class="bg-blue-600 text-blue-100 text-sm p-3 rounded-lg mb-4">
-            You have been logged out.
+        <div id="error-service" class="bg-yellow-600 text-yellow-100 text-sm p-3 rounded-lg mb-4 hidden">
+            인증 서비스에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.
         </div>
 
-        <!-- Login Form -->
-        <form th:action="${loginProcessingUrl}" method="post" class="space-y-4">
+        <form id="loginForm" class="space-y-4">
             <div>
-                <input type="text" name="username" placeholder="Username"
+                <input id="username" type="text" name="username" placeholder="Username" autofocus
                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
             <div>
-                <input type="password" name="password" placeholder="Password"
+                <input id="password" type="password" name="password" placeholder="Password"
                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none">
             </div>
-            <input type="hidden" name="redirect_uri" th:value="${redirectUri}">
             <div>
-                <input type="submit" value="Log in"
-                       class="w-full bg-blue-600 text-gray-100 py-3 rounded-lg font-semibold hover:bg-blue-500 transition duration-200">
+                <button type="submit" id="submitBtn"
+                        class="w-full bg-blue-600 text-gray-100 py-3 rounded-lg font-semibold hover:bg-blue-500 transition duration-200">
+                    Log in
+                </button>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+    const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+    function hideErrors() {
+        document.getElementById('error-credentials').classList.add('hidden');
+        document.getElementById('error-service').classList.add('hidden');
+    }
+
+    function showError(type) {
+        hideErrors();
+        if (type === 'service') {
+            document.getElementById('error-service').classList.remove('hidden');
+        } else {
+            document.getElementById('error-credentials').classList.remove('hidden');
+        }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        hideErrors();
+
+        var submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '로그인 중...';
+
+        var body = new URLSearchParams({
+            username: document.getElementById('username').value,
+            password: document.getElementById('password').value
+        });
+
+        fetch('/member/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest',
+                [csrfHeader]: csrfToken
+            },
+            body: body,
+            credentials: 'same-origin'
+        }).then(function (res) {
+            return res.json();
+        }).then(function (data) {
+            if (data.error) {
+                showError(data.error);
+            } else if (data.redirectUrl) {
+                window.location.href = data.redirectUrl;
+            }
+        }).catch(function () {
+            showError('service');
+        }).finally(function () {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Log in';
+        });
+    });
+</script>
 </body>
 </html>

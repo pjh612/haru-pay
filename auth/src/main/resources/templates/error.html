@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans flex items-center justify-center h-screen">
+<div class="w-full max-w-md">
+    <header class="text-center mb-8">
+        <div class="mb-4">
+            <img src="/images/logo.png" alt="Logo" class="mx-auto w-20 h-20">
+        </div>
+        <div>
+            <h1 class="text-3xl font-bold text-blue-400">Haru</h1>
+        </div>
+    </header>
+
+    <div class="bg-gray-800 shadow-lg rounded-2xl p-6 text-center">
+        <div class="text-red-400 text-5xl mb-4">
+            <span th:text="${status ?: '400'}">400</span>
+        </div>
+        <th:block th:if="${param.message != null && param.message[0] == 'invalid_client'}">
+            <h2 class="text-xl font-bold mb-2">잘못된 요청</h2>
+            <p class="text-gray-400 mb-6">등록되지 않은 클라이언트입니다.</p>
+        </th:block>
+        <th:block th:if="${param.message == null || param.message[0] != 'invalid_client'}">
+            <h2 class="text-xl font-bold mb-2" th:text="${error ?: 'Error'}">Error</h2>
+            <p class="text-gray-400 mb-6" th:text="${message ?: '알 수 없는 오류가 발생했습니다.'}">An unexpected error occurred.</p>
+        </th:block>
+        <a href="/" class="inline-block bg-blue-600 text-gray-100 px-6 py-2 rounded-lg font-semibold hover:bg-blue-500 transition duration-200">
+            홈으로 돌아가기
+        </a>
+    </div>
+</div>
+</body>
+</html>

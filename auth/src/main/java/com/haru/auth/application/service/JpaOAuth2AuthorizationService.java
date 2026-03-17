@@ -7,7 +7,12 @@ import com.haru.auth.adapter.out.persistence.jpa.AuthorizationRepository;
 import com.haru.auth.adapter.out.persistence.jpa.entity.Authorization;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.jackson.SecurityJacksonModules;
-import org.springframework.security.oauth2.core.*;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2DeviceCode;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
+import org.springframework.security.oauth2.core.OAuth2Token;
+import org.springframework.security.oauth2.core.OAuth2UserCode;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
@@ -17,16 +22,14 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.jackson.OAuth2AuthorizationServerJacksonModule;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import tools.jackson.core.type.TypeReference;
-import tools.jackson.databind.JacksonModule;
 import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,14 +44,18 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
     public JpaOAuth2AuthorizationService(AuthorizationRepository authorizationRepository, RegisteredClientRepository registeredClientRepository) {
         Assert.notNull(authorizationRepository, "authorizationRepository cannot be null");
         Assert.notNull(registeredClientRepository, "registeredClientRepository cannot be null");
+
         this.authorizationRepository = authorizationRepository;
         this.registeredClientRepository = registeredClientRepository;
 
         ClassLoader classLoader = JpaOAuth2AuthorizationService.class.getClassLoader();
-        List<JacksonModule> securityModules = SecurityJacksonModules.getModules(classLoader);
+
+        BasicPolymorphicTypeValidator.Builder ptvBuilder =
+                BasicPolymorphicTypeValidator.builder()
+                        .allowIfSubType(MemberPrincipal.class);
+
         this.jsonMapper = JsonMapper.builder()
-                .addModules(securityModules)
-                .addModule(new OAuth2AuthorizationServerJacksonModule())
+                .addModules(SecurityJacksonModules.getModules(classLoader, ptvBuilder))
                 .addMixIn(MemberPrincipal.class, MemberPrincipalMixin.class)
                 .addMixIn(UUID.class, UuidMixin.class)
                 .build();

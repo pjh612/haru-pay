@@ -14,16 +14,23 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
   security:
     oauth2:
       authorizationserver:
         issuer: http://auth:8072
+jwt:
+  private-key: classpath:keys/rsa-private.pem
+  public-key: classpath:keys/rsa-public.pem
 client:
   user:
     url: http://localhost:8070
 server:
   port: 8072
+  servlet:
+    session:
+      cookie:
+        name: AUTH_SESSION
 logging:
   config: classpath:log4j2-spring.xml
 management:
