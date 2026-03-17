@@ -1,5 +1,6 @@
 package com.haru.orchestrator.adapter.out.persistence.jpa.entity;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 import com.haru.orchestrator.domain.model.SagaStatus;
@@ -7,8 +8,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.Type;
 
 import java.util.UUID;
 
@@ -29,12 +29,14 @@ public class SagaStateJpaEntity {
 
     private String type;
 
-    @JdbcTypeCode(SqlTypes.JSON)
+    @Type(JsonType.class)
+    @Column(columnDefinition = "json")
     private JsonNode payload;
 
     private String currentStep;
 
-    @JdbcTypeCode(SqlTypes.JSON)
+    @Type(JsonType.class)
+    @Column(columnDefinition = "json")
     private ObjectNode stepStatus;
 
     @Enumerated(EnumType.STRING)

@@ -20,8 +20,16 @@ spring:
       ddl-auto: update
   data:
     redis:
-      host: localhost
+      cluster:
+        nodes:
+          - localhost:6479
+          - localhost:6480
+          - localhost:6481
+          - localhost:6482
+          - localhost:6483
+          - localhost:6484
       port: 6379
+      password: bitnami
   kafka:
     client-id: haru-money
     consumer:
