@@ -90,30 +90,6 @@ services:
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_DEFAULT_REPLICATION_FACTOR: 3
       CLUSTER_ID: ${KAFKA_CLUSTER_ID:-MkU3OEVBNTcwNTJENDM2Qk}
-#  kafka:
-#    image: 'docker.io/bitnami/kafka:3.5'
-#    networks:
-#      - haru_network
-#    ports:
-#      - '9092:9092'
-#    environment:
-#      - KAFKA_CFG_NODE_ID=0
-#      - KAFKA_CFG_PROCESS_ROLES=broker,controller
-#
-#      - ALLOW_PLAINTEXT_LISTENER=yes
-#      - KAFKA_CFG_LISTENERS=LC://kafka:29092,LX://kafka:9092
-#      - KAFKA_CFG_ADVERTISED_LISTENERS=LC://kafka:29092,LX://${DOCKER_HOST_IP:-localhost}:9092
-#      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=LC:PLAINTEXT,LX:PLAINTEXT
-#      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=LC
-#    depends_on:
-#      - zookeeper
-  redis:
-    image: redis:latest
-    networks:
-      - haru_network
-    ports:
-      - 6379:6379
-    restart: always
   kafka-ui:
     image: provectuslabs/kafka-ui
     networks:
@@ -150,7 +126,6 @@ services:
       - kafka-2
       - kafka-3
       - auth
-      - redis
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
   money:
@@ -165,7 +140,6 @@ services:
       - kafka-2
       - kafka-3
       - auth
-      - redis
     environment:
       - "SPRING_PROFILES_ACTIVE=docker"
   orchestrator:
@@ -286,7 +260,7 @@ services:
       - elasticsearch
     restart: unless-stopped
 
-  redis-node-0:
+  redis-node-0: &redis-node
     networks:
       - haru_network
     image: docker.io/bitnami/redis-cluster:7.2
@@ -295,126 +269,96 @@ services:
       - 16479:16479
     volumes:
       - ./infrastructure/volumes/redis/redis-cluster_data-0:/bitnami/redis/data
-    environment:
+      - ./infrastructure/redis/overrides.conf:/opt/bitnami/redis/mounted-etc/overrides.conf:ro
+    environment: &redis-env
       - 'REDIS_PORT_NUMBER=6479'
       - 'REDIS_PASSWORD=bitnami'
-      - 'REDIS_CLUSTER_DYNAMIC_IPS=no'
-      - 'REDIS_CLUSTER_ANNOUNCE_IP=192.168.45.76'
-      - 'REDIS_CLUSTER_ANNOUNCE_PORT=6479'
-      - 'REDIS_CLUSTER_ANNOUNCE_BUS_PORT=16479'
       - 'REDIS_NODES=redis-node-0:6479 redis-node-1:6480 redis-node-2:6481 redis-node-3:6482 redis-node-4:6483 redis-node-5:6484'
+    healthcheck: &redis-healthcheck
+      test: ["CMD", "redis-cli", "-p", "6479", "-a", "bitnami", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   redis-node-1:
-    networks:
-      - haru_network
-    image: docker.io/bitnami/redis-cluster:7.2
+    <<: *redis-node
     ports:
       - 6480:6480
       - 16480:16480
     volumes:
       - ./infrastructure/volumes/redis/redis-cluster_data-1:/bitnami/redis/data
+      - ./infrastructure/redis/overrides.conf:/opt/bitnami/redis/mounted-etc/overrides.conf:ro
     environment:
       - 'REDIS_PORT_NUMBER=6480'
-      - 'REDIS_CLUSTER_DYNAMIC_IPS=no'
-      - 'REDIS_CLUSTER_ANNOUNCE_IP=192.168.45.76'
-      - 'REDIS_CLUSTER_ANNOUNCE_PORT=6480'
-      - 'REDIS_CLUSTER_ANNOUNCE_BUS_PORT=16480'
       - 'REDIS_PASSWORD=bitnami'
       - 'REDIS_NODES=redis-node-0:6479 redis-node-1:6480 redis-node-2:6481 redis-node-3:6482 redis-node-4:6483 redis-node-5:6484'
+    healthcheck:
+      <<: *redis-healthcheck
+      test: ["CMD", "redis-cli", "-p", "6480", "-a", "bitnami", "ping"]
+
   redis-node-2:
-    networks:
-      - haru_network
-    image: docker.io/bitnami/redis-cluster:7.2
+    <<: *redis-node
     ports:
       - 6481:6481
       - 16481:16481
     volumes:
       - ./infrastructure/volumes/redis/redis-cluster_data-2:/bitnami/redis/data
+      - ./infrastructure/redis/overrides.conf:/opt/bitnami/redis/mounted-etc/overrides.conf:ro
     environment:
       - 'REDIS_PORT_NUMBER=6481'
-      - 'REDIS_CLUSTER_DYNAMIC_IPS=no'
-      - 'REDIS_CLUSTER_ANNOUNCE_IP=192.168.45.76'
-      - 'REDIS_CLUSTER_ANNOUNCE_PORT=6481'
-      - 'REDIS_CLUSTER_ANNOUNCE_BUS_PORT=16481'
       - 'REDIS_PASSWORD=bitnami'
       - 'REDIS_NODES=redis-node-0:6479 redis-node-1:6480 redis-node-2:6481 redis-node-3:6482 redis-node-4:6483 redis-node-5:6484'
+    healthcheck:
+      <<: *redis-healthcheck
+      test: ["CMD", "redis-cli", "-p", "6481", "-a", "bitnami", "ping"]
 
   redis-node-3:
-    networks:
-      - haru_network
-    image: docker.io/bitnami/redis-cluster:7.2
+    <<: *redis-node
     ports:
       - 6482:6482
       - 16482:16482
     volumes:
       - ./infrastructure/volumes/redis/redis-cluster_data-3:/bitnami/redis/data
+      - ./infrastructure/redis/overrides.conf:/opt/bitnami/redis/mounted-etc/overrides.conf:ro
     environment:
       - 'REDIS_PORT_NUMBER=6482'
-      - 'REDIS_CLUSTER_DYNAMIC_IPS=no'
-      - 'REDIS_CLUSTER_ANNOUNCE_IP=192.168.45.76'
-      - 'REDIS_CLUSTER_ANNOUNCE_PORT=6482'
-      - 'REDIS_CLUSTER_ANNOUNCE_BUS_PORT=16482'
       - 'REDIS_PASSWORD=bitnami'
       - 'REDIS_NODES=redis-node-0:6479 redis-node-1:6480 redis-node-2:6481 redis-node-3:6482 redis-node-4:6483 redis-node-5:6484'
+    healthcheck:
+      <<: *redis-healthcheck
+      test: ["CMD", "redis-cli", "-p", "6482", "-a", "bitnami", "ping"]
 
   redis-node-4:
-    networks:
-      - haru_network
-    image: docker.io/bitnami/redis-cluster:7.2
+    <<: *redis-node
     ports:
       - 6483:6483
       - 16483:16483
     volumes:
       - ./infrastructure/volumes/redis/redis-cluster_data-4:/bitnami/redis/data
+      - ./infrastructure/redis/overrides.conf:/opt/bitnami/redis/mounted-etc/overrides.conf:ro
     environment:
       - 'REDIS_PORT_NUMBER=6483'
-      - 'REDIS_CLUSTER_DYNAMIC_IPS=no'
-      - 'REDIS_CLUSTER_ANNOUNCE_IP=192.168.45.76'
-      - 'REDIS_CLUSTER_ANNOUNCE_PORT=6483'
-      - 'REDIS_CLUSTER_ANNOUNCE_BUS_PORT=16483'
       - 'REDIS_PASSWORD=bitnami'
       - 'REDIS_NODES=redis-node-0:6479 redis-node-1:6480 redis-node-2:6481 redis-node-3:6482 redis-node-4:6483 redis-node-5:6484'
+    healthcheck:
+      <<: *redis-healthcheck
+      test: ["CMD", "redis-cli", "-p", "6483", "-a", "bitnami", "ping"]
 
   redis-node-5:
-    networks:
-      - haru_network
-    image: docker.io/bitnami/redis-cluster:7.2
+    <<: *redis-node
     ports:
       - 6484:6484
       - 16484:16484
     volumes:
       - ./infrastructure/volumes/redis/redis-cluster_data-5:/bitnami/redis/data
-    depends_on:
-      - redis-node-0
-      - redis-node-1
-      - redis-node-2
-      - redis-node-3
-      - redis-node-4
+      - ./infrastructure/redis/overrides.conf:/opt/bitnami/redis/mounted-etc/overrides.conf:ro
     environment:
       - 'REDIS_PORT_NUMBER=6484'
-      - 'REDIS_CLUSTER_DYNAMIC_IPS=no'
-      - 'REDIS_CLUSTER_ANNOUNCE_IP=192.168.45.76'
-      - 'REDIS_CLUSTER_ANNOUNCE_PORT=6484'
-      - 'REDIS_CLUSTER_ANNOUNCE_BUS_PORT=16484'
       - 'REDIS_PASSWORD=bitnami'
-      - 'REDISCLI_AUTH=bitnami'
-      - 'REDIS_CLUSTER_REPLICAS=1'
       - 'REDIS_NODES=redis-node-0:6479 redis-node-1:6480 redis-node-2:6481 redis-node-3:6482 redis-node-4:6483 redis-node-5:6484'
-      - 'REDIS_CLUSTER_CREATOR=yes'
-  redis-cluster-creator:
-    image: redis:latest
-    ports:
-      - 6999:6999
-    networks:
-      - haru_network
-    command: redis-cli -p 6379 -a bitnami --cluster create redis-node-0:6479 redis-node-1:6480 redis-node-2:26481 redis-node-3:6482 redis-node-4:6483 redis-node-5:6484 --cluster-replicas 1 --cluster-yes
-    depends_on:
-      - redis-node-0
-      - redis-node-1
-      - redis-node-2
-      - redis-node-3
-      - redis-node-4
-      - redis-node-5
+    healthcheck:
+      <<: *redis-healthcheck
+      test: ["CMD", "redis-cli", "-p", "6484", "-a", "bitnami", "ping"]
   # Test Client
   test-client:
     image: haru-test-client:0.0.1-SNAPSHOT
