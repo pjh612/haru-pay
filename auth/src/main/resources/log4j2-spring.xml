@@ -33,21 +33,22 @@
         </RollingFile>
         <Kafka name="kafka" topic="logs">
             <JsonTemplateLayout eventTemplateUri="classpath:logJsonLayout.json"/>
-            <Property name="bootstrap.servers">localhost:9092,localhost:9094,localhost:9095</Property>
+            <Property name="bootstrap.servers">localhost:9092,localhost:9095,localhost:9096</Property>
         </Kafka>
     </Appenders>
 
-
     <Loggers>
-        <!-- Root : 일반적인 로그 정책, 반드시 하나 정의해야함 -->
         <Root level="INFO" additivity="false">
             <AppenderRef ref="ConsoleAppender"/>
             <AppenderRef ref="RollingFileAppender"/>
             <AppenderRef ref="kafka"/>
         </Root>
 
-        <Logger name="org.apache.kafka" level="INFO">
-            <AppenderRef ref="kafka"/>
+        <Logger name="org.apache.kafka" level="INFO" additivity="false">
+            <AppenderRef ref="ConsoleAppender"/>
+            <AppenderRef ref="RollingFileAppender"/>
+        </Logger>
+        <Logger name="org.springframework.kafka" level="INFO" additivity="false">
             <AppenderRef ref="ConsoleAppender"/>
             <AppenderRef ref="RollingFileAppender"/>
         </Logger>

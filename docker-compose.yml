@@ -242,6 +242,9 @@ services:
       - haru_network
     depends_on:
       - elasticsearch
+      - kafka-1
+      - kafka-2
+      - kafka-3
     restart: unless-stopped
   kibana:
     build:
