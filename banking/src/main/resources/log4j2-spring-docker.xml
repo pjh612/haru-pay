@@ -45,8 +45,12 @@
             <AppenderRef ref="kafka"/>
         </Root>
 
-        <Logger name="org.apache.kafka" level="INFO">
-            <AppenderRef ref="kafka"/>
+        <Logger name="org.apache.kafka" level="INFO" additivity="false">
+            <AppenderRef ref="ConsoleAppender"/>
+            <AppenderRef ref="RollingFileAppender"/>
+        </Logger>
+
+        <Logger name="org.springframework.kafka" level="INFO" additivity="false">
             <AppenderRef ref="ConsoleAppender"/>
             <AppenderRef ref="RollingFileAppender"/>
         </Logger>
