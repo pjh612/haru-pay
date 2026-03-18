@@ -20,7 +20,7 @@ spring:
     client-id: haru-orchestrator
     consumer:
       auto-offset-reset: earliest
-      enable-auto-commit: true
+      enable-auto-commit: false
       group-id: haru-orchestrator
     listener:
       concurrency: 2
@@ -67,3 +67,13 @@ management:
   tracing:
     sampling:
       probability: 1
+saga:
+  recovery:
+    enabled: true
+    scan-interval: PT1M
+    payment-confirm-request-timeout: PT2M
+    decrease-money-timeout: PT2M
+    confirm-payment-timeout: PT5M
+    load-money-timeout: PT5M
+    aborting-timeout: PT5M
+    max-recovery-attempts: 3
