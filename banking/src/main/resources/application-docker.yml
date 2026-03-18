@@ -20,7 +20,7 @@ spring:
     client-id: haru-banking
     consumer:
       auto-offset-reset: earliest
-      enable-auto-commit: true
+      enable-auto-commit: false
       group-id: haru-banking
 server:
   port: 8074
