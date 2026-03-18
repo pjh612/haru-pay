@@ -1,5 +1,6 @@
 package com.haru.payments.application.usecase.impl;
 
+import com.haru.payments.application.cache.VerificationTokenRepository;
 import com.haru.payments.application.dto.ClientResponse;
 import com.haru.payments.application.dto.CreateClientRequest;
 import com.haru.payments.domain.model.Client;
@@ -9,8 +10,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,31 +30,31 @@ class CreateClientServiceMockTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
+    @Mock
+    private VerificationTokenRepository verificationTokenRepository;
+
     @Test
     void create_ShouldReturnClientResponse_WhenRequestIsValid() {
-        // Arrange
+        String email = "test@test.com";
         String name = "TestClient";
-        CreateClientRequest request = new CreateClientRequest(name);
-        UUID id = UUID.randomUUID();
-        UUID key = UUID.randomUUID();
-        String encodedKey = "encoded-key";
+        String password = "password123";
+        CreateClientRequest request = new CreateClientRequest(email, name, password);
 
-        Client client = Client.create(id, name, encodedKey);
+        when(clientRepository.findByEmail(email)).thenReturn(Optional.empty());
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("encoded");
+        when(clientRepository.save(any(Client.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn(encodedKey);
-        when(clientRepository.save(any(Client.class))).thenReturn(client);
-
-        // Act
         ClientResponse response = createClientService.create(request);
 
-        // Assert
-        assertThat(response.id()).isEqualTo(client.getId());
-        assertThat(response.name()).isEqualTo(client.getName());
-        assertThat(response.isActive()).isEqualTo(client.isActive());
-        assertThat(response.createdAt()).isEqualTo(client.getCreatedAt());
+        assertThat(response.name()).isEqualTo(name);
+        assertThat(response.isActive()).isTrue();
+        assertThat(response.apiKey()).isNotNull();
 
-        verify(passwordEncoder, times(1)).encode(any(CharSequence.class));
+        verify(passwordEncoder, times(2)).encode(any(CharSequence.class));
         verify(clientRepository, times(1)).save(any(Client.class));
+        verify(verificationTokenRepository, times(1)).save(anyString(), any(UUID.class), eq(24L));
     }
-
 }

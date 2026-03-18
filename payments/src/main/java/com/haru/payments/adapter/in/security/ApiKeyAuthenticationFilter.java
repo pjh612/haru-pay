@@ -19,30 +19,26 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
         this.authenticationManager = authenticationManager;
     }
 
-
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String authorization = request.getHeader("Authorization");
-        String clientId = request.getHeader("X-PAY-CLIENT-ID");
-        ApiKeyAuthenticationToken authentication = new ApiKeyAuthenticationToken(authorization, clientId, null, null);
-
-        return this.authenticationManager.authenticate(authentication);
-    }
-
-    protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
-        String authorization = request.getHeader("Authorization");
-        String clientId = request.getHeader("X-PAY-CLIENT-ID");
-        return authorization != null || clientId != null;
-    }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        boolean needsAuthentication = requiresAuthentication(request, response);
-        if (needsAuthentication) {
-            Authentication authentication = attemptAuthentication(request, response);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+        String authorization = request.getHeader("Authorization");
+        String clientId = request.getHeader("X-PAY-CLIENT-ID");
+
+        boolean isApiKeyRequest = authorization != null && clientId != null;
+
+        if (isApiKeyRequest) {
+            try {
+                ApiKeyAuthenticationToken token = new ApiKeyAuthenticationToken(authorization, clientId, null, null);
+                Authentication authentication = authenticationManager.authenticate(token);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (AuthenticationException e) {
+                SecurityContextHolder.clearContext();
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+                return;
+            }
         }
 
-        if(request.getMethod().equalsIgnoreCase("OPTIONS") || needsAuthentication) {
+        if (request.getMethod().equalsIgnoreCase("OPTIONS") || isApiKeyRequest) {
             response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
             response.setHeader("Access-Control-Allow-Credentials", "true");
             response.setHeader("Access-Control-Allow-Headers", "X-PAY-CLIENT-ID, Authorization, Idempotency-Key, content-type");

@@ -26,7 +26,7 @@ public class DeveloperCenterController {
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
-        model.addAttribute("request", new CreateClientRequest(""));
+        model.addAttribute("request", new CreateClientRequest("", "", ""));
         return "developer/register";
     }
 

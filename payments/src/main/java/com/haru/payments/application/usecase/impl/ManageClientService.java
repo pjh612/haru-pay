@@ -11,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -24,21 +23,14 @@ public class ManageClientService implements ManageClientUseCase {
     @Transactional
     public ClientResponse regenerateApiKey(UUID clientId) {
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new EntityNotFoundException("클��이언트를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("클라이언트를 찾을 수 없습니다."));
 
         UUID newKey = Generators.timeBasedEpochGenerator().generate();
         String encodedKey = passwordEncoder.encode(newKey.toString());
-        
-        Client updatedClient = new Client(
-                client.getId(),
-                client.getName(),
-                encodedKey,
-                client.isActive(),
-                client.getCreatedAt()
-        );
-        
+
+        Client updatedClient = client.withApiKey(encodedKey);
         Client savedClient = clientRepository.save(updatedClient);
-        
+
         return new ClientResponse(
                 savedClient.getId(),
                 savedClient.getName(),
@@ -52,42 +44,26 @@ public class ManageClientService implements ManageClientUseCase {
     @Transactional
     public void deactivateClient(UUID clientId) {
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new EntityNotFoundException("클��이언트를 찾을 수 없습니다."));
-        
-        Client deactivatedClient = new Client(
-                client.getId(),
-                client.getName(),
-                client.getApiKey(),
-                false,
-                client.getCreatedAt()
-        );
-        
-        clientRepository.save(deactivatedClient);
+                .orElseThrow(() -> new EntityNotFoundException("클라이언트를 찾을 수 없습니다."));
+
+        clientRepository.save(client.withActive(false));
     }
 
     @Override
     @Transactional
     public void activateClient(UUID clientId) {
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new EntityNotFoundException("클��이언트를 찾을 수 없습니다."));
-        
-        Client activatedClient = new Client(
-                client.getId(),
-                client.getName(),
-                client.getApiKey(),
-                true,
-                client.getCreatedAt()
-        );
-        
-        clientRepository.save(activatedClient);
+                .orElseThrow(() -> new EntityNotFoundException("클라이언트를 찾을 수 없습니다."));
+
+        clientRepository.save(client.withActive(true));
     }
 
     @Override
     @Transactional(readOnly = true)
     public ClientResponse getClient(UUID clientId) {
         Client client = clientRepository.findById(clientId)
-                .orElseThrow(() -> new EntityNotFoundException("클��이언트를 찾을 수 없습니다."));
-        
+                .orElseThrow(() -> new EntityNotFoundException("클라이언트를 찾을 수 없습니다."));
+
         return new ClientResponse(
                 client.getId(),
                 client.getName(),

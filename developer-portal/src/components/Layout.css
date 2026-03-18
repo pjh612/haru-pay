@@ -55,6 +55,11 @@
   background-color: #3db892;
 }
 
+.nav-user {
+  color: #4ecca3;
+  font-weight: 600;
+}
+
 .main {
   flex: 1;
   max-width: 1200px;

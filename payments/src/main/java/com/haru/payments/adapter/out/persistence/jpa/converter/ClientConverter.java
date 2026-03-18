@@ -9,6 +9,7 @@ public class ClientConverter {
                 entity.getId(),
                 entity.getName(),
                 entity.getApiKey(),
+                entity.getPassword(),
                 entity.isActive(),
                 entity.getCreatedAt()
         );
@@ -19,6 +20,7 @@ public class ClientConverter {
                 domain.getId(),
                 domain.getName(),
                 domain.getApiKey(),
+                domain.getPassword(),
                 domain.isActive(),
                 domain.getCreatedAt()
         );

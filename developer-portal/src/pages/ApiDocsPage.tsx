@@ -49,7 +49,7 @@ function ApiDocsPage() {
               </tr>
               <tr>
                 <td><code>X-PAY-CLIENT-ID</code></td>
-                <td>클��이언트 ID</td>
+                <td>클라이언트 ID</td>
               </tr>
             </tbody>
           </table>

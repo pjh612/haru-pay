@@ -1,11 +1,12 @@
 package com.haru.payments.adapter.in.security;
 
-import com.haru.payments.application.dto.ClientResponse;
-import com.haru.payments.application.usecase.QueryClientUseCase;
 import com.haru.payments.domain.model.Client;
+import com.haru.payments.domain.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -18,27 +19,35 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class ApiKeyAuthenticationProvider implements AuthenticationProvider {
-    private final QueryClientUseCase queryClientUseCase;
+    private final ClientRepository clientRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String apiKey = (String) authentication.getCredentials();
         String clientId = authentication.getName();
-        ArrayList<GrantedAuthority> authorities = new ArrayList<>();
 
-        ClientResponse client = queryClientUseCase.queryById(UUID.fromString(clientId));
+        if (apiKey == null) {
+            throw new BadCredentialsException("API Key가 필요합니다.");
+        }
+
+        Client client = clientRepository.findById(UUID.fromString(clientId))
+                .orElseThrow(() -> new BadCredentialsException("클라이언트를 찾을 수 없습니다."));
+
         if (!client.isActive()) {
-            throw new RuntimeException("client is not active");
+            throw new DisabledException("비활성화된 클라이언트입니다.");
         }
 
+        if (!passwordEncoder.matches(apiKey, client.getApiKey())) {
+            throw new BadCredentialsException("API Key가 일치하지 않습니다.");
+        }
+
+        ArrayList<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_PAYMENT_CLIENT"));
-        if (apiKey!= null && passwordEncoder.matches(apiKey, client.apiKey())) {
-            authorities.add(new SimpleGrantedAuthority("PAYMENT_PREPARE"));
-            authorities.add(new SimpleGrantedAuthority("PAYMENT_CONFIRM"));
-        }
+        authorities.add(new SimpleGrantedAuthority("PAYMENT_PREPARE"));
+        authorities.add(new SimpleGrantedAuthority("PAYMENT_CONFIRM"));
 
-        return new ApiKeyAuthenticationToken(apiKey, clientId, new Client(client.id(), client.name(), client.apiKey(), true, client.createdAt()), authorities);
+        return new ApiKeyAuthenticationToken(apiKey, clientId, client, authorities);
     }
 
     @Override
