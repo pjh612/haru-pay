@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -57,6 +58,8 @@ class CreateClientServiceMockTest {
         verify(passwordEncoder, times(2)).encode(any(CharSequence.class));
         verify(clientRepository, times(1)).save(any(Client.class));
         verify(emailVerificationTokenRepository, times(1)).save(any(), any());
-        verify(clientEventPort, times(1)).sendEmailVerificationRequested(any(), any(), any(), any());
+        verify(clientEventPort, times(1)).sendEmailVerificationRequested(
+                any(UUID.class), eq(email), eq(name), anyString()
+        );
     }
 }

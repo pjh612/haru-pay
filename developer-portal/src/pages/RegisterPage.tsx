@@ -1,19 +1,30 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { registerClient } from '../api/client'
 import './RegisterPage.css'
 
 function RegisterPage() {
+  const [email, setEmail] = useState('')
   const [name, setName] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const navigate = useNavigate()
+  const [registered, setRegistered] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
+    if (!email.trim()) {
+      setError('이메일을 입력해주세요.')
+      return
+    }
+
+    if (!email.includes('@')) {
+      setError('유효한 이메일 주소를 입력해주세요.')
+      return
+    }
+
     if (!name.trim()) {
       setError('클��이언트 이름을 입력해주세요.')
       return
@@ -38,13 +49,41 @@ function RegisterPage() {
     setError('')
 
     try {
-      const response = await registerClient(name, password)
-      navigate('/dashboard/' + response.id, { state: { apiKey: response.apiKey } })
-    } catch (err) {
-      setError('클��이언트 등록 중 오류가 발생했습니다.')
+      await registerClient(email, name, password)
+      setRegistered(true)
+    } catch (err: any) {
+      if (err.response?.data?.message) {
+        setError(err.response.data.message)
+      } else {
+        setError('클��이언트 등록 중 오류가 발생했습니다.')
+      }
     } finally {
       setLoading(false)
     }
+  }
+
+  if (registered) {
+    return (
+      <div className="register-page">
+        <div className="register-container">
+          <div className="success-message">
+            <div className="success-icon">✉️</div>
+            <h2>이메일 인증이 필요합니다</h2>
+            <p>
+              {email}로 인증 이메일을 발송했습니다.
+            </p>
+            <p>
+              이메일을 확인하여 인증을 완료한 후 로그인해주세요.
+            </p>
+            <div className="success-actions">
+              <Link to="/login" className="btn-primary">
+                로그인 페이지로 이동
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -52,7 +91,7 @@ function RegisterPage() {
       <div className="register-container">
         <h1>클��이언트 등록</h1>
         <p className="register-description">
-          상점 이름을 입력하고 API 키를 발급받으세요.
+          이메일로 가입하여 API 키를 발급받으세요.
         </p>
 
         {error && (
@@ -60,6 +99,18 @@ function RegisterPage() {
         )}
 
         <form onSubmit={handleSubmit} className="register-form">
+          <div className="form-group">
+            <label htmlFor="email">이메일</label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="example@email.com"
+              disabled={loading}
+            />
+          </div>
+
           <div className="form-group">
             <label htmlFor="name">클��이언트 이름</label>
             <input
@@ -101,17 +152,15 @@ function RegisterPage() {
             className="btn-submit"
             disabled={loading}
           >
-            {loading ? '처리 중...' : 'API 키 발급받기'}
+            {loading ? '처리 중...' : '가입하기'}
           </button>
         </form>
 
-        <div className="register-info">
-          <h3>안내사항</h3>
-          <ul>
-            <li>API 키는 재발급 시에만 확인할 수 있습니다.</li>
-            <li>API 키는 안전하게 보관하세요.</li>
-            <li>하나의 상점은 하나의 클라이언트를 등록할 수 있습니다.</li>
-          </ul>
+        <div className="register-footer">
+          <p>
+            이미 계정이 있으신가요?{' '}
+            <Link to="/login" className="link">로그인하기</Link>
+          </p>
         </div>
       </div>
     </div>

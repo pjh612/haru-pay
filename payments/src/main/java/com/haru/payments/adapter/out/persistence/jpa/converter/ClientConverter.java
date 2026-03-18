@@ -7,9 +7,11 @@ public class ClientConverter {
     public static Client toDomain(ClientJpaEntity entity) {
         return new Client(
                 entity.getId(),
+                entity.getEmail(),
                 entity.getName(),
                 entity.getApiKey(),
                 entity.getPassword(),
+                entity.isEmailVerified(),
                 entity.isActive(),
                 entity.getCreatedAt()
         );
@@ -18,9 +20,11 @@ public class ClientConverter {
     public static ClientJpaEntity toEntity(Client domain) {
         return new ClientJpaEntity(
                 domain.getId(),
+                domain.getEmail(),
                 domain.getName(),
                 domain.getApiKey(),
                 domain.getPassword(),
+                domain.isEmailVerified(),
                 domain.isActive(),
                 domain.getCreatedAt()
         );

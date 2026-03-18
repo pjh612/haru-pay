@@ -3,6 +3,7 @@ package com.haru.payments.adapter.in.web;
 import com.haru.payments.adapter.in.security.ClientEmailPasswordAuthenticationToken;
 import com.haru.payments.application.dto.*;
 import com.haru.payments.application.usecase.CreateClientUseCase;
+import com.haru.payments.application.usecase.VerifyEmailUseCase;
 import com.haru.payments.domain.model.Client;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import java.util.Map;
 @RequestMapping("/api/clients")
 public class ClientController {
     private final CreateClientUseCase createClientUseCase;
+    private final VerifyEmailUseCase verifyEmailUseCase;
     private final AuthenticationManager authenticationManager;
 
     @PostMapping
@@ -66,5 +68,15 @@ public class ClientController {
             session.invalidate();
         }
         return ResponseEntity.ok(Map.of("message", "로그아웃 되었습니다."));
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<Void> verifyEmail(@RequestBody VerifyEmailRequest request) {
+        try {
+            verifyEmailUseCase.verify(request);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
     }
 }

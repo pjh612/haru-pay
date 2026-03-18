@@ -69,13 +69,17 @@ create table if not exists auth.client
 
 create table if not exists haru.client
 (
-    active     bit          not null,
-    created_at datetime(6)  null,
-    id         binary(16)   not null
+    active                   bit          not null,
+    created_at               datetime(6)  null,
+    id                       binary(16)   not null
         primary key,
-    api_key    varchar(255) null,
-    name       varchar(255) null,
-    password   varchar(255) null
+    api_key                  varchar(255) null,
+    email                    varchar(255) null,
+    email_verified           bit          not null default false,
+    email_verification_token varchar(255) null,
+    name                     varchar(255) null,
+    password                 varchar(255) null,
+    constraint uk_client_email unique (email)
 );
 
 create table if not exists haru.firm_banking_request

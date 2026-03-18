@@ -21,9 +21,11 @@ public class ClientJpaEntity {
     @Id
     @UuidV7Generator
     private UUID id;
+    private String email;
     private String name;
     private String apiKey;
     private String password;
+    private boolean emailVerified;
     private boolean active;
     private Instant createdAt;
 }

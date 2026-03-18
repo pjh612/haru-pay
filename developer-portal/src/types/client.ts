@@ -7,6 +7,7 @@ export interface Client {
 }
 
 export interface CreateClientRequest {
+  email: string
   name: string
   password: string
 }

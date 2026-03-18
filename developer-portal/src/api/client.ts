@@ -6,12 +6,17 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 })
 
-export async function registerClient(name: string, password: string): Promise<Client> {
-  const request: CreateClientRequest = { name, password }
+export async function registerClient(email: string, name: string, password: string): Promise<Client> {
+  const request: CreateClientRequest = { email, name, password }
   const response = await api.post('/clients', request)
   return response.data
+}
+
+export async function verifyEmail(token: string): Promise<void> {
+  await api.post('/clients/verify-email', { token })
 }
 
 export async function getClient(clientId: string): Promise<Client> {

@@ -27,4 +27,11 @@ public class ClientRepositoryAdapter implements ClientRepository {
         return repository.findById(id)
                 .map(ClientConverter::toDomain);
     }
+
+    @Override
+    public Optional<Client> findByEmail(String email) {
+        return repository.findByEmail(email)
+                .map(ClientConverter::toDomain);
+    }
+
 }
