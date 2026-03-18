@@ -26,7 +26,7 @@ function RegisterPage() {
     }
 
     if (!name.trim()) {
-      setError('클��이언트 이름을 입력해주세요.')
+      setError('클라이언트 이름을 입력해주세요.')
       return
     }
 
@@ -55,7 +55,7 @@ function RegisterPage() {
       if (err.response?.data?.message) {
         setError(err.response.data.message)
       } else {
-        setError('클��이언트 등록 중 오류가 발생했습니다.')
+        setError('클라이언트 등록 중 오류가 발생했습니다.')
       }
     } finally {
       setLoading(false)
@@ -89,7 +89,7 @@ function RegisterPage() {
   return (
     <div className="register-page">
       <div className="register-container">
-        <h1>클��이언트 등록</h1>
+        <h1>클라이언트 등록</h1>
         <p className="register-description">
           이메일로 가입하여 API 키를 발급받으세요.
         </p>
@@ -112,7 +112,7 @@ function RegisterPage() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="name">클��이언트 이름</label>
+            <label htmlFor="name">클라이언트 이름</label>
             <input
               type="text"
               id="name"

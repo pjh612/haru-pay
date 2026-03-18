@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import './LandingPage.css'
 
 function LandingPage() {
+  const { isAuthenticated } = useAuth()
+
   return (
     <div className="landing">
       <section className="hero">
@@ -10,9 +13,11 @@ function LandingPage() {
           간편하고 안전한 결제 통합을 시작하세요
         </p>
         <div className="hero-cta">
-          <Link to="/register" className="btn btn-primary">
-            클라이언트 등록하기
-          </Link>
+          {!isAuthenticated && (
+            <Link to="/register" className="btn btn-primary">
+              클라이언트 등록하기
+            </Link>
+          )}
           <Link to="/docs" className="btn btn-secondary">
             API 문서 보기
           </Link>
@@ -53,7 +58,7 @@ function LandingPage() {
         <div className="steps">
           <div className="step">
             <div className="step-number">1</div>
-            <h3>클��이언트 등록</h3>
+            <h3>클라이언트 등록</h3>
             <p>상점 정보를 입력하고 API 키를 발급받으세요.</p>
           </div>
           

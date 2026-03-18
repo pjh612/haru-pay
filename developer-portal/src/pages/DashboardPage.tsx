@@ -26,7 +26,7 @@ function DashboardPage() {
       const data = await getClient(clientId)
       setClient(data)
     } catch (err) {
-      setError('클��이언트 정보를 불러올 수 없습니다.')
+      setError('클라이언트 정보를 불러올 수 없습니다.')
     } finally {
       setLoading(false)
     }
@@ -70,7 +70,7 @@ function DashboardPage() {
 
   if (loading) return <div className="loading">로딩 중...</div>
   if (error) return <div className="error">{error}</div>
-  if (!client) return <div className="error">클��이언트를 찾을 수 없습니다.</div>
+  if (!client) return <div className="error">클라이언트를 찾을 수 없습니다.</div>
 
   return (
     <div className="dashboard">
@@ -125,10 +125,10 @@ function DashboardPage() {
         </div>
 
         <div className="dashboard-card">
-          <h2>클��이언트 정보</h2>
+          <h2>클라이언트 정보</h2>
           
           <div className="info-row">
-            <label>클��이언트 ID</label>
+            <label>클라이언트 ID</label>
             <code>{client.id}</code>
           </div>
           

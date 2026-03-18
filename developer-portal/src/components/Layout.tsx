@@ -30,7 +30,7 @@ function Layout({ children }: LayoutProps) {
               <>
                 <Link to="/mypage" className="nav-link">마이페이지</Link>
                 <span className="nav-user">{clientName}님</span>
-                <button onClick={handleLogout} className="nav-link">
+                <button onClick={handleLogout} className="btn-logout">
                   로그아웃
                 </button>
               </>

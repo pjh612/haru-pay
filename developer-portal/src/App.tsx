@@ -14,6 +14,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" />
 }
 
+function GuestRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth()
+  return isAuthenticated ? <Navigate to="/mypage" /> : <>{children}</>
+}
+
 function App() {
   return (
     <AuthProvider>
@@ -21,8 +26,8 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+            <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route path="/dashboard/:clientId" element={
               <ProtectedRoute>
