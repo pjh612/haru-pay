@@ -2,7 +2,7 @@ package com.haru.payments.application.usecase.impl;
 
 import com.haru.payments.application.dto.CompletePaymentRequest;
 import com.haru.payments.application.usecase.ConfirmPaymentUseCase;
-import com.haru.payments.application.usecase.dto.PaymentConfirmResponse;
+import com.haru.payments.application.dto.PaymentConfirmResponse;
 import com.haru.payments.domain.model.PaymentRequest;
 import com.haru.payments.domain.repository.PaymentRequestRepository;
 import jakarta.persistence.EntityNotFoundException;

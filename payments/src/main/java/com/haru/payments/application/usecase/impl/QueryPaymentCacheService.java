@@ -1,6 +1,6 @@
 package com.haru.payments.application.usecase.impl;
 
-import com.haru.payments.application.cache.PaymentCacheRepository;
+import com.haru.payments.application.port.out.cache.PaymentCacheRepository;
 import com.haru.payments.application.dto.PaymentResponse;
 import com.haru.payments.application.usecase.QueryPaymentUseCase;
 import jakarta.persistence.EntityNotFoundException;

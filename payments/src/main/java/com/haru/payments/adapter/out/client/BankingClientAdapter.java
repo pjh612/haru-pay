@@ -1,6 +1,6 @@
 package com.haru.payments.adapter.out.client;
 
-import com.haru.payments.application.client.BankingClient;
+import com.haru.payments.application.port.out.client.BankingClient;
 import com.haru.payments.application.client.dto.RegisteredBankAccountResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;

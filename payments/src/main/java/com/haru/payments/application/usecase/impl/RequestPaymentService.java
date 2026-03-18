@@ -2,10 +2,10 @@ package com.haru.payments.application.usecase.impl;
 
 import com.fasterxml.uuid.Generators;
 import com.haru.common.lock.RedisLock;
-import com.haru.payments.application.cache.PaymentCacheRepository;
-import com.haru.payments.application.client.BankingClient;
-import com.haru.payments.application.client.MemberClient;
-import com.haru.payments.application.client.MoneyClient;
+import com.haru.payments.application.port.out.cache.PaymentCacheRepository;
+import com.haru.payments.application.port.out.client.BankingClient;
+import com.haru.payments.application.port.out.client.MemberClient;
+import com.haru.payments.application.port.out.client.MoneyClient;
 import com.haru.payments.application.client.dto.LoadMoneyResponse;
 import com.haru.payments.application.client.dto.MemberResponse;
 import com.haru.payments.application.client.dto.MoneyResponse;

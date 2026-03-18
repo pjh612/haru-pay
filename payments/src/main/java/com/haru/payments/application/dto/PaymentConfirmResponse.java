@@ -1,4 +1,4 @@
-package com.haru.payments.application.usecase.dto;
+package com.haru.payments.application.dto;
 
 import com.haru.payments.adapter.in.event.PaymentConfirmRequestedEvent;
 import com.haru.payments.domain.model.PaymentRequest;

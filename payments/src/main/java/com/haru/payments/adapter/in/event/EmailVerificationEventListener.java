@@ -1,8 +1,7 @@
 package com.haru.payments.adapter.in.event;
 
-import com.haru.common.util.UuidUtil;
 import com.haru.payments.adapter.out.event.EmailVerificationEvent;
-import com.haru.payments.application.port.out.EmailService;
+import com.haru.payments.application.usecase.SendVerificationEmailUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class EmailVerificationEventListener {
 
-    private final EmailService emailService;
+    private final SendVerificationEmailUseCase sendVerificationEmailUseCase;
 
     @KafkaListener(
             topics = "email-verification",
@@ -23,13 +22,13 @@ public class EmailVerificationEventListener {
     )
     public void handle(@Payload EmailVerificationEvent event) {
         log.info("EmailVerification event received for client: {}", event.clientId());
-        
+
         try {
-            emailService.sendVerificationEmail(
+            sendVerificationEmailUseCase.send(
+                    event.clientId(),
                     event.email(),
                     event.clientName(),
-                    event.verificationToken(),
-                    event.clientId().toString()
+                    event.verificationToken()
             );
             log.info("Email sent successfully to: {}", event.email());
         } catch (Exception e) {

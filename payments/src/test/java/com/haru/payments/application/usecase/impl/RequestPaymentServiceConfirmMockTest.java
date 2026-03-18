@@ -1,9 +1,9 @@
 package com.haru.payments.application.usecase.impl;
 
-import com.haru.payments.application.cache.PaymentCacheRepository;
-import com.haru.payments.application.client.BankingClient;
-import com.haru.payments.application.client.MemberClient;
-import com.haru.payments.application.client.MoneyClient;
+import com.haru.payments.application.port.out.cache.PaymentCacheRepository;
+import com.haru.payments.application.port.out.client.BankingClient;
+import com.haru.payments.application.port.out.client.MemberClient;
+import com.haru.payments.application.port.out.client.MoneyClient;
 import com.haru.payments.application.dto.PaymentCommand;
 import com.haru.payments.application.event.ConfirmPaymentRequestEvent;
 import com.haru.payments.domain.model.PaymentConfirmIdempotency;

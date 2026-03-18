@@ -4,7 +4,7 @@ import com.alert.core.manager.AlertManager;
 import com.haru.payments.adapter.in.event.PaymentConfirmRequestedEvent;
 import com.haru.payments.adapter.in.event.payload.PaymentConfirmRequestedEventPayload;
 import com.haru.payments.adapter.out.alert.CommonAlertChannel;
-import com.haru.payments.application.usecase.dto.PaymentConfirmResponse;
+import com.haru.payments.application.dto.PaymentConfirmResponse;
 import com.haru.payments.domain.repository.ProcessedEventLogRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

@@ -3,7 +3,7 @@ package com.haru.payments.adapter.out.alert;
 import com.alert.core.messaging.broadcaster.MessageConverter;
 import com.alert.core.messaging.model.AlertMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.haru.payments.application.usecase.dto.PaymentConfirmResponse;
+import com.haru.payments.application.dto.PaymentConfirmResponse;
 
 public class ConfirmPaymentAlertFormatter implements MessageConverter<AlertMessage, String> {
     private final ObjectMapper objectMapper;

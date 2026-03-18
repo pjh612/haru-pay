@@ -1,6 +1,6 @@
 package com.haru.payments.adapter.out.cache;
 
-import com.haru.payments.application.cache.PaymentCacheRepository;
+import com.haru.payments.application.port.out.cache.PaymentCacheRepository;
 import com.haru.payments.application.dto.PaymentResponse;
 import com.haru.payments.application.dto.RequestPaymentResponse;
 import lombok.RequiredArgsConstructor;

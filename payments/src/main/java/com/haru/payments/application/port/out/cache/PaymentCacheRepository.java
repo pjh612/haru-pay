@@ -1,4 +1,4 @@
-package com.haru.payments.application.cache;
+package com.haru.payments.application.port.out.cache;
 
 import com.haru.payments.application.dto.PaymentResponse;
 import com.haru.payments.application.dto.RequestPaymentResponse;

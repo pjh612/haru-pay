@@ -1,6 +1,6 @@
 package com.haru.payments.adapter.out.client;
 
-import com.haru.payments.application.client.MoneyClient;
+import com.haru.payments.application.port.out.client.MoneyClient;
 import com.haru.payments.application.client.dto.LoadMoneyRequest;
 import com.haru.payments.application.client.dto.LoadMoneyResponse;
 import com.haru.payments.application.client.dto.MoneyResponse;

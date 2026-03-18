@@ -1,13 +1,7 @@
 package com.haru.payments.adapter.in.web;
 
-import com.haru.payments.application.client.BankingClient;
-import com.haru.payments.application.client.MoneyClient;
-import com.haru.payments.application.client.dto.MoneyResponse;
-import com.haru.payments.application.client.dto.RegisteredBankAccountResponse;
-import com.haru.payments.application.dto.ClientResponse;
-import com.haru.payments.application.dto.PaymentResponse;
-import com.haru.payments.application.usecase.QueryClientUseCase;
-import com.haru.payments.application.usecase.QueryPaymentUseCase;
+import com.haru.payments.application.dto.PaymentPageResponse;
+import com.haru.payments.application.usecase.QueryPaymentPageUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -17,40 +11,28 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.UUID;
 
 @Controller
 @RequestMapping("/pay")
 @RequiredArgsConstructor
 public class RequestPaymentUiController {
-    private final MoneyClient moneyClient;
-    private final BankingClient bankingClient;
-    private final QueryPaymentUseCase queryPaymentUseCase;
-    private final QueryClientUseCase queryClientUseCase;
+    private final QueryPaymentPageUseCase queryPaymentPageUseCase;
 
     @GetMapping("/{paymentRequestKey}")
     public String payRequest(Model model, @PathVariable String paymentRequestKey, @AuthenticationPrincipal OAuth2User oAuth2User) {
         UUID userId = UUID.fromString(oAuth2User.getAttribute("id"));
-        PaymentResponse paymentResponse = queryPaymentUseCase.queryById(UUID.fromString(paymentRequestKey));
-        MoneyResponse moneyResponse = moneyClient.getMemberById(userId);
-        ClientResponse clientResponse = queryClientUseCase.queryById(paymentResponse.clientId());
-        RegisteredBankAccountResponse registeredBankAccount = bankingClient.getRegisteredBankAccount(userId);
+        PaymentPageResponse page = queryPaymentPageUseCase.query(UUID.fromString(paymentRequestKey), userId);
 
-        BigDecimal shortage = paymentResponse.requestPrice().subtract(moneyResponse.balance());
-        BigDecimal shortfallAmount = shortage.divide(BigDecimal.TEN.pow(4), RoundingMode.UP);
-        shortfallAmount = shortfallAmount.setScale(0, RoundingMode.UP).multiply(BigDecimal.TEN.pow(4));
-
-        model.addAttribute("shortfallAmount", shortfallAmount);
-        model.addAttribute("paymentResponse", paymentResponse);
-        model.addAttribute("registeredBankAccountId", registeredBankAccount.id());
-        model.addAttribute("registeredBankName", registeredBankAccount.bankName());
-        model.addAttribute("registeredBankAccountNumber", registeredBankAccount.accountNumber());
-        model.addAttribute("clientName", clientResponse.name());
+        model.addAttribute("shortfallAmount", page.shortfallAmount());
+        model.addAttribute("paymentResponse", page);
+        model.addAttribute("registeredBankAccountId", page.registeredBankAccountId());
+        model.addAttribute("registeredBankName", page.registeredBankName());
+        model.addAttribute("registeredBankAccountNumber", page.registeredBankAccountNumber());
+        model.addAttribute("clientName", page.clientName());
         model.addAttribute("paymentId", paymentRequestKey);
-        model.addAttribute("amount", paymentResponse.requestPrice());
-        model.addAttribute("moneyBalance", moneyResponse.balance());
+        model.addAttribute("amount", page.requestPrice());
+        model.addAttribute("moneyBalance", page.moneyBalance());
 
         return "pay";
     }

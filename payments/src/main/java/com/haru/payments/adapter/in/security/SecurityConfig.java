@@ -11,6 +11,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -23,13 +24,17 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final ClientRepository clientRepository;
-    private final PasswordEncoder passwordEncoder;
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     AuthenticationManager authenticationManager() {
         return new ProviderManager(List.of(
-                new ApiKeyAuthenticationProvider(clientRepository, passwordEncoder),
-                new ClientEmailPasswordAuthenticationProvider(clientRepository, passwordEncoder)
+                new ApiKeyAuthenticationProvider(clientRepository, passwordEncoder()),
+                new ClientEmailPasswordAuthenticationProvider(clientRepository, passwordEncoder())
         ));
     }
 

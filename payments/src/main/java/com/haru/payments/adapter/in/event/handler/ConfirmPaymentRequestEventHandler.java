@@ -7,7 +7,7 @@ import com.haru.payments.adapter.in.event.payload.ConfirmPaymentRequestEventPayl
 import com.haru.payments.adapter.out.alert.CommonAlertChannel;
 import com.haru.payments.application.dto.CompletePaymentRequest;
 import com.haru.payments.application.usecase.ConfirmPaymentUseCase;
-import com.haru.payments.application.usecase.dto.PaymentConfirmResponse;
+import com.haru.payments.application.dto.PaymentConfirmResponse;
 import com.haru.payments.domain.repository.ProcessedEventLogRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

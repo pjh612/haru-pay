@@ -1,6 +1,6 @@
 package com.haru.payments.adapter.out.mail;
 
-import com.haru.payments.application.port.out.EmailService;
+import com.haru.payments.application.port.out.mail.EmailNotificationPort;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +15,7 @@ import org.thymeleaf.context.Context;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EmailServiceImpl implements EmailService {
+public class SmtpEmailAdapter implements EmailNotificationPort {
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;

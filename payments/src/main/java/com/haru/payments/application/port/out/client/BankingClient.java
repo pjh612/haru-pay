@@ -1,4 +1,4 @@
-package com.haru.payments.application.client;
+package com.haru.payments.application.port.out.client;
 
 import com.haru.payments.application.client.dto.RegisteredBankAccountResponse;
 

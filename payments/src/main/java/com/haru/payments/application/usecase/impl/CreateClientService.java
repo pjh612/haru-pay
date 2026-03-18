@@ -1,10 +1,10 @@
 package com.haru.payments.application.usecase.impl;
 
 import com.fasterxml.uuid.Generators;
-import com.haru.payments.adapter.out.event.EmailVerificationEvent;
 import com.haru.payments.application.dto.ClientResponse;
 import com.haru.payments.application.dto.CreateClientRequest;
 import com.haru.payments.application.port.out.cache.EmailVerificationTokenRepository;
+import com.haru.payments.application.port.out.event.ClientEventPort;
 import com.haru.payments.application.port.out.event.ClientEventPort;
 import com.haru.payments.application.usecase.CreateClientUseCase;
 import com.haru.payments.domain.model.Client;
