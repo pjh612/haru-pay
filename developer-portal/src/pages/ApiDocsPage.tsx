@@ -12,6 +12,7 @@ function ApiDocsPage() {
             <li><a href="#prepare">결제 준비</a></li>
             <li><a href="#confirm">결제 확정</a></li>
             <li><a href="#status">결제 상태 조회</a></li>
+            <li><a href="#sse">결제 결과 구독 (SSE)</a></li>
             <li><a href="#errors">에러 코드</a></li>
           </ul>
         </nav>
@@ -111,6 +112,81 @@ function ApiDocsPage() {
   "paymentStatus": 1,
   "approvedAt": "2024-01-15T10:35:00Z"
 }`}</pre>
+        </section>
+
+        <section id="sse">
+          <h2>결제 결과 구독 (SSE)</h2>
+          <p>
+            Server-Sent Events(SSE)를 사용하여 결제 결과를 실시간으로 수신합니다.
+            결제 확정 후 서버에서 결과를 푸시하므로 폴링 없이 즉시 알림을 받을 수 있습니다.
+          </p>
+          <div className="endpoint">
+            <span className="method get">GET</span>
+            <code>/payment-result/subscribe</code>
+          </div>
+
+          <h3>요청 파라미터</h3>
+          <table className="docs-table">
+            <thead>
+              <tr>
+                <th>파라미터</th>
+                <th>위치</th>
+                <th>필수</th>
+                <th>설명</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>paymentId</code></td>
+                <td>Query</td>
+                <td>필수</td>
+                <td>구독할 결제 ID (UUID)</td>
+              </tr>
+              <tr>
+                <td><code>Last-Event-ID</code></td>
+                <td>Header</td>
+                <td>선택</td>
+                <td>연결 재시도 시 마지막으로 받은 이벤트 ID (누락 이벤트 재전송용)</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>응답 형식</h3>
+          <p><code>Content-Type: text/event-stream</code></p>
+          <pre className="code-block">{`event: payment-result
+id: 550e8400-e29b-41d4-a716-446655440000
+data: {
+  "requestId": "550e8400-e29b-41d4-a716-446655440000",
+  "orderId": "ORDER-12345",
+  "requestPrice": 10000,
+  "clientId": "550e8400-e29b-41d4-a716-446655440001",
+  "paymentStatus": 1,
+  "approvedAt": "2024-01-15T10:35:00Z"
+}`}</pre>
+
+          <h3>JavaScript 예제</h3>
+          <pre className="code-block">{`const paymentId = '550e8400-e29b-41d4-a716-446655440000';
+const url = \`https://api.harupay.io/api/payment-result/subscribe?paymentId=\${paymentId}\`;
+
+const eventSource = new EventSource(url);
+
+eventSource.addEventListener('payment-result', (event) => {
+  const result = JSON.parse(event.data);
+  console.log('결제 결과:', result);
+  eventSource.close();
+});
+
+eventSource.onerror = () => {
+  console.error('SSE 연결 오류');
+  eventSource.close();
+};`}</pre>
+
+          <h3>주의사항</h3>
+          <ul>
+            <li>SSE 연결에도 <code>Authorization</code> 및 <code>X-PAY-CLIENT-ID</code> 헤더가 필요합니다.</li>
+            <li>결제 결과 수신 후 연결을 반드시 종료하세요.</li>
+            <li>연결이 끊어진 경우 <code>Last-Event-ID</code> 헤더와 함께 재연결하면 누락된 이벤트를 재수신할 수 있습니다.</li>
+          </ul>
         </section>
 
         <section id="errors">
