@@ -24,6 +24,15 @@ public class ConfirmPaymentService implements ConfirmPaymentUseCase {
     public PaymentConfirmResponse confirm(CompletePaymentRequest request) {
         PaymentRequest foundRequest = repository.findById(request.requestId())
                 .orElseThrow(() -> new EntityNotFoundException("결제 요청을 찾을 수 없습니다."));
+
+        if (foundRequest.isSucceeded()) {
+            return PaymentConfirmResponse.of(foundRequest);
+        }
+
+        if (foundRequest.isFailed()) {
+            throw new IllegalStateException("이미 실패한 결제입니다.");
+        }
+
         foundRequest.success();
 
         return PaymentConfirmResponse.of(repository.save(foundRequest));
@@ -35,6 +44,10 @@ public class ConfirmPaymentService implements ConfirmPaymentUseCase {
         PaymentRequest paymentRequest = repository.findById(requestId)
                 .orElse(null);
         if (paymentRequest == null) {
+            return;
+        }
+
+        if (paymentRequest.isSucceeded() || paymentRequest.isFailed()) {
             return;
         }
 

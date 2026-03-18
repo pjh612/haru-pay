@@ -9,4 +9,6 @@ public interface PaymentRequestRepository {
     PaymentRequest save(PaymentRequest paymentRequest);
 
     Optional<PaymentRequest> findById(UUID paymentRequestId);
+
+    Optional<PaymentRequest> findByIdAndClientId(UUID paymentRequestId, UUID clientId);
 }

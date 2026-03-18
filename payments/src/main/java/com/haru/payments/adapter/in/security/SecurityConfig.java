@@ -31,6 +31,7 @@ public class SecurityConfig {
                         authorizeRequests
                                 .requestMatchers("/api/clients").permitAll()
                                 .requestMatchers("/error").permitAll()
+                                .requestMatchers("/js/harupay.js").permitAll()
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/payment/prepare").hasAuthority("PAYMENT_PREPARE")
                                 .requestMatchers(HttpMethod.POST, "/api/payment/confirm").hasAuthority("PAYMENT_CONFIRM")

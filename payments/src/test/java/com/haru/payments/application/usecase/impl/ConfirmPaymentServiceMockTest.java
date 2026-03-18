@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,6 +83,65 @@ class ConfirmPaymentServiceMockTest {
         confirmPaymentService.failConfirm(requestId);
 
         // Assert
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void confirm_ShouldReturnCurrentState_WhenRequestAlreadySucceeded() {
+        UUID requestId = UUID.randomUUID();
+        UUID clientId = UUID.randomUUID();
+        PaymentRequest paymentRequest = PaymentRequest.createNew(requestId, "ORDER-1", UUID.randomUUID(), "product", java.math.BigDecimal.TEN, clientId);
+        paymentRequest.success();
+
+        when(repository.findById(requestId)).thenReturn(Optional.of(paymentRequest));
+
+        var response = confirmPaymentService.confirm(new CompletePaymentRequest(requestId));
+
+        assertThat(response.requestId()).isEqualTo(requestId);
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void confirm_ShouldThrowException_WhenRequestAlreadyFailed() {
+        UUID requestId = UUID.randomUUID();
+        UUID clientId = UUID.randomUUID();
+        PaymentRequest paymentRequest = PaymentRequest.createNew(requestId, "ORDER-1", UUID.randomUUID(), "product", java.math.BigDecimal.TEN, clientId);
+        paymentRequest.fail();
+
+        when(repository.findById(requestId)).thenReturn(Optional.of(paymentRequest));
+
+        Assertions.assertThatThrownBy(() -> confirmPaymentService.confirm(new CompletePaymentRequest(requestId)))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("이미 실패한 결제입니다.");
+
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void failConfirm_ShouldDoNothing_WhenRequestAlreadySucceeded() {
+        UUID requestId = UUID.randomUUID();
+        UUID clientId = UUID.randomUUID();
+        PaymentRequest paymentRequest = PaymentRequest.createNew(requestId, "ORDER-1", UUID.randomUUID(), "product", java.math.BigDecimal.TEN, clientId);
+        paymentRequest.success();
+
+        when(repository.findById(requestId)).thenReturn(Optional.of(paymentRequest));
+
+        confirmPaymentService.failConfirm(requestId);
+
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void failConfirm_ShouldDoNothing_WhenRequestAlreadyFailed() {
+        UUID requestId = UUID.randomUUID();
+        UUID clientId = UUID.randomUUID();
+        PaymentRequest paymentRequest = PaymentRequest.createNew(requestId, "ORDER-1", UUID.randomUUID(), "product", java.math.BigDecimal.TEN, clientId);
+        paymentRequest.fail();
+
+        when(repository.findById(requestId)).thenReturn(Optional.of(paymentRequest));
+
+        confirmPaymentService.failConfirm(requestId);
+
         verify(repository, never()).save(any());
     }
 }

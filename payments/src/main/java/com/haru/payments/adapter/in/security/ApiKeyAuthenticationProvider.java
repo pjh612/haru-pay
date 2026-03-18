@@ -33,8 +33,8 @@ public class ApiKeyAuthenticationProvider implements AuthenticationProvider {
         }
 
         authorities.add(new SimpleGrantedAuthority("ROLE_PAYMENT_CLIENT"));
-        authorities.add(new SimpleGrantedAuthority("PAYMENT_PREPARE"));
         if (apiKey!= null && passwordEncoder.matches(apiKey, client.apiKey())) {
+            authorities.add(new SimpleGrantedAuthority("PAYMENT_PREPARE"));
             authorities.add(new SimpleGrantedAuthority("PAYMENT_CONFIRM"));
         }
 

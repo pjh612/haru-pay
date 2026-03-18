@@ -26,4 +26,10 @@ public class PaymentRequestRepositoryAdapter implements PaymentRequestRepository
         return repository.findById(paymentRequestId)
                 .map(PaymentRequestConverter::toDomain);
     }
+
+    @Override
+    public Optional<PaymentRequest> findByIdAndClientId(UUID paymentRequestId, UUID clientId) {
+        return repository.findByRequestIdAndClientId(paymentRequestId, clientId)
+                .map(PaymentRequestConverter::toDomain);
+    }
 }

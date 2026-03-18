@@ -45,7 +45,7 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
         if(request.getMethod().equalsIgnoreCase("OPTIONS") || needsAuthentication) {
             response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
             response.setHeader("Access-Control-Allow-Credentials", "true");
-            response.setHeader("Access-Control-Allow-Headers", "X-PAY-CLIENT-ID, Authorization, content-type");
+            response.setHeader("Access-Control-Allow-Headers", "X-PAY-CLIENT-ID, Authorization, Idempotency-Key, content-type");
             response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
         }
 

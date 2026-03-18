@@ -27,6 +27,22 @@ public class PaymentRequest {
         return new PaymentRequest(requestId, orderId, requestMemberId, productName, requestPrice, clientId, 0, null, Instant.now());
     }
 
+    public boolean belongsTo(UUID clientId) {
+        return this.clientId != null && this.clientId.equals(clientId);
+    }
+
+    public boolean isPending() {
+        return paymentStatus == 0;
+    }
+
+    public boolean isSucceeded() {
+        return paymentStatus == 1;
+    }
+
+    public boolean isFailed() {
+        return paymentStatus == -1;
+    }
+
     public void success() {
         this.paymentStatus = 1;
         this.approvedAt = Instant.now();
