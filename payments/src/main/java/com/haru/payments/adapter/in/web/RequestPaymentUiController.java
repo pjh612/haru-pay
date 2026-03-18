@@ -32,11 +32,11 @@ public class RequestPaymentUiController {
 
     @GetMapping("/{paymentRequestKey}")
     public String payRequest(Model model, @PathVariable String paymentRequestKey, @AuthenticationPrincipal OAuth2User oAuth2User) {
-        String userId = oAuth2User.getAttribute("id");
+        UUID userId = UUID.fromString(oAuth2User.getAttribute("id"));
         PaymentResponse paymentResponse = queryPaymentUseCase.queryById(UUID.fromString(paymentRequestKey));
-        MoneyResponse moneyResponse = moneyClient.getMemberById(UUID.fromString(userId));
+        MoneyResponse moneyResponse = moneyClient.getMemberById(userId);
         ClientResponse clientResponse = queryClientUseCase.queryById(paymentResponse.clientId());
-        RegisteredBankAccountResponse registeredBankAccount = bankingClient.getRegisteredBankAccount(UUID.fromString(userId));
+        RegisteredBankAccountResponse registeredBankAccount = bankingClient.getRegisteredBankAccount(userId);
 
         BigDecimal shortage = paymentResponse.requestPrice().subtract(moneyResponse.balance());
         BigDecimal shortfallAmount = shortage.divide(BigDecimal.TEN.pow(4), RoundingMode.UP);
