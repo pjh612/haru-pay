@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HaruPay Failure</title>
+  </head>
+  <body>
+    <p>결제창 처리 중 오류가 발생했습니다.</p>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const payload = {
+        source: 'harupay-failure',
+        errorCode: params.get('errorCode') || 'PAYMENT_FAILED',
+        message: params.get('message') || '결제창 처리에 실패했습니다.',
+        orderId: params.get('orderId') || '',
+        paymentId: params.get('paymentId') || '',
+      };
+
+      if (window.opener) {
+        window.opener.postMessage(payload, window.location.origin);
+      }
+
+      window.setTimeout(() => window.close(), 300);
+    </script>
+  </body>
+  </html>

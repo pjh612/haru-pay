@@ -20,6 +20,14 @@ export interface AppConfig {
   paymentsCheckoutUrl: string
 }
 
+export interface PaymentPopupResult {
+  requestId: string
+  orderId: string
+  requestPrice: number
+  paymentStatus?: number | null
+  approvedAt?: string | null
+}
+
 export interface PaymentRequestResult {
   requestId: string
   orderId: string
@@ -29,6 +37,10 @@ export interface PaymentRequestResult {
   clientId: string
   paymentStatus: number
   approvedAt: string | null
+}
+
+export interface UserInfo {
+  username: string
 }
 
 export interface StreamEvent {
