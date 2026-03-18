@@ -179,3 +179,39 @@ values  (0x01955BE87D477E6AB24B338DB5F4670F, 5000.00, 0x01955BDF78BB7D45BC1FA5EC
 
 insert into haru.member (id, gender, name, password, username)
 values  (0x01955BDF78BB7D45BC1FA5EC80EE342C, 'M', 'test', '$2a$10$r3BsbQFNqeGqrExFhR25zuYC83gRup5i5ZWGIqScS0Iv4hJqnZ4U.', 'test');
+
+-- Saga recovery metadata
+create table if not exists haru.saga_state
+(
+    id                   binary(16)   not null primary key,
+    type                 varchar(255) null,
+    current_step         varchar(255) null,
+    step_status          json         null,
+    saga_status          varchar(255) null,
+    payload              json         null,
+    current_payload      json         null,
+    created_at           datetime(6)  null,
+    last_progress_at     datetime(6)  null,
+    recovery_status      varchar(255) null,
+    recovery_attempt_count int         not null default 0,
+    last_recovery_at     datetime(6)  null
+);
+
+-- Processed event log for dedupe
+create table if not exists haru.payment_processed_event_log
+(
+    id           binary(16)   not null primary key,
+    consumer_key varchar(255) not null,
+    event_id     binary(16)   not null,
+    processed_at datetime(6)  null,
+    constraint uk_payment_processed_event unique (consumer_key, event_id)
+);
+
+create table if not exists haru.money_processed_event_log
+(
+    id           binary(16)   not null primary key,
+    consumer_key varchar(255) not null,
+    event_id     binary(16)   not null,
+    processed_at datetime(6)  null,
+    constraint uk_money_processed_event unique (consumer_key, event_id)
+);
