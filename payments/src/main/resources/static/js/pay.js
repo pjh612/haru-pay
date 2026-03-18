@@ -16,7 +16,13 @@ const requestPay = () => {
             window.opener.postMessage(data, "*");
         },
         error: function (e) {
-            alert("결제에 실패했습니다.");
+            window.opener.postMessage({
+                status: "FAILED",
+                errorCode: e.status || "PAYMENT_REQUEST_FAILED",
+                message: e.responseJSON?.message || e.statusText || "결제 요청에 실패했습니다.",
+                orderId: orderId,
+                paymentId: paymentId,
+            }, "*");
         }
     });
 }
