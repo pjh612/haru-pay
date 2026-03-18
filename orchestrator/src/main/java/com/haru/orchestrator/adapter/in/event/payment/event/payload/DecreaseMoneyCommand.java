@@ -11,7 +11,7 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class DecreaseMoneyEvent {
+public class DecreaseMoneyCommand {
     private UUID requestId;
     private UUID requestMemberId;
     private BigDecimal requestPrice;

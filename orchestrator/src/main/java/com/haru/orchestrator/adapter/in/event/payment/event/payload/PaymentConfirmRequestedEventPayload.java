@@ -25,7 +25,7 @@ public class PaymentConfirmRequestedEventPayload implements SagaPayload {
 
     @Override
     public Object toEvent() {
-        return new DecreaseMoneyEvent(
+        return new DecreaseMoneyCommand(
                 this.requestId,
                 this.requestMemberId,
                 this.requestPrice,
