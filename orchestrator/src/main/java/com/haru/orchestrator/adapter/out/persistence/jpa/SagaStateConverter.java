@@ -10,9 +10,15 @@ public class SagaStateConverter {
                 entity.getVersion(),
                 entity.getType(),
                 entity.getPayload(),
+                entity.getCurrentPayload(),
                 entity.getCurrentStep(),
                 entity.getStepStatus(),
-                entity.getSagaStatus()
+                entity.getSagaStatus(),
+                entity.getCreatedAt(),
+                entity.getLastProgressAt(),
+                entity.getRecoveryStatus(),
+                entity.getRecoveryAttemptCount(),
+                entity.getLastRecoveryAt()
         );
     }
 
@@ -22,9 +28,15 @@ public class SagaStateConverter {
                 domain.getVersion(),
                 domain.getType(),
                 domain.getPayload(),
+                domain.getCurrentPayload(),
                 domain.getCurrentStep(),
                 domain.getStepStatus(),
-                domain.getSagaStatus()
+                domain.getSagaStatus(),
+                domain.getCreatedAt(),
+                domain.getLastProgressAt(),
+                domain.getRecoveryStatus(),
+                domain.getRecoveryAttemptCount(),
+                domain.getLastRecoveryAt()
         );
     }
 }

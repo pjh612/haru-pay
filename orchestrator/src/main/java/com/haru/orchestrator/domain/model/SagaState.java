@@ -8,6 +8,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.UUID;
 
@@ -21,16 +22,28 @@ public class SagaState {
     private int version;
     private String type;
     private JsonNode payload;
+    private JsonNode currentPayload;
     private String currentStep;
     private ObjectNode stepStatus;
     private SagaStatus sagaStatus;
+    private Instant createdAt;
+    private Instant lastProgressAt;
+    private RecoveryStatus recoveryStatus;
+    private int recoveryAttemptCount;
+    private Instant lastRecoveryAt;
 
     public SagaState(UUID sagaId, String sagaType, JsonNode payload) {
         this.id = sagaId;
         this.type = sagaType;
         this.payload = payload;
+        this.currentPayload = payload;
         this.sagaStatus = SagaStatus.STARTED;
         this.stepStatus = JsonNodeFactory.instance.objectNode();
+        Instant now = Instant.now();
+        this.createdAt = now;
+        this.lastProgressAt = now;
+        this.recoveryStatus = RecoveryStatus.NONE;
+        this.recoveryAttemptCount = 0;
     }
 
     public void updateCurrentStep(String currentStep) {
@@ -39,6 +52,32 @@ public class SagaState {
 
     public void updateStepStatus(String step, SagaStepStatus sagaStepStatus) {
         this.stepStatus.put(step, sagaStepStatus.name());
+    }
+
+    public void updateCurrentPayload(JsonNode currentPayload) {
+        this.currentPayload = currentPayload;
+    }
+
+    public void markProgress(Instant progressAt) {
+        this.lastProgressAt = progressAt;
+        this.recoveryStatus = RecoveryStatus.NONE;
+    }
+
+    public void markRecoveryAttempt(Instant recoveredAt) {
+        this.lastRecoveryAt = recoveredAt;
+        this.lastProgressAt = recoveredAt;
+        this.recoveryAttemptCount += 1;
+        this.recoveryStatus = RecoveryStatus.RETRYING;
+    }
+
+    public void markManualReviewRequired(Instant recoveredAt) {
+        this.lastRecoveryAt = recoveredAt;
+        this.lastProgressAt = recoveredAt;
+        this.recoveryStatus = RecoveryStatus.MANUAL_REVIEW_REQUIRED;
+    }
+
+    public boolean isTerminal() {
+        return sagaStatus.isCompleted() || sagaStatus.isAborted();
     }
 
     /**

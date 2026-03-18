@@ -9,6 +9,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Slf4j
@@ -51,6 +52,7 @@ public class Saga {
     }
 
     private void advance(Object payload) {
+        JsonNode nextPayload = jsonMapper.convertValue(payload, JsonNode.class);
         String currentStepName = state.getCurrentStep();
         SagaStep next;
         if (currentStepName == null) {
@@ -60,13 +62,16 @@ public class Saga {
         }
         if (next.topic() == null) {
             state.updateCurrentStep(null);
+            state.markProgress(Instant.now());
             return;
         }
 
-        eventPublisher.publishEvent(new SagaEvent(state.getId(), next.topic(), PayloadType.REQUEST.name(), jsonMapper.convertValue(payload, JsonNode.class)));
+        eventPublisher.publishEvent(new SagaEvent(state.getId(), next.topic(), PayloadType.REQUEST.name(), nextPayload));
 
         state.updateStepStatus(next.topic(), SagaStepStatus.STARTED);
         state.updateCurrentStep(next.topic());
+        state.updateCurrentPayload(nextPayload);
+        state.markProgress(Instant.now());
     }
 
     private void goBack(String failureReason) {
@@ -74,11 +79,12 @@ public class Saga {
         var prev = step.prev();
         if (prev.topic() == null) {
             state.updateCurrentStep(null);
+            state.markProgress(Instant.now());
 
             return;
         }
 
-        var payload = ((ObjectNode) state.getPayload().deepCopy());
+        var payload = ((ObjectNode) state.getCurrentPayload().deepCopy());
         payload.put("type", PayloadType.CANCEL.name());
         if(failureReason != null) {
             payload.put("failureReason", failureReason);
@@ -87,10 +93,13 @@ public class Saga {
 
         state.updateStepStatus(prev.topic(), SagaStepStatus.COMPENSATING);
         state.updateCurrentStep(prev.topic());
+        state.updateCurrentPayload(payload);
+        state.markProgress(Instant.now());
     }
 
     private void onStepEvent(SagaStepStatus status, Object payload, String failureReason) {
         state.updateStepStatus(state.getCurrentStep(), status);
+        state.markProgress(Instant.now());
 
         if (status.isSucceeded()) {
             advance(payload);
