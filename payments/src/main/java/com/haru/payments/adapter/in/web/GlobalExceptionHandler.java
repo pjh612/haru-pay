@@ -21,6 +21,12 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    ProblemDetail handleRuntime(RuntimeException e) {
+        log.error(e.getMessage(), e);
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "요청을 처리할 수 없습니다.");
+    }
+
     @ExceptionHandler(Exception.class)
     ProblemDetail handleUnexpected(Exception e) {
         log.error("Unexpected error", e);

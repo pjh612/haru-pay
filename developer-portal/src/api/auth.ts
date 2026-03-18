@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { LoginRequest, LoginResponse } from '../types/auth'
+import { LoginRequest, LoginResponse, VerifyEmailRequest } from '../types/auth'
 
 const api = axios.create({
   baseURL: '/api',
@@ -16,4 +16,8 @@ export async function login(request: LoginRequest): Promise<LoginResponse> {
 
 export async function logout(): Promise<void> {
   await api.post('/clients/logout')
+}
+
+export async function verifyEmail(request: VerifyEmailRequest): Promise<void> {
+  await api.post('/clients/verify-email', request)
 }

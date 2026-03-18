@@ -15,6 +15,18 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: create
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:1025}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    from: ${MAIL_FROM:noreply@harupay.com}
+    properties:
+      mail:
+        smtp:
+          auth: ${SMTP_AUTH:false}
+          starttls:
+            enable: ${SMTP_STARTTLS:false}
   kafka:
     client-id: payments
     consumer:
@@ -98,3 +110,6 @@ alert:
       url: https://hooks.slack.com/services/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
   topics:
     - PAYMENT_RESULT
+
+developer-portal:
+  url: ${DEVELOPER_PORTAL_URL:http://localhost:3001}

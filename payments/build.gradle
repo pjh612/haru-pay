@@ -47,6 +47,7 @@ dependencies {
     implementation 'io.opentelemetry:opentelemetry-exporter-zipkin'
     implementation 'com.fasterxml.uuid:java-uuid-generator:5.1.0'
     implementation 'org.springframework.boot:spring-boot-starter-kafka'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2'
     implementation 'org.redisson:redisson-spring-boot-starter:4.1.0'
     compileOnly 'org.projectlombok:lombok'

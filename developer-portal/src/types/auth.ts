@@ -10,3 +10,7 @@ export interface LoginResponse {
   createdAt: string
   sessionId: string
 }
+
+export interface VerifyEmailRequest {
+  token: string
+}
