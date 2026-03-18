@@ -8,6 +8,7 @@ export interface Client {
 
 export interface CreateClientRequest {
   name: string
+  password: string
 }
 
 export interface RegenerateApiKeyRequest {

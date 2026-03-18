@@ -25,7 +25,10 @@ public class CreateClientService implements CreateClientUseCase {
         UUID id = Generators.timeBasedEpochGenerator().generate();
         UUID key = Generators.timeBasedEpochGenerator().generate();
         String encodedKey = passwordEncoder.encode(key.toString());
-        Client client = Client.create(id, request.name(), encodedKey);
+        String encodedPassword = request.password() != null 
+                ? passwordEncoder.encode(request.password()) 
+                : null;
+        Client client = Client.createWithPassword(id, request.name(), encodedKey, encodedPassword);
         Client savedClient = clientRepository.save(client);
 
         return new ClientResponse(savedClient.getId(),

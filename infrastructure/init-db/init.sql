@@ -74,7 +74,8 @@ create table if not exists haru.client
     id         binary(16)   not null
         primary key,
     api_key    varchar(255) null,
-    name       varchar(255) null
+    name       varchar(255) null,
+    password   varchar(255) null
 );
 
 create table if not exists haru.firm_banking_request

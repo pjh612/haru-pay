@@ -8,8 +8,8 @@ const api = axios.create({
   },
 })
 
-export async function registerClient(name: string): Promise<Client> {
-  const request: CreateClientRequest = { name }
+export async function registerClient(name: string, password: string): Promise<Client> {
+  const request: CreateClientRequest = { name, password }
   const response = await api.post('/clients', request)
   return response.data
 }
