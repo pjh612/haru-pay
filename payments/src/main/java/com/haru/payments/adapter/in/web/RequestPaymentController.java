@@ -1,6 +1,7 @@
 package com.haru.payments.adapter.in.web;
 
 import com.haru.payments.application.dto.*;
+import com.haru.payments.application.usecase.QueryPaymentStatusUseCase;
 import com.haru.payments.application.usecase.RequestPaymentUseCase;
 import com.haru.payments.application.usecase.SubscribePaymentResultUseCase;
 import com.haru.payments.domain.model.Client;
@@ -25,6 +26,7 @@ import java.util.UUID;
 public class RequestPaymentController {
     private final RequestPaymentUseCase requestPaymentUseCase;
     private final SubscribePaymentResultUseCase subscribePaymentResultUseCase;
+    private final QueryPaymentStatusUseCase queryPaymentStatusUseCase;
 
     @ResponseBody
     @PostMapping("/api/payment/prepare")
@@ -52,6 +54,13 @@ public class RequestPaymentController {
         PaymentCommand command = new PaymentCommand(request.paymentId(), client.getId(), idempotencyKey);
 
         requestPaymentUseCase.confirmPayment(command);
+    }
+
+    @ResponseBody
+    @GetMapping("/api/payment/{paymentId}")
+    public PaymentResponse queryPaymentStatus(@PathVariable UUID paymentId,
+                                              @AuthenticationPrincipal Client client) {
+        return queryPaymentStatusUseCase.query(paymentId, client.getId());
     }
 
     @ResponseBody

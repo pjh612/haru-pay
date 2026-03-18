@@ -35,6 +35,7 @@ public class SecurityConfig {
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/payment/prepare").hasAuthority("PAYMENT_PREPARE")
                                 .requestMatchers(HttpMethod.POST, "/api/payment/confirm").hasAuthority("PAYMENT_CONFIRM")
+                                .requestMatchers(HttpMethod.GET, "/api/payment/*").hasAuthority("PAYMENT_CONFIRM")
                                 .requestMatchers("/api/payment-result/subscribe").hasAuthority("PAYMENT_CONFIRM")
                                 .anyRequest().authenticated())
                 .oauth2Login(oauth2Login -> oauth2Login.loginPage("/oauth2/authorization/payments-oidc"))
