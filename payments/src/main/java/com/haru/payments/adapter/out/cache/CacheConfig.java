@@ -50,7 +50,8 @@ public class CacheConfig {
                 .enableTimeToIdle();
 
         Map<String, RedisCacheConfiguration> initialCaches = Map.of(
-            "provisionalPayment", predefined, 
+            "provisionalPayment", predefined,
+            "provisionalPaymentIdempotency", predefined,
             "paymentRequest", paymentRequest
         );
         

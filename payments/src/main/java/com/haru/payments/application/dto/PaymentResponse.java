@@ -13,7 +13,8 @@ public record PaymentResponse(UUID requestId,
                               BigDecimal requestPrice,
                               UUID clientId,
                               int paymentStatus,
-                              Instant approvedAt) {
+                              Instant approvedAt,
+                              String idempotencyKey) {
 
     public static PaymentResponse of(PaymentRequest paymentRequest) {
         return new PaymentResponse(
@@ -24,7 +25,8 @@ public record PaymentResponse(UUID requestId,
                 paymentRequest.getRequestPrice(),
                 paymentRequest.getClientId(),
                 paymentRequest.getPaymentStatus(),
-                paymentRequest.getApprovedAt()
+                paymentRequest.getApprovedAt(),
+                null
         );
     }
 }

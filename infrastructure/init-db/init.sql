@@ -143,6 +143,18 @@ create table if not exists haru.payment_request
     created_at        datetime(6)    null
 );
 
+create table if not exists haru.payment_confirm_idempotency
+(
+    created_at      datetime(6)    null,
+    client_id       binary(16)     not null,
+    id              binary(16)     not null
+        primary key,
+    payment_id      binary(16)     null,
+    idempotency_key varchar(300)   not null,
+    constraint uk_payment_confirm_idempotency_client_key
+        unique (client_id, idempotency_key)
+);
+
 create table if not exists haru.registered_bank_account
 (
     is_valid       bit          not null,

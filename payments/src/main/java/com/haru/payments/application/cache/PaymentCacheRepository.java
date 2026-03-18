@@ -11,4 +11,14 @@ public interface PaymentCacheRepository {
     Optional<RequestPaymentResponse> findPaymentRequestById(UUID id);
 
     Optional<PaymentResponse> findProvisionalPaymentById(UUID id);
+
+    Optional<PaymentResponse> findProvisionalPaymentByIdempotency(UUID clientId, String idempotencyKey);
+
+    void saveProvisionalPayment(PaymentResponse paymentResponse);
+
+    void saveProvisionalPaymentByIdempotency(UUID clientId, String idempotencyKey, PaymentResponse paymentResponse);
+
+    void evictProvisionalPayment(UUID id);
+
+    void evictProvisionalPaymentByIdempotency(UUID clientId, String idempotencyKey);
 }

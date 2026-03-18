@@ -14,8 +14,10 @@ import com.haru.payments.application.dto.RequestPaymentCommand;
 import com.haru.payments.domain.repository.PaymentRequestRepository;
 import com.haru.payments.support.ContainerizedIntegrationTest;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.math.BigDecimal;
@@ -49,6 +51,15 @@ class RequestPaymentServiceTest extends ContainerizedIntegrationTest {
     @Autowired
     private RequestPaymentService paymentService;
 
+    @Autowired
+    private CacheManager cacheManager;
+
+    @BeforeEach
+    void clearPaymentCaches() {
+        cacheManager.getCache("provisionalPayment").clear();
+        cacheManager.getCache("provisionalPaymentIdempotency").clear();
+    }
+
     @Test
     public void testConcurrentPaymentRequests() throws InterruptedException {
         UUID memberId = Generators.timeBasedEpochGenerator().generate();
@@ -58,7 +69,7 @@ class RequestPaymentServiceTest extends ContainerizedIntegrationTest {
         String productName = "product-name";
         BigDecimal price = BigDecimal.valueOf(1000);
 
-        PreparePaymentCommand preparePaymentCommand = new PreparePaymentCommand(clientId, orderId.toString(), price, productName);
+        PreparePaymentCommand preparePaymentCommand = new PreparePaymentCommand(clientId, orderId.toString(), price, productName, "prepare-key-1");
         PaymentResponse paymentResponse = paymentService.preparePayment(preparePaymentCommand);
         RequestPaymentCommand requestPaymentCommand = new RequestPaymentCommand(paymentResponse.requestId(), memberId);
         LoadMoneyResponse loadMoneyResponse = new LoadMoneyResponse(UUID.randomUUID(), BigDecimal.valueOf(10000), "SUCCEEDED", Instant.now());
@@ -94,5 +105,26 @@ class RequestPaymentServiceTest extends ContainerizedIntegrationTest {
 
         verify(moneyClient, times(1)).loadMoney(any(UUID.class), any(BigDecimal.class));
         assertThat(paymentRequestRepository.findById(paymentResponse.requestId())).isPresent();
+    }
+
+    @Test
+    void preparePayment_ShouldReuseExistingProvisionalPayment_WhenIdempotencyKeyMatches() {
+        UUID clientId = Generators.timeBasedEpochGenerator().generate();
+        PreparePaymentCommand command = new PreparePaymentCommand(clientId, "ORDER-1", BigDecimal.valueOf(1000), "product-name", "prepare-key-1");
+
+        PaymentResponse first = paymentService.preparePayment(command);
+        PaymentResponse second = paymentService.preparePayment(command);
+
+        assertThat(second.requestId()).isEqualTo(first.requestId());
+    }
+
+    @Test
+    void preparePayment_ShouldRejectDifferentPayload_WhenIdempotencyKeyMatches() {
+        UUID clientId = Generators.timeBasedEpochGenerator().generate();
+        paymentService.preparePayment(new PreparePaymentCommand(clientId, "ORDER-1", BigDecimal.valueOf(1000), "product-name", "prepare-key-1"));
+
+        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class, () ->
+                paymentService.preparePayment(new PreparePaymentCommand(clientId, "ORDER-1", BigDecimal.valueOf(2000), "product-name", "prepare-key-1"))
+        );
     }
 }
