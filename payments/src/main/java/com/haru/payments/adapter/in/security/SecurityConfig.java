@@ -44,6 +44,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
+                                .requestMatchers("/api/clients/me", "/api/clients/me/regenerate-api-key").hasRole("CLIENT")
                                 .requestMatchers("/api/clients", "/api/clients/login", "/api/clients/logout", "/api/clients/verify-email").permitAll()
                                 .requestMatchers("/error").permitAll()
                                 .requestMatchers("/js/harupay.js").permitAll()

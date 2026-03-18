@@ -11,7 +11,3 @@ export interface CreateClientRequest {
   name: string
   password: string
 }
-
-export interface RegenerateApiKeyRequest {
-  confirmation: string
-}

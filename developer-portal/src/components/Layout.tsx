@@ -28,6 +28,7 @@ function Layout({ children }: LayoutProps) {
             <Link to="/docs" className="nav-link">API 문서</Link>
             {isAuthenticated ? (
               <>
+                <Link to="/mypage" className="nav-link">마이페이지</Link>
                 <span className="nav-user">{clientName}님</span>
                 <button onClick={handleLogout} className="nav-link">
                   로그아웃

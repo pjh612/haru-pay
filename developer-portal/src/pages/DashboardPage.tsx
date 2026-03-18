@@ -43,7 +43,7 @@ function DashboardPage() {
 
     setRegenerating(true)
     try {
-      const data = await regenerateApiKey(clientId, 'REGENERATE')
+      const data = await regenerateApiKey(clientId)
       setClient(data)
       setShowApiKey(true)
     } catch (err) {

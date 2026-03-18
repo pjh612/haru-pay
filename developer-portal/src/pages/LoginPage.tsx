@@ -26,7 +26,7 @@ function LoginPage() {
     try {
       const response = await login({ email, password })
       authLogin(response.id, response.name)
-      navigate('/dashboard/' + response.id)
+      navigate('/mypage')
     } catch (err: any) {
       if (err.response?.status === 401) {
         setError('이메일 또는 비밀번호가 일치하지 않습니다.')

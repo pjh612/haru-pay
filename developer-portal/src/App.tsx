@@ -7,6 +7,7 @@ import RegisterPage from './pages/RegisterPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
 import DashboardPage from './pages/DashboardPage'
 import ApiDocsPage from './pages/ApiDocsPage'
+import MyPage from './pages/MyPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth()
@@ -29,6 +30,11 @@ function App() {
               </ProtectedRoute>
             } />
             <Route path="/docs" element={<ApiDocsPage />} />
+            <Route path="/mypage" element={
+              <ProtectedRoute>
+                <MyPage />
+              </ProtectedRoute>
+            } />
           </Routes>
         </Layout>
       </Router>

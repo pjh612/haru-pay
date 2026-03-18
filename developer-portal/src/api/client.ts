@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Client, CreateClientRequest, RegenerateApiKeyRequest } from '../types/client'
+import { Client, CreateClientRequest } from '../types/client'
 
 const api = axios.create({
   baseURL: '/api',
@@ -24,12 +24,18 @@ export async function getClient(clientId: string): Promise<Client> {
   return response.data
 }
 
-export async function regenerateApiKey(
-  clientId: string,
-  confirmation: string
-): Promise<Client> {
-  const request: RegenerateApiKeyRequest = { confirmation }
-  const response = await api.post(`/clients/${clientId}/regenerate-api-key`, request)
+export async function getMyInfo(): Promise<Client> {
+  const response = await api.get('/clients/me')
+  return response.data
+}
+
+export async function regenerateApiKey(clientId: string): Promise<Client> {
+  const response = await api.post(`/clients/${clientId}/regenerate-api-key`)
+  return response.data
+}
+
+export async function regenerateMyApiKey(): Promise<Client> {
+  const response = await api.post('/clients/me/regenerate-api-key')
   return response.data
 }
 

@@ -3,6 +3,7 @@ package com.haru.payments.adapter.in.web;
 import com.haru.payments.adapter.in.security.ClientEmailPasswordAuthenticationToken;
 import com.haru.payments.application.dto.*;
 import com.haru.payments.application.usecase.CreateClientUseCase;
+import com.haru.payments.application.usecase.ManageClientUseCase;
 import com.haru.payments.application.usecase.VerifyEmailUseCase;
 import com.haru.payments.domain.model.Client;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,7 @@ import java.util.Map;
 public class ClientController {
     private final CreateClientUseCase createClientUseCase;
     private final VerifyEmailUseCase verifyEmailUseCase;
+    private final ManageClientUseCase manageClientUseCase;
     private final AuthenticationManager authenticationManager;
 
     @PostMapping
@@ -78,5 +81,15 @@ public class ClientController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ClientResponse> getMe(@AuthenticationPrincipal Client client) {
+        return ResponseEntity.ok(manageClientUseCase.getClient(client.getId()));
+    }
+
+    @PostMapping("/me/regenerate-api-key")
+    public ResponseEntity<ClientResponse> regenerateMyApiKey(@AuthenticationPrincipal Client client) {
+        return ResponseEntity.ok(manageClientUseCase.regenerateApiKey(client.getId()));
     }
 }
