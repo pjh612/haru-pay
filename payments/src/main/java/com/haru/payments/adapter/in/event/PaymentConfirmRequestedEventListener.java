@@ -1,5 +1,6 @@
 package com.haru.payments.adapter.in.event;
 
+import com.haru.common.util.UuidUtil;
 import com.haru.payments.adapter.in.event.handler.PaymentConfirmRequestedEventHandler;
 import com.haru.payments.adapter.in.event.payload.PaymentConfirmRequestedEventPayload;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class PaymentConfirmRequestedEventListener {
             @Header("eventType") String eventType,
             @Payload PaymentConfirmRequestedEventPayload payload) {
         log.info("paymentRequest event received");
-        handler.handle(payload);
+        handler.handle(UuidUtil.uuidFromBase64(eventId), payload);
     }
 
 }

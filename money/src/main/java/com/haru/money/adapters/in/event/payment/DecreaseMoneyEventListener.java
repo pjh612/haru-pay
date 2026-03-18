@@ -1,5 +1,6 @@
 package com.haru.money.adapters.in.event.payment;
 
+import com.haru.common.util.UuidUtil;
 import com.haru.money.adapters.in.event.payment.handler.DecreaseMoneyEventHandler;
 import com.haru.money.adapters.in.event.payment.payload.DecreaseMoneyEventPayload;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,6 @@ public class DecreaseMoneyEventListener {
                        @Payload DecreaseMoneyEventPayload payload) {
         logger.debug("Kafka message received: key = {}, eventType = {}", sagaId, eventType);
 
-        handler.handle(payload);
+        handler.handle(UuidUtil.uuidFromBase64(eventId), payload);
     }
 }

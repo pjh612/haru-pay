@@ -5,6 +5,7 @@ import com.haru.money.adapters.in.event.payment.DecreasedMoneyEvent;
 import com.haru.money.adapters.in.event.payment.payload.DecreaseMoneyEventPayload;
 import com.haru.money.application.dto.DecreaseMoneyResponse;
 import com.haru.money.application.usecase.DecreaseMoneyUseCase;
+import com.haru.money.domain.repository.ProcessedEventLogRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,17 +13,25 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class DecreaseMoneyEventHandler {
+    private static final String CONSUMER_KEY = "money.decrease-money";
     private final DecreaseMoneyUseCase decreaseMoneyUseCase;
     private final ApplicationEventPublisher eventPublisher;
     private final RequiresNewExecutor requiresNewExecutor;
+    private final ProcessedEventLogRepository processedEventLogRepository;
 
     @Transactional
-    public void handle(DecreaseMoneyEventPayload payload) {
+    public void handle(UUID eventId, DecreaseMoneyEventPayload payload) {
+        if (!processedEventLogRepository.markIfFirst(CONSUMER_KEY, eventId)) {
+            log.info("Duplicate decrease-money event skipped. eventId={}", eventId);
+            return;
+        }
+
         if ("CANCEL".equals(payload.getType())) {
             decreaseMoneyUseCase.cancelDecreaseMoneyRequest(payload.getRequestId(), payload.getRequestMemberId(), payload.getRequestPrice());
             publishFailEvent(payload, payload.getFailureReason());
