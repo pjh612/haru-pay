@@ -7,6 +7,7 @@ public record PreparePaymentCommand(
         UUID clientId,
         String orderId,
         BigDecimal requestPrice,
-        String productName
+        String productName,
+        String idempotencyKey
 ) {
 }

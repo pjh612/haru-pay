@@ -15,21 +15,33 @@ public class PaymentsCommandClient {
         this.restClient = paymentsRestClient;
     }
 
-    public PreparePaymentResponse preparePayment(String clientId, String apiKey, PreparePaymentRequest request) {
-        return restClient.post()
+    public PreparePaymentResponse preparePayment(String clientId, String apiKey, PreparePaymentRequest request, String idempotencyKey) {
+        var requestSpec = restClient.post()
                 .uri("/api/payment/prepare")
                 .header("Authorization", apiKey)
-                .header("X-PAY-CLIENT-ID", clientId)
+                .header("X-PAY-CLIENT-ID", clientId);
+
+        if (idempotencyKey != null && !idempotencyKey.isBlank()) {
+            requestSpec.header("Idempotency-Key", idempotencyKey);
+        }
+
+        return requestSpec
                 .body(request)
                 .retrieve()
                 .body(PreparePaymentResponse.class);
     }
 
-    public void confirmPayment(String clientId, String apiKey, ConfirmPaymentRequest request) {
-        restClient.post()
+    public void confirmPayment(String clientId, String apiKey, ConfirmPaymentRequest request, String idempotencyKey) {
+        var requestSpec = restClient.post()
                 .uri("/api/payment/confirm")
                 .header("Authorization", apiKey)
-                .header("X-PAY-CLIENT-ID", clientId)
+                .header("X-PAY-CLIENT-ID", clientId);
+
+        if (idempotencyKey != null && !idempotencyKey.isBlank()) {
+            requestSpec.header("Idempotency-Key", idempotencyKey);
+        }
+
+        requestSpec
                 .body(request)
                 .retrieve()
                 .toBodilessEntity();

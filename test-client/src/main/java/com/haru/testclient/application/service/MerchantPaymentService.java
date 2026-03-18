@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,13 +27,14 @@ public class MerchantPaymentService {
         this.commandClient = commandClient;
     }
 
-    public PreparedPayment preparePayment(MerchantSession session, String orderId, String productName, BigDecimal requestPrice) {
+    public PreparedPayment preparePayment(MerchantSession session, String orderId, String productName, BigDecimal requestPrice, String idempotencyKey) {
         PreparePaymentRequest request = new PreparePaymentRequest(orderId, productName, requestPrice);
         
         PreparePaymentResponse response = commandClient.preparePayment(
                 session.getClientId().toString(),
                 session.getApiKey(),
-                request
+                request,
+                idempotencyKey
         );
         
         PreparedPayment payment = new PreparedPayment(
@@ -51,15 +53,40 @@ public class MerchantPaymentService {
         return payment;
     }
 
-    public void confirmPayment(MerchantSession session, UUID paymentId) {
+    public void confirmPayment(MerchantSession session, UUID paymentId, String idempotencyKey) {
         ConfirmPaymentRequest request = new ConfirmPaymentRequest(paymentId);
         commandClient.confirmPayment(
                 session.getClientId().toString(),
                 session.getApiKey(),
-                request
+                request,
+                idempotencyKey
         );
         
         updatePaymentStatus(session.getClientId().toString(), paymentId, "CONFIRMING");
+    }
+
+    public PreparedPayment confirmPreparedPayment(MerchantSession session, UUID paymentId, String orderId, BigDecimal requestPrice) {
+        PreparedPayment payment = getRequiredPayment(session.getClientId().toString(), paymentId);
+
+        if (!Objects.equals(payment.getOrderId(), orderId)) {
+            throw new IllegalArgumentException("주문 정보가 일치하지 않습니다.");
+        }
+
+        if (payment.getRequestPrice().compareTo(requestPrice) != 0) {
+            throw new IllegalArgumentException("결제 금액이 일치하지 않습니다.");
+        }
+
+        if ("SUCCEEDED".equals(payment.getStatus()) || "CONFIRMING".equals(payment.getStatus())) {
+            return payment;
+        }
+
+        if ("FAILED".equals(payment.getStatus())) {
+            throw new IllegalStateException("이미 실패한 결제입니다.");
+        }
+
+        confirmPayment(session, paymentId, null);
+        payment.setStatus("CONFIRMING");
+        return payment;
     }
 
     public List<PreparedPayment> getPayments(String clientId) {
@@ -74,5 +101,13 @@ public class MerchantPaymentService {
                     .findFirst()
                     .ifPresent(p -> p.setStatus(status));
         }
+    }
+
+    private PreparedPayment getRequiredPayment(String clientId, UUID paymentId) {
+        return paymentsByClient.getOrDefault(clientId, List.of())
+                .stream()
+                .filter(payment -> payment.getPaymentId().equals(paymentId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("결제 정보를 찾을 수 없습니다."));
     }
 }

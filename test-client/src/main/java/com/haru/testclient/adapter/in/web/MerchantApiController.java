@@ -5,16 +5,26 @@ import com.haru.testclient.application.service.MerchantRegistrationService;
 import com.haru.testclient.domain.model.MerchantSession;
 import com.haru.testclient.domain.model.PreparedPayment;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 @RestController
+@Validated
 @RequestMapping("/demo/api")
 public class MerchantApiController {
 
@@ -53,32 +63,33 @@ public class MerchantApiController {
 
     @PostMapping("/payments/prepare")
     public ResponseEntity<PreparedPayment> preparePayment(
-            @RequestParam String orderId,
-            @RequestParam String productName,
-            @RequestParam BigDecimal requestPrice,
+            @RequestBody com.haru.testclient.application.dto.PreparePaymentRequest request,
+            @RequestHeader(value = "Idempotency-Key", required = false) @Size(max = 300) String idempotencyKey,
             HttpSession session) {
-        
+
         String clientId = (String) session.getAttribute("clientId");
         if (clientId == null) {
             return ResponseEntity.badRequest().build();
         }
-        
+
         MerchantSession merchant = registrationService.getSession(clientId);
-        PreparedPayment payment = paymentService.preparePayment(merchant, orderId, productName, requestPrice);
-        
+        PreparedPayment payment = paymentService.preparePayment(merchant, request.orderId(), request.productName(), request.requestPrice(), idempotencyKey);
+
         return ResponseEntity.ok(payment);
     }
 
     @PostMapping("/payments/{paymentId}/confirm")
-    public ResponseEntity<Void> confirmPayment(@PathVariable UUID paymentId, HttpSession session) {
+    public ResponseEntity<Void> confirmPayment(@PathVariable UUID paymentId,
+                                               @RequestHeader(value = "Idempotency-Key", required = false) @Size(max = 300) String idempotencyKey,
+                                               HttpSession session) {
         String clientId = (String) session.getAttribute("clientId");
         if (clientId == null) {
             return ResponseEntity.badRequest().build();
         }
-        
+
         MerchantSession merchant = registrationService.getSession(clientId);
-        paymentService.confirmPayment(merchant, paymentId);
-        
+        paymentService.confirmPayment(merchant, paymentId, idempotencyKey);
+
         return ResponseEntity.ok().build();
     }
 
@@ -88,7 +99,7 @@ public class MerchantApiController {
         if (clientId == null) {
             return ResponseEntity.badRequest().build();
         }
-        
+
         return ResponseEntity.ok(paymentService.getPayments(clientId));
     }
 
