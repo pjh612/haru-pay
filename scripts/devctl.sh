@@ -7,7 +7,9 @@ LOG_DIR="$ROOT_DIR/.dev/logs"
 
 MODULES=(auth user-api payments money banking orchestrator test-client)
 REDIS_NODES=(redis-node-0 redis-node-1 redis-node-2 redis-node-3 redis-node-4 redis-node-5)
-REDIS_PORTS=(6479 6480 6481 6482 6483 6484)
+REDIS_INTERNAL_PORT=6379
+REDIS_EXTERNAL_PORTS=(6479 6480 6481 6482 6483 6484)
+REDIS_PASSWORD=bitnami
 INFRA_SERVICES=(
   mysql
   kafka-1 kafka-2 kafka-3
@@ -24,6 +26,7 @@ usage() {
 Usage:
   scripts/devctl.sh infra up|down|status|logs [service]
   scripts/devctl.sh module start|stop|restart|status|logs <module|all>
+  scripts/devctl.sh redis up|down|init|sessions|flush-sessions
 
 Modules:
   ${MODULES[*]}
@@ -33,6 +36,11 @@ Examples:
   scripts/devctl.sh module start payments
   scripts/devctl.sh module restart auth
   scripts/devctl.sh module logs test-client
+  scripts/devctl.sh redis up
+  scripts/devctl.sh redis init
+  scripts/devctl.sh redis down
+  scripts/devctl.sh redis sessions [key]
+  scripts/devctl.sh redis flush-sessions
 USAGE
 }
 
@@ -137,10 +145,8 @@ wait_for_redis_nodes() {
   local elapsed=0
   while (( elapsed < max_wait )); do
     local all_healthy=true
-    for i in "${!REDIS_NODES[@]}"; do
-      local node="${REDIS_NODES[$i]}"
-      local port="${REDIS_PORTS[$i]}"
-      if ! docker compose exec -T "$node" redis-cli -p "$port" -a bitnami ping 2>/dev/null | grep -q PONG; then
+    for node in "${REDIS_NODES[@]}"; do
+      if ! docker compose exec -T "$node" redis-cli -p "$REDIS_INTERNAL_PORT" -a "$REDIS_PASSWORD" ping 2>/dev/null | grep -q PONG; then
         all_healthy=false
         break
       fi
@@ -157,10 +163,9 @@ wait_for_redis_nodes() {
 }
 
 init_redis_cluster() {
-  local first_port="${REDIS_PORTS[0]}"
   local cluster_state
   cluster_state="$(docker compose exec -T "${REDIS_NODES[0]}" \
-    redis-cli -p "$first_port" -a bitnami cluster info 2>/dev/null | grep cluster_state)"
+    redis-cli -p "$REDIS_INTERNAL_PORT" -a "$REDIS_PASSWORD" cluster info 2>/dev/null | grep cluster_state)"
 
   if echo "$cluster_state" | grep -q "ok"; then
     echo "[redis] cluster already initialized — skipping"
@@ -169,14 +174,99 @@ init_redis_cluster() {
 
   echo "[redis] initializing cluster..."
   local node_addrs=""
-  for i in "${!REDIS_NODES[@]}"; do
-    node_addrs+="${REDIS_NODES[$i]}:${REDIS_PORTS[$i]} "
+  for node in "${REDIS_NODES[@]}"; do
+    node_addrs+="${node}:${REDIS_INTERNAL_PORT} "
   done
 
   docker compose exec -T "${REDIS_NODES[0]}" \
-    redis-cli -a bitnami --cluster create $node_addrs --cluster-replicas 1 --cluster-yes
+    redis-cli -a "$REDIS_PASSWORD" --cluster create $node_addrs --cluster-replicas 1 --cluster-yes
 
   echo "[redis] cluster initialized"
+}
+
+redis_sessions() {
+  local session_id="${1:-}"
+
+  if [[ -n "$session_id" ]]; then
+    echo "[redis] session: $session_id"
+    redis-cli -c -p "${REDIS_EXTERNAL_PORTS[0]}" -a "$REDIS_PASSWORD" --no-auth-warning \
+      HGETALL "$session_id" 2>/dev/null
+    return 0
+  fi
+
+  echo "[redis] scanning all nodes for session keys..."
+  local keys
+  keys="$(
+    for i in "${!REDIS_NODES[@]}"; do
+      redis-cli -p "${REDIS_EXTERNAL_PORTS[$i]}" -a "$REDIS_PASSWORD" --no-auth-warning \
+        --scan --pattern "payments:session*" 2>/dev/null
+    done | sort -u
+  )"
+
+  if [[ -z "$keys" ]]; then
+    echo "[redis] no active sessions"
+    return 0
+  fi
+
+  echo ""
+  while IFS= read -r key; do
+    echo "  $key"
+  done <<< "$keys"
+}
+
+redis_flush_sessions() {
+  echo "[redis] scanning all nodes for session keys..."
+  local keys
+  keys="$(
+    for i in "${!REDIS_NODES[@]}"; do
+      redis-cli -p "${REDIS_EXTERNAL_PORTS[$i]}" -a "$REDIS_PASSWORD" --no-auth-warning \
+        --scan --pattern "*:session*" 2>/dev/null
+    done | sort -u
+  )"
+
+  if [[ -z "$keys" ]]; then
+    echo "[redis] no session keys found"
+    return 0
+  fi
+
+  local count
+  count="$(echo "$keys" | wc -l | tr -d ' ')"
+  echo "[redis] deleting ${count} session key(s)..."
+
+  while IFS= read -r key; do
+    redis-cli -c -p "${REDIS_EXTERNAL_PORTS[0]}" -a "$REDIS_PASSWORD" --no-auth-warning \
+      DEL "$key" > /dev/null 2>&1
+    echo "  deleted: $key"
+  done <<< "$keys"
+
+  echo "[redis] done"
+}
+
+redis_up() {
+  (cd "$ROOT_DIR" && docker compose up -d "${REDIS_NODES[@]}")
+}
+
+redis_init() {
+  wait_for_redis_nodes && init_redis_cluster
+}
+
+redis_down() {
+  echo "[redis] stopping redis cluster..."
+  (cd "$ROOT_DIR" && docker compose stop "${REDIS_NODES[@]}")
+  echo "[redis] stopped"
+}
+
+run_redis_action() {
+  local action="${1:-}"
+  local arg="${2:-}"
+  case "$action" in
+    up)       redis_up ;;
+    down)     redis_down ;;
+    init)     redis_init ;;
+    sessions)        redis_sessions "$arg" ;;
+    flush-sessions)  redis_flush_sessions ;;
+    *) echo "unknown redis action: $action"; usage; exit 1 ;;
+  esac
 }
 
 infra_up() {
@@ -258,6 +348,9 @@ case "$scope" in
       exit 1
     fi
     run_module_action "$action" "$3"
+    ;;
+  redis)
+    run_redis_action "$action" "${3:-}" "${4:-}"
     ;;
   *)
     echo "unknown scope: $scope"

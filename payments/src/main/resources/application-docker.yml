@@ -27,8 +27,15 @@ spring:
       missing-topics-fatal: true
   data:
     redis:
-      host: redis
-      port: 6379
+      cluster:
+        nodes:
+          - redis-node-0:6479
+          - redis-node-1:6480
+          - redis-node-2:6481
+          - redis-node-3:6482
+          - redis-node-4:6483
+          - redis-node-5:6484
+      password: bitnami
   security:
     oauth2:
       client:

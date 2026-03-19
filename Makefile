@@ -1,4 +1,5 @@
-.PHONY: run infra-up infra-down infra-status module-start module-stop module-restart module-status
+.PHONY: run infra-up infra-down infra-status module-start module-stop module-restart module-status \
+        redis-up redis-down redis-init redis-sessions
 
 run:
 	@echo "Running ./gradlew buildDockerImage"
@@ -26,3 +27,15 @@ module-restart:
 
 module-status:
 	@./scripts/devctl.sh module status $(module)
+
+redis-up:
+	@./scripts/devctl.sh redis up
+
+redis-init:
+	@./scripts/devctl.sh redis init
+
+redis-down:
+	@./scripts/devctl.sh redis down
+
+redis-sessions:
+	@./scripts/devctl.sh redis sessions
