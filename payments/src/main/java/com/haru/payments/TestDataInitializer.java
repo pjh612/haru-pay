@@ -1,6 +1,5 @@
 package com.haru.payments;
 
-import com.fasterxml.uuid.Generators;
 import com.haru.payments.domain.model.Client;
 import com.haru.payments.domain.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +16,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TestDataInitializer {
 
+    public static final UUID TEST_CLIENT_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    public static final String TEST_API_KEY = "00000000-0000-0000-0000-000000000002";
+
     private static final String TEST_EMAIL = "test@harupay.com";
     private static final String TEST_PASSWORD = "test1234";
     private static final String TEST_NAME = "테스트 클라이언트";
@@ -30,14 +32,11 @@ public class TestDataInitializer {
             return;
         }
 
-        UUID id = Generators.timeBasedEpochGenerator().generate();
-        UUID rawApiKey = Generators.timeBasedEpochGenerator().generate();
-
         Client client = new Client(
-                id,
+                TEST_CLIENT_ID,
                 TEST_EMAIL,
                 TEST_NAME,
-                passwordEncoder.encode(rawApiKey.toString()),
+                passwordEncoder.encode(TEST_API_KEY),
                 passwordEncoder.encode(TEST_PASSWORD),
                 true,
                 true,
@@ -56,6 +55,6 @@ public class TestDataInitializer {
                  클라이언트 ID : {}
                  API Key   : {}
                 ========================================
-                """, TEST_EMAIL, TEST_PASSWORD, id, rawApiKey);
+                """, TEST_EMAIL, TEST_PASSWORD, TEST_CLIENT_ID, TEST_API_KEY);
     }
 }

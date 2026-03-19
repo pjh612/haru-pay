@@ -3,7 +3,6 @@ import type { AppConfig, MerchantSession, PaymentPopupResult, PaymentStatus, Pre
 import { confirmPayment, getConfig, getMe, getMerchant, getPayments, logout } from './api/client'
 import { usePaymentPopup } from './hooks/usePaymentPopup'
 import LoginForm from './components/LoginForm'
-import MerchantRegister from './components/MerchantRegister'
 import MerchantInfo from './components/MerchantInfo'
 import ProductCatalog from './components/ProductCatalog'
 import PaymentList from './components/PaymentList'
@@ -107,12 +106,6 @@ export default function App() {
     updatePaymentStatus(paymentId, status)
   }, [updatePaymentStatus])
 
-  const handleCleared = () => {
-    setMerchant(null)
-    setPayments([])
-    setStreamPaymentId(null)
-  }
-
   if (loading) return <p>로딩 중...</p>
 
   if (!user) return <LoginForm onLoggedIn={loadAfterLogin} />
@@ -128,29 +121,23 @@ export default function App() {
       </div>
 
       <div className="flow-description">
-        <p><strong>결제 흐름:</strong> 로그인 → 가맹점 등록 → 상품 선택 (결제하기) → 결제창 팝업 → 결제 확정 → 결과 수신</p>
+        <p><strong>결제 흐름:</strong> 로그인 → 상품 선택 (결제하기) → 결제창 팝업 → 결제 확정 → 결과 수신</p>
         <p><strong>SDK 상태:</strong> {ready ? '준비 완료' : '로딩 중...'}</p>
       </div>
 
-      {!merchant ? (
-        <MerchantRegister onRegistered={m => { setMerchant(m); refreshPayments() }} />
-      ) : (
-        <>
-          <MerchantInfo merchant={merchant} onCleared={handleCleared} />
-          <ProductCatalog onBuy={handleBuy} />
-          <PaymentList
-            payments={payments}
-            onCheckout={handleCheckout}
-            onConfirm={handleConfirm}
-            onStream={setStreamPaymentId}
-          />
-          {streamPaymentId && (
-            <EventStream
-              paymentId={streamPaymentId}
-              onStatusChange={handleStreamStatus}
-            />
-          )}
-        </>
+      {merchant && <MerchantInfo merchant={merchant} onCleared={() => {}} />}
+      <ProductCatalog onBuy={handleBuy} />
+      <PaymentList
+        payments={payments}
+        onCheckout={handleCheckout}
+        onConfirm={handleConfirm}
+        onStream={setStreamPaymentId}
+      />
+      {streamPaymentId && (
+        <EventStream
+          paymentId={streamPaymentId}
+          onStatusChange={handleStreamStatus}
+        />
       )}
     </div>
   )

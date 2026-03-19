@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -46,33 +45,16 @@ public class MerchantApiController {
     }
 
     @GetMapping("/merchant")
-    public ResponseEntity<MerchantSession> getCurrentMerchant(HttpSession session) {
-        String clientId = (String) session.getAttribute("clientId");
-        if (clientId == null) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(registrationService.getSession(clientId));
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<MerchantSession> register(@RequestParam String name, HttpSession session) {
-        MerchantSession merchant = registrationService.registerMerchant(name);
-        session.setAttribute("clientId", merchant.getClientId().toString());
-        return ResponseEntity.ok(merchant);
+    public ResponseEntity<MerchantSession> getCurrentMerchant() {
+        return ResponseEntity.ok(registrationService.getMerchant());
     }
 
     @PostMapping("/payments/prepare")
     public ResponseEntity<PreparedPayment> preparePayment(
             @RequestBody com.haru.testclient.application.dto.PreparePaymentRequest request,
-            @RequestHeader(value = "Idempotency-Key", required = false) @Size(max = 300) String idempotencyKey,
-            HttpSession session) {
+            @RequestHeader(value = "Idempotency-Key", required = false) @Size(max = 300) String idempotencyKey) {
 
-        String clientId = (String) session.getAttribute("clientId");
-        if (clientId == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        MerchantSession merchant = registrationService.getSession(clientId);
+        MerchantSession merchant = registrationService.getMerchant();
         PreparedPayment payment = paymentService.preparePayment(merchant, request.orderId(), request.productName(), request.requestPrice(), idempotencyKey);
 
         return ResponseEntity.ok(payment);
@@ -80,35 +62,21 @@ public class MerchantApiController {
 
     @PostMapping("/payments/{paymentId}/confirm")
     public ResponseEntity<Void> confirmPayment(@PathVariable UUID paymentId,
-                                               @RequestHeader(value = "Idempotency-Key", required = false) @Size(max = 300) String idempotencyKey,
-                                               HttpSession session) {
-        String clientId = (String) session.getAttribute("clientId");
-        if (clientId == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        MerchantSession merchant = registrationService.getSession(clientId);
+                                               @RequestHeader(value = "Idempotency-Key", required = false) @Size(max = 300) String idempotencyKey) {
+        MerchantSession merchant = registrationService.getMerchant();
         paymentService.confirmPayment(merchant, paymentId, idempotencyKey);
 
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/payments")
-    public ResponseEntity<List<PreparedPayment>> getPayments(HttpSession session) {
-        String clientId = (String) session.getAttribute("clientId");
-        if (clientId == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        return ResponseEntity.ok(paymentService.getPayments(clientId));
+    public ResponseEntity<List<PreparedPayment>> getPayments() {
+        MerchantSession merchant = registrationService.getMerchant();
+        return ResponseEntity.ok(paymentService.getPayments(merchant.getClientId().toString()));
     }
 
     @DeleteMapping("/session")
     public ResponseEntity<Void> clearSession(HttpSession session) {
-        String clientId = (String) session.getAttribute("clientId");
-        if (clientId != null) {
-            registrationService.clearSession(clientId);
-        }
         session.invalidate();
         return ResponseEntity.ok().build();
     }

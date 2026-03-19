@@ -3,7 +3,6 @@ package com.haru.testclient.adapter.in.web;
 import com.haru.testclient.application.service.MerchantRegistrationService;
 import com.haru.testclient.application.service.PaymentResultRelayService;
 import com.haru.testclient.domain.model.MerchantSession;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,13 +25,8 @@ public class PaymentStreamController {
     }
 
     @GetMapping("/payments/{paymentId}")
-    public SseEmitter streamPaymentResults(@PathVariable UUID paymentId, HttpSession session) {
-        String clientId = (String) session.getAttribute("clientId");
-        if (clientId == null) {
-            throw new IllegalStateException("No merchant session found");
-        }
-        
-        MerchantSession merchant = registrationService.getSession(clientId);
+    public SseEmitter streamPaymentResults(@PathVariable UUID paymentId) {
+        MerchantSession merchant = registrationService.getMerchant();
         return relayService.createEmitter(merchant, paymentId);
     }
 }

@@ -50,10 +50,6 @@ export function getMerchant(): Promise<MerchantSession | null> {
     .then(res => res.status === 204 ? null : res.json())
 }
 
-export function registerMerchant(name: string): Promise<MerchantSession> {
-  return request('/demo/api/register?name=' + encodeURIComponent(name), { method: 'POST' })
-}
-
 export function preparePayment(orderId: string, productName: string, requestPrice: number, idempotencyKey?: string): Promise<PreparedPayment> {
   return request('/demo/api/payments/prepare', {
     method: 'POST',

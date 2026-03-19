@@ -4,7 +4,6 @@ import com.haru.testclient.application.service.MerchantPaymentService;
 import com.haru.testclient.application.service.MerchantRegistrationService;
 import com.haru.testclient.domain.model.MerchantSession;
 import com.haru.testclient.domain.model.PreparedPayment;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +41,7 @@ public class DemoPageController {
         this.registrationService = registrationService;
         this.paymentService = paymentService;
     }
+
 
     @GetMapping("/")
     public String index() {
@@ -84,22 +84,13 @@ public class DemoPageController {
     public ResponseEntity<String> success(@RequestParam(required = false) UUID requestId,
                                           @RequestParam(required = false) UUID paymentId,
                                           @RequestParam String orderId,
-                                          @RequestParam BigDecimal requestPrice,
-                                          HttpSession session) {
+                                          @RequestParam BigDecimal requestPrice) {
         UUID resolvedPaymentId = paymentId != null ? paymentId : requestId;
         if (resolvedPaymentId == null) {
             return relayFailure("INVALID_PAYMENT", "결제 식별자가 없습니다.", orderId, null);
         }
 
-        String clientId = (String) session.getAttribute("clientId");
-        if (clientId == null) {
-            return relayFailure("UNAUTHORIZED", "가맹점 세션이 없습니다.", orderId, resolvedPaymentId);
-        }
-
-        MerchantSession merchant = registrationService.getSession(clientId);
-        if (merchant == null) {
-            return relayFailure("UNAUTHORIZED", "가맹점 세션이 만료되었습니다.", orderId, resolvedPaymentId);
-        }
+        MerchantSession merchant = registrationService.getMerchant();
 
         try {
             PreparedPayment payment = paymentService.confirmPreparedPayment(merchant, resolvedPaymentId, orderId, requestPrice);

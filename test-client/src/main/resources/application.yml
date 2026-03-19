@@ -12,6 +12,11 @@ payments:
   sse:
     reconnect-delay: 2s
 
+merchant:
+  client-id: 00000000-0000-0000-0000-000000000001
+  client-name: 테스트 클라이언트
+  api-key: 00000000-0000-0000-0000-000000000002
+
 logging:
   config: classpath:log4j2-spring.xml
 
