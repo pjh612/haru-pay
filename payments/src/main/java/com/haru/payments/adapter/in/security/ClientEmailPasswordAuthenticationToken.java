@@ -12,9 +12,18 @@ public class ClientEmailPasswordAuthenticationToken extends AbstractAuthenticati
     private final String password;
     private final Client client;
 
-    /**
-     * Pre-authentication token (before authentication)
-     */
+    ClientEmailPasswordAuthenticationToken(
+            String email,
+            Client client,
+            Collection<? extends GrantedAuthority> authorities,
+            boolean authenticated) {
+        super(authorities);
+        this.email = email;
+        this.password = null;
+        this.client = client;
+        super.setAuthenticated(authenticated);
+    }
+
     public ClientEmailPasswordAuthenticationToken(String email, String password) {
         super(Collections.emptyList());
         this.email = email;
@@ -23,9 +32,6 @@ public class ClientEmailPasswordAuthenticationToken extends AbstractAuthenticati
         setAuthenticated(false);
     }
 
-    /**
-     * Post-authentication token (after successful authentication)
-     */
     public ClientEmailPasswordAuthenticationToken(Client client, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.email = client.getEmail();
