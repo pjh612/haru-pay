@@ -67,6 +67,8 @@
 <script th:inline="javascript">
     var paymentId = [[${paymentId}]];
     var orderId = [[${paymentResponse.orderId()}]];
+    var successUrl = new URLSearchParams(window.location.search).get('successUrl') || '';
+    var failureUrl = new URLSearchParams(window.location.search).get('failureUrl') || '';
 </script>
 </body>
 </html>

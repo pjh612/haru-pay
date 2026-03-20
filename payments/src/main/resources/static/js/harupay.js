@@ -9,11 +9,44 @@ class HaruPaySDK {
         this.successUrl = successUrl;
         this.failureUrl = failureUrl;
         this.popup = null;
-        this.handleMessage = this.handleMessage.bind(this);
     }
 
-    getCheckoutOrigin() {
-        return new URL(this.baseUrl, window.location.origin).origin;
+    extractProblemType(problem) {
+        const defaultType = "internal-error";
+        const rawType = problem?.errorType || problem?.type;
+
+        if (!rawType || typeof rawType !== "string") {
+            return defaultType;
+        }
+
+        if (!rawType.includes("/")) {
+            return rawType;
+        }
+
+        const segments = rawType.split("/").filter(Boolean);
+        return segments.length > 0 ? segments[segments.length - 1] : defaultType;
+    }
+
+    extractProblemMessage(problem, fallback) {
+        if (problem?.detail) {
+            return String(problem.detail);
+        }
+
+        if (problem?.message) {
+            return String(problem.message);
+        }
+
+        return fallback;
+    }
+
+    createSdkError(code, message, metadata = {}) {
+        const error = new Error(message);
+        error.code = code;
+        error.problemType = metadata.type;
+        error.problemTitle = metadata.title;
+        error.problemStatus = metadata.status;
+        error.problemDetail = metadata.detail;
+        return error;
     }
 
     buildUrl(baseUrl, params) {
@@ -50,14 +83,28 @@ class HaruPaySDK {
                 "requestPrice": amount,
                 "productName": productName
             }),
-        }).then(async function (response) {
+        }).then(async (response) => {
             if (!response.ok) {
-                throw new Error("가결제 생성 요청에 실패했습니다.");
+                let problem;
+                try {
+                    problem = await response.json();
+                } catch (_) {
+                    problem = null;
+                }
+
+                const code = this.extractProblemType(problem);
+                const message = this.extractProblemMessage(problem, "가결제 생성 요청에 실패했습니다.");
+                throw this.createSdkError(code, message, {
+                    type: problem?.type,
+                    title: problem?.title,
+                    status: problem?.status,
+                    detail: problem?.detail,
+                });
             }
 
             const data = await response.json();
             if (!data || !data.paymentId) {
-                throw new Error("가결제 생성 응답에 paymentId가 없습니다.");
+                throw this.createSdkError("invalid-prepare-response", "가결제 생성 응답에 paymentId가 없습니다.");
             }
 
             return data.paymentId;
@@ -79,17 +126,16 @@ class HaruPaySDK {
             throw new Error("결제창을 열 수 없습니다.");
         }
 
-        window.removeEventListener("message", this.handleMessage);
-        window.addEventListener("message", this.handleMessage);
-
         return this.popup;
     }
 
     openPaymentWindow(paymentId, popup) {
-        const paymentUrl = `${this.baseUrl}/pay/${paymentId}`;
-        const paymentPopup = popup || this.ensurePopup();
+        const url = new URL(`${this.baseUrl}/pay/${paymentId}`);
+        url.searchParams.set('successUrl', this.successUrl);
+        url.searchParams.set('failureUrl', this.failureUrl);
 
-        paymentPopup.location.href = paymentUrl;
+        const paymentPopup = popup || this.ensurePopup();
+        paymentPopup.location.href = url.toString();
 
         return paymentId;
     }
@@ -99,87 +145,37 @@ class HaruPaySDK {
             throw new Error("결제 옵션이 필요합니다.");
         }
 
-        const hasPaymentId = !!options.paymentId;
-        const hasPrepareFields = options.orderId != null || options.productName != null || options.amount != null;
-
-        if (hasPaymentId && hasPrepareFields) {
-            throw new Error("paymentId 방식과 가결제 생성 옵션은 함께 사용할 수 없습니다.");
+        if (!this.prepareUrl) {
+            throw new Error("prepareUrl이 설정되지 않았습니다.");
         }
 
-        if (!hasPaymentId && !hasPrepareFields) {
-            throw new Error("paymentId 또는 가결제 생성 정보가 필요합니다.");
+        if (!options.orderId || !options.productName || options.amount == null) {
+            throw new Error("orderId, productName, amount는 필수입니다.");
         }
     }
 
-    handleOpenError(error, popup, options) {
-        const failureUrl = this.buildUrl(this.failureUrl, {
-            errorCode: error.code || "SDK_ERROR",
-            message: error.message || "결제에 실패했습니다.",
-            orderId: options && options.orderId,
-            paymentId: options && options.paymentId,
+    handleOpenError(error, popup) {
+        const errorUrl = this.buildUrl(`${this.baseUrl}/error-page`, {
+            code: error.code || "payment-prepare-failed",
+            message: error.message,
+            type: error.problemType,
+            title: error.problemTitle,
+            status: error.problemStatus,
+            detail: error.problemDetail,
         });
 
         if (popup && !popup.closed) {
-            popup.location.href = failureUrl;
+            popup.location.href = errorUrl;
             this.popup = null;
             return;
         }
 
-        window.location.href = failureUrl;
-    }
-
-    handleMessage(event) {
-        const data = event.data;
-
-        if (event.origin !== this.getCheckoutOrigin()) {
-            return;
-        }
-
-        if (!data) {
-            return;
-        }
-
-        if (!this.popup || this.popup.closed || event.source !== this.popup) {
-            return;
-        }
-
-        if (data.errorCode || data.status === "FAILED") {
-            window.removeEventListener("message", this.handleMessage);
-            this.popup.location.href = this.buildUrl(this.failureUrl, {
-                errorCode: data.errorCode || "PAYMENT_REQUEST_FAILED",
-                message: data.message || "결제 요청에 실패했습니다.",
-                orderId: data.orderId,
-                paymentId: data.paymentId,
-            });
-            this.popup = null;
-            return;
-        }
-
-        if (!data.requestId) {
-            return;
-        }
-
-        window.removeEventListener("message", this.handleMessage);
-        this.popup.location.href = this.buildUrl(this.successUrl, {
-            requestId: data.requestId,
-            paymentId: data.requestId,
-            orderId: data.orderId,
-            requestPrice: data.requestPrice,
-            paymentStatus: data.paymentStatus,
-            approvedAt: data.approvedAt,
-        });
-        this.popup = null;
+        window.location.href = errorUrl;
     }
 
     // 결제창 열기
     open(options) {
         this.validateOpenOptions(options);
-
-        const paymentId = options.paymentId;
-
-        if (paymentId) {
-            return Promise.resolve(this.openPaymentWindow(paymentId));
-        }
 
         let pendingPopup;
 
@@ -191,7 +187,7 @@ class HaruPaySDK {
 
         return this.createPayment(options)
             .then((createdPaymentId) => this.openPaymentWindow(createdPaymentId, pendingPopup))
-            .catch((error) => this.handleOpenError(error, pendingPopup, options));
+            .catch((error) => this.handleOpenError(error, pendingPopup));
     }
 }
 

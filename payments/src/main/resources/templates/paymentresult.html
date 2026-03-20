@@ -1,20 +1,42 @@
-<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" lang="ko">
 <head>
-    <link rel="stylesheet" type="text/css" href="/css/index.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script type="text/javascript" th:src="@{/js/paymentresult.js}"></script>
-    <title>Joy Store</title>
+    <title>Haru Pay - 결제 요청 결과</title>
 </head>
-<body>
-<div class="container">
-    <div>
-        결제 대기 화면
+<body class="bg-gray-900 text-gray-200 font-sans min-h-screen flex items-center justify-center">
+<div class="bg-gray-800 shadow-lg rounded-2xl p-10 max-w-sm w-full text-center">
+
+    <div class="text-blue-400 text-6xl mb-4">✓</div>
+    <h2 id="result-title" class="text-2xl font-extrabold mb-4">결제 요청 완료</h2>
+    <p class="text-gray-400 text-sm mb-6">주문 페이지로 돌아가 주문을 완료해주세요.</p>
+
+    <div id="result-section" class="text-left space-y-3 mb-6" style="display:none">
+        <div class="flex justify-between border-b border-gray-700 pb-3">
+            <span class="text-gray-400">결제 금액</span>
+            <span id="result-price" class="font-bold text-blue-300 text-lg"></span>
+        </div>
+        <div class="flex justify-between pt-1">
+            <span class="text-gray-400">주문 번호</span>
+            <span id="result-order" class="font-semibold text-sm break-all text-right max-w-[200px]"></span>
+        </div>
     </div>
+
+    <p id="result-message" class="text-red-400 text-sm mb-4" style="display:none"></p>
+
+    <button id="confirmBtn"
+            class="bg-blue-600 text-gray-100 w-full py-3 rounded-lg font-semibold hover:bg-blue-500 transition duration-200"
+            style="display:none">
+        다음 단계 진행
+    </button>
 </div>
-</body>
-</html>
 
 <script th:inline="javascript">
     var paymentId = [[${paymentId}]];
 </script>
-
+</body>
+</html>
