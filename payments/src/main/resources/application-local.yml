@@ -1,4 +1,7 @@
 spring:
+  jpa:
+    hibernate:
+      ddl-auto: create
   kafka:
     bootstrap-servers: localhost:9092,localhost:9095,localhost:9096
   security:
@@ -6,12 +9,13 @@ spring:
       client:
         registration:
           payments-oidc:
-            redirect-uri: http://localhost:8071/login/oauth2/code/{registrationId}
+            redirect-uri: http://payments:8071/login/oauth2/code/{registrationId}
         provider:
           spring:
-            authorization-uri: http://localhost:8072/oauth2/authorize
-            token-uri: http://localhost:8072/oauth2/token
-            jwk-set-uri: http://localhost:8072/oauth2/jwks
+            authorization-uri: http://auth:8072/oauth2/authorize
+            token-uri: http://auth:8072/oauth2/token
+            jwk-set-uri: http://auth:8072/oauth2/jwks
+            issuer-uri: http://auth:8072
 
 client:
   banking:

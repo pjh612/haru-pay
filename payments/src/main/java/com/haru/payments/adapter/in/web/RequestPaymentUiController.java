@@ -4,7 +4,7 @@ import com.haru.payments.application.dto.PaymentPageResponse;
 import com.haru.payments.application.usecase.QueryPaymentPageUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +20,8 @@ public class RequestPaymentUiController {
     private final QueryPaymentPageUseCase queryPaymentPageUseCase;
 
     @GetMapping("/{paymentRequestKey}")
-    public String payRequest(Model model, @PathVariable String paymentRequestKey, @AuthenticationPrincipal OAuth2User oAuth2User) {
-        UUID userId = UUID.fromString(oAuth2User.getAttribute("id"));
+    public String payRequest(Model model, @PathVariable String paymentRequestKey, @AuthenticationPrincipal OidcUser oidcUser) {
+        UUID userId = UUID.fromString(oidcUser.getIdToken().getClaimAsString("id"));
         PaymentPageResponse page = queryPaymentPageUseCase.query(UUID.fromString(paymentRequestKey), userId);
 
         model.addAttribute("shortfallAmount", page.shortfallAmount());

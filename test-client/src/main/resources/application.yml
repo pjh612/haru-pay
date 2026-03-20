@@ -5,8 +5,8 @@ server:
   port: 8080
 
 payments:
-  base-url: http://localhost:8071
-  checkout-url: http://localhost:8071
+  base-url: http://payments:8071
+  checkout-url: http://payments:8071
   connect-timeout: 3s
   read-timeout: 10s
   sse:

@@ -52,7 +52,12 @@ public class JpaOAuth2AuthorizationService implements OAuth2AuthorizationService
 
         BasicPolymorphicTypeValidator.Builder ptvBuilder =
                 BasicPolymorphicTypeValidator.builder()
-                        .allowIfSubType(MemberPrincipal.class);
+                        .allowIfSubType(MemberPrincipal.class)
+                        .allowIfSubType("java.util")
+                        .allowIfSubType("java.lang")
+                        .allowIfSubType("java.time")
+                        .allowIfSubType("java.math")
+                        .allowIfSubType("org.springframework.security");
 
         this.jsonMapper = JsonMapper.builder()
                 .addModules(SecurityJacksonModules.getModules(classLoader, ptvBuilder))

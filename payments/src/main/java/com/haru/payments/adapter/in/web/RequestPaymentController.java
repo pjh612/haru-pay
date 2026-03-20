@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +39,8 @@ public class RequestPaymentController {
 
     @ResponseBody
     @PostMapping("/api/payment/request")
-    public RequestPaymentResponse requestPayment(@Valid @RequestBody RequestPaymentRequest request, @AuthenticationPrincipal OAuth2User oAuth2User) {
-        UUID userId = UUID.fromString(oAuth2User.getAttribute("id"));
+    public RequestPaymentResponse requestPayment(@Valid @RequestBody RequestPaymentRequest request, @AuthenticationPrincipal OidcUser oidcUser) {
+        UUID userId = UUID.fromString(oidcUser.getIdToken().getClaimAsString("id"));
         RequestPaymentCommand command = new RequestPaymentCommand(request.paymentRequestId(), userId);
 
         return requestPaymentUseCase.requestPayment(command);

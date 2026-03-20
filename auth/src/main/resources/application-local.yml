@@ -2,7 +2,7 @@ spring:
   security:
     oauth2:
       authorizationserver:
-        issuer: http://localhost:8072
+        issuer: http://auth:8072
 
 client:
   user:

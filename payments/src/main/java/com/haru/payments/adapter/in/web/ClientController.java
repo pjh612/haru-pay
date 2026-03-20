@@ -1,12 +1,15 @@
 package com.haru.payments.adapter.in.web;
 
 import com.haru.payments.adapter.in.security.ClientEmailPasswordAuthenticationToken;
+import com.haru.payments.adapter.in.security.SessionConfig;
 import com.haru.payments.application.dto.*;
 import com.haru.payments.application.usecase.CreateClientUseCase;
 import com.haru.payments.application.usecase.ManageClientUseCase;
 import com.haru.payments.application.usecase.VerifyEmailUseCase;
 import com.haru.payments.domain.model.Client;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -64,12 +67,17 @@ public class ClientController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Map<String, String>> logout(HttpServletRequest request) {
+    public ResponseEntity<Map<String, String>> logout(HttpServletRequest request, HttpServletResponse response) {
         SecurityContextHolder.clearContext();
         var session = request.getSession(false);
         if (session != null) {
             session.invalidate();
         }
+        Cookie sessionCookie = new Cookie(SessionConfig.SESSION_COOKIE_NAME, "");
+        sessionCookie.setPath("/");
+        sessionCookie.setHttpOnly(true);
+        sessionCookie.setMaxAge(0);
+        response.addCookie(sessionCookie);
         return ResponseEntity.ok(Map.of("message", "로그아웃 되었습니다."));
     }
 

@@ -7,4 +7,4 @@ server:
 
 payments:
   base-url: http://payments:8071
-  checkout-url: http://localhost:8071
+  checkout-url: http://payments:8071

@@ -35,7 +35,7 @@ npm run build
 `.env` 파일을 생성하고 다음 변수를 설정하세요:
 
 ```
-VITE_API_BASE_URL=http://localhost:8071
+VITE_API_BASE_URL=http://payments:8071
 ```
 
 ## API 연동

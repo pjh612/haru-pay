@@ -3,8 +3,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://localhost:8072
-          jwk-set-uri: http://localhost:8072/.well-known/jwks.json
+          issuer-uri: http://auth:8072
+          jwk-set-uri: http://auth:8072/.well-known/jwks.json
 
 logging:
   config: classpath:log4j2-spring.xml
