@@ -1,13 +1,5 @@
-import axios from 'axios'
 import { LoginRequest, LoginResponse, VerifyEmailRequest } from '../types/auth'
-
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
-})
+import api from './http'
 
 export async function login(request: LoginRequest): Promise<LoginResponse> {
   const response = await api.post('/clients/login', request)

@@ -174,8 +174,14 @@ public class SecurityConfig {
     @Bean
     @Order(3)
     SecurityFilterChain developerCenterSecurityFilterChain(HttpSecurity http) {
+        AuthenticationEntryPoint apiAuthenticationEntryPoint = apiAuthenticationEntryPoint();
+        AccessDeniedHandler apiAccessDeniedHandler = apiAccessDeniedHandler();
         http.csrf(AbstractHttpConfigurer::disable)
                 .securityMatcher(DEVELOPER_CENTER_REQUESTS)
+                .exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint(apiAuthenticationEntryPoint)
+                        .accessDeniedHandler(apiAccessDeniedHandler)
+                )
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()

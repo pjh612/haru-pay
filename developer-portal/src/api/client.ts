@@ -1,13 +1,5 @@
-import axios from 'axios'
 import { Client, CreateClientRequest } from '../types/client'
-
-const api = axios.create({
-  baseURL: '/api',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  withCredentials: true,
-})
+import api from './http'
 
 export async function registerClient(email: string, name: string, password: string): Promise<Client> {
   const request: CreateClientRequest = { email, name, password }

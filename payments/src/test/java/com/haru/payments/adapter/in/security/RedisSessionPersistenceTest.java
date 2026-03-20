@@ -97,7 +97,7 @@ class RedisSessionPersistenceTest extends ContainerizedIntegrationTest {
     }
 
     @Test
-    void deletedDeveloperSession_ShouldReturnForbiddenWithoutRedirectingToPayerOidcFlow() throws Exception {
+    void deletedDeveloperSession_ShouldReturnUnauthorizedWithoutRedirectingToPayerOidcFlow() throws Exception {
         HttpClient client = HttpClient.newBuilder()
                 .followRedirects(HttpClient.Redirect.NEVER)
                 .build();
@@ -123,7 +123,7 @@ class RedisSessionPersistenceTest extends ContainerizedIntegrationTest {
 
         HttpResponse<String> refreshResponse = client.send(protectedRequest, HttpResponse.BodyHandlers.ofString());
 
-        assertThat(refreshResponse.statusCode()).isEqualTo(403);
+        assertThat(refreshResponse.statusCode()).isEqualTo(401);
         assertThat(refreshResponse.headers().firstValue("Location")).isEmpty();
 
         Set<String> sessionKeysAfterRefresh = sessionKeys();
