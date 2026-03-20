@@ -1,67 +1,186 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<html lang="ko" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Haru Pay 결제 페이지">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        surface: {
+                            950: '#09090b',
+                            900: '#111114',
+                            800: '#18181c',
+                            700: '#27272e',
+                            600: '#3f3f48',
+                        },
+                        accent: {
+                            DEFAULT: '#3b82f6',
+                            light: '#60a5fa',
+                            muted: '#2563eb',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
     <script type="text/javascript" th:src="@{/js/pay.js}"></script>
     <title>Haru Pay</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+    <style>
+        *, *::before, *::after { word-break: keep-all; }
+        body {
+            background-image:
+                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(59,130,246,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 80% 90%, rgba(59,130,246,0.05) 0%, transparent 50%);
+        }
+        .card {
+            background: rgba(24, 24, 28, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .card-inner {
+            background: rgba(39, 39, 46, 0.5);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .badge-glow {
+            box-shadow: 0 0 12px rgba(59,130,246,0.15);
+        }
+        .btn-pay {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 4px 20px rgba(59,130,246,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn-pay:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 28px rgba(59,130,246,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .btn-pay:active:not(:disabled) {
+            transform: scale(0.98);
+        }
+        .btn-pay:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .fade-in {
+            animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .fade-in-delay-1 { animation-delay: 0.1s; }
+        .fade-in-delay-2 { animation-delay: 0.2s; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .loading-shimmer {
+            background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.04) 50%, transparent 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        .money-icon {
+            background: linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%);
+            border: 1px solid rgba(59,130,246,0.15);
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-200 font-sans">
-<!-- Header -->
-<div class="bg-gray-800 shadow-lg rounded-2xl p-6 mb-6">
-    <h1 class="text-2xl font-extrabold flex items-center space-x-3">
-        <span class="text-blue-400">Haru Pay</span>
-        <span class="text-pink-400">머니</span>
-    </h1>
-    <div class="mt-4">
-        <div class="flex justify-between items-center">
+<body class="bg-surface-950 text-gray-200 font-sans min-h-screen flex flex-col items-center justify-center p-4">
+
+<div class="w-full max-w-[420px] space-y-4">
+
+    <!-- Header: 잔액 -->
+    <section class="card rounded-2xl p-6 fade-in">
+        <div class="flex items-center gap-2 mb-5">
+            <div class="w-8 h-8 rounded-lg money-icon flex items-center justify-center">
+                <svg class="w-4 h-4 text-accent-light" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                </svg>
+            </div>
+            <h1 class="text-lg font-bold tracking-tight">
+                <span class="text-accent-light">Haru Pay</span>
+                <span class="text-gray-300 ml-1">머니</span>
+            </h1>
+        </div>
+        <div class="flex justify-between items-end">
             <div>
-                <p class="text-gray-400 text-sm">보유</p>
-                <p class="text-xl font-semibold">머니</p>
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1">보유 잔액</p>
             </div>
-            <div class="text-right">
-                <p class="text-3xl font-bold text-blue-300" th:text="${#numbers.formatDecimal(moneyBalance, 0, 'POINT', 0,'COMMA').concat('원')}"></p>
-            </div>
+            <p class="text-3xl font-bold text-white tabular-nums tracking-tight"
+               th:text="${#numbers.formatDecimal(moneyBalance, 0, 'POINT', 0,'COMMA').concat('원')}"></p>
         </div>
-    </div>
-</div>
+    </section>
 
-<!-- 결제수단 -->
-<div class="bg-gray-800 shadow-lg rounded-2xl p-6 mb-6">
-    <h2 class="text-xl font-bold flex justify-between items-center">
-        <span>결제수단</span>
-        <span class="text-pink-300 text-2xl font-extrabold" th:text="${#numbers.formatDecimal(amount, 0, 'POINT', 0,'COMMA').concat('원')}"></span>
-    </h2>
-    <div class="mt-4">
-        <div class="flex items-center space-x-4">
-            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-gray-200 font-bold">O</div>
-            <p class="text-gray-300" th:if="${moneyBalance.compareTo(amount) == -1}">Haru Pay 머니 충전결제</p>
-            <p class="text-gray-300" th:if="${moneyBalance.compareTo(amount) != -1}">Haru Pay 머니</p>
-            <span class="bg-pink-600 text-pink-100 text-sm px-3 py-1 rounded-full font-medium">최대 3% 적립</span>
+    <!-- 결제수단 -->
+    <section class="card rounded-2xl p-6 fade-in fade-in-delay-1">
+        <div class="flex justify-between items-center mb-5">
+            <h2 class="text-base font-bold text-gray-200">결제수단</h2>
+            <span class="text-2xl font-bold text-white tabular-nums tracking-tight"
+                  th:text="${#numbers.formatDecimal(amount, 0, 'POINT', 0,'COMMA').concat('원')}"></span>
         </div>
-        <div class="mt-4 border-t border-gray-700 pt-4" th:if="${moneyBalance.compareTo(amount) == -1}">
-            <label for="charge" class="block text-gray-400 mb-2">충전 금액</label>
-            <div id="charge" class="border border-gray-600 bg-gray-700 rounded-lg w-full px-4 py-2 text-gray-200 focus:ring-2 focus:ring-blue-500">
-                <span th:text="${#numbers.formatDecimal(shortfallAmount, 0, 'POINT', 0,'COMMA').concat('원')}"></span>
-            </div>
-            <label for="bank" class="block text-gray-400 mt-4 mb-2">결제 계좌</label>
-            <div id="bank" class="border border-gray-600 bg-gray-700 rounded-lg w-full px-4 py-2 text-gray-200 focus:ring-2 focus:ring-pink-500">
-                <span th:text="${registeredBankName}"></span>
-                <span th:text="${registeredBankAccountNumber}"></span>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- 최종 결제 -->
-<div class="bg-gray-800 shadow-lg rounded-2xl p-6">
-    <p class="text-gray-400">거래정보 제공 동의: <span class="text-blue-400" th:text="${clientName}"></span></p>
-    <p class="text-gray-400 mt-4">주문 내용을 확인하였으며, 정보 제공 등에 동의합니다.</p>
-    <button id="submitPay" class="bg-blue-600 text-gray-100 w-full py-3 rounded-lg mt-4 font-semibold hover:bg-blue-500 transition duration-200">
-        결제하기
-    </button>
+        <div class="card-inner rounded-xl p-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl money-icon flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-accent-light" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 0 0-2.25-2.25H15a3 3 0 1 1-6 0H5.25A2.25 2.25 0 0 0 3 12m18 0v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 9m18 0V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v3"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-gray-200" th:if="${moneyBalance.compareTo(amount) == -1}">Haru Pay 머니 충전결제</p>
+                    <p class="text-sm font-semibold text-gray-200" th:if="${moneyBalance.compareTo(amount) != -1}">Haru Pay 머니</p>
+                </div>
+                <span class="badge-glow bg-accent/15 text-accent-light text-xs px-2.5 py-1 rounded-full font-semibold flex-shrink-0">
+                    최대 3% 적립
+                </span>
+            </div>
+
+            <!-- 충전 필요 시 -->
+            <div th:if="${moneyBalance.compareTo(amount) == -1}" class="mt-4 pt-4 border-t border-white/5 space-y-3">
+                <div>
+                    <label class="block text-xs text-gray-500 font-medium mb-1.5">충전 금액</label>
+                    <div class="bg-surface-950/60 border border-white/5 rounded-lg px-4 py-2.5 text-sm font-semibold text-white tabular-nums">
+                        <span th:text="${#numbers.formatDecimal(shortfallAmount, 0, 'POINT', 0,'COMMA').concat('원')}"></span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 font-medium mb-1.5">결제 계좌</label>
+                    <div class="bg-surface-950/60 border border-white/5 rounded-lg px-4 py-2.5 text-sm text-gray-300">
+                        <span th:text="${registeredBankName}"></span>
+                        <span class="text-gray-500 ml-1" th:text="${registeredBankAccountNumber}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 최종 결제 -->
+    <section class="card rounded-2xl p-6 fade-in fade-in-delay-2">
+        <div class="space-y-3 mb-5">
+            <p class="text-xs text-gray-500 leading-relaxed">
+                거래정보 제공 동의:
+                <span class="text-accent-light font-medium" th:text="${clientName}"></span>
+            </p>
+            <p class="text-xs text-gray-500 leading-relaxed">
+                주문 내용을 확인하였으며, 정보 제공 등에 동의합니다.
+            </p>
+        </div>
+        <button id="submitPay"
+                class="btn-pay text-white w-full py-3.5 rounded-xl text-base font-bold tracking-tight">
+            결제하기
+        </button>
+    </section>
+
 </div>
 
 <script th:inline="javascript">

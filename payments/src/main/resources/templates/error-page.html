@@ -1,26 +1,114 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<html lang="ko" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Haru Pay 오류">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        surface: {
+                            950: '#09090b',
+                            900: '#111114',
+                            800: '#18181c',
+                            700: '#27272e',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
     <title>Haru Pay - 오류</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+    <style>
+        *, *::before, *::after { word-break: keep-all; }
+        body {
+            background-image:
+                radial-gradient(ellipse 60% 40% at 50% 0%, rgba(239,68,68,0.06) 0%, transparent 60%);
+        }
+        .card {
+            background: rgba(24, 24, 28, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .error-icon {
+            background: linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(239,68,68,0.03) 100%);
+            border: 1px solid rgba(239,68,68,0.12);
+        }
+        .detail-block {
+            background: rgba(9, 9, 11, 0.6);
+            border: 1px solid rgba(255,255,255,0.04);
+        }
+        .fade-in {
+            animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-3px); }
+            40% { transform: translateX(3px); }
+            60% { transform: translateX(-2px); }
+            80% { transform: translateX(2px); }
+        }
+        .shake-in {
+            animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both,
+                       shake 0.5s ease-in-out 0.4s;
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-200 font-sans min-h-screen flex items-center justify-center">
-<div class="bg-gray-800 shadow-lg rounded-2xl p-10 max-w-2xl w-full">
-    <div class="text-red-400 text-6xl mb-4">&#9888;</div>
-    <h1 class="text-2xl font-extrabold text-blue-400 mb-2">Haru Pay Error</h1>
-    <p class="text-gray-300 text-lg font-semibold mb-6" th:text="${message}">오류가 발생했습니다.</p>
+<body class="bg-surface-950 text-gray-200 font-sans min-h-screen flex items-center justify-center p-4">
 
-    <div class="bg-gray-900 rounded-lg p-4 text-sm font-mono text-gray-200 space-y-2">
-        <p><span class="text-gray-400">type:</span> <span th:text="${type} ?: '-'">-</span></p>
-        <p><span class="text-gray-400">title:</span> <span th:text="${title} ?: '-'">-</span></p>
-        <p><span class="text-gray-400">status:</span> <span th:text="${status} ?: '-'">-</span></p>
-        <p><span class="text-gray-400">detail:</span> <span th:text="${detail} ?: '-'">-</span></p>
-        <p><span class="text-gray-400">code:</span> <span th:text="${code} ?: '-'">-</span></p>
+<div class="w-full max-w-[480px]">
+    <div class="card rounded-2xl p-8 fade-in">
+
+        <!-- 에러 아이콘 -->
+        <div class="w-14 h-14 rounded-2xl error-icon flex items-center justify-center mb-6 shake-in">
+            <svg class="w-7 h-7 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
+            </svg>
+        </div>
+
+        <h1 class="text-xl font-bold text-white tracking-tight mb-2">오류가 발생했습니다</h1>
+        <p class="text-sm text-gray-400 leading-relaxed mb-6" th:text="${message}">오류가 발생했습니다.</p>
+
+        <!-- 상세 정보 -->
+        <div class="detail-block rounded-xl p-4 space-y-2.5 text-sm font-mono">
+            <div class="flex gap-3">
+                <span class="text-gray-600 flex-shrink-0 w-12 text-right">type</span>
+                <span class="text-gray-300" th:text="${type} ?: '-'">-</span>
+            </div>
+            <div class="flex gap-3">
+                <span class="text-gray-600 flex-shrink-0 w-12 text-right">title</span>
+                <span class="text-gray-300" th:text="${title} ?: '-'">-</span>
+            </div>
+            <div class="flex gap-3">
+                <span class="text-gray-600 flex-shrink-0 w-12 text-right">status</span>
+                <span class="text-gray-300" th:text="${status} ?: '-'">-</span>
+            </div>
+            <div class="flex gap-3">
+                <span class="text-gray-600 flex-shrink-0 w-12 text-right">detail</span>
+                <span class="text-gray-300 break-all" th:text="${detail} ?: '-'">-</span>
+            </div>
+            <div class="flex gap-3">
+                <span class="text-gray-600 flex-shrink-0 w-12 text-right">code</span>
+                <span class="text-red-400/80 font-semibold" th:text="${code} ?: '-'">-</span>
+            </div>
+        </div>
+
+        <p class="text-xs text-gray-600 mt-6 leading-relaxed">문제가 지속되면 서비스 관리자에게 문의하세요.</p>
     </div>
-
-    <p class="text-gray-500 text-sm mt-6">문제가 지속되면 서비스 관리자에게 문의하세요.</p>
 </div>
+
 </body>
 </html>

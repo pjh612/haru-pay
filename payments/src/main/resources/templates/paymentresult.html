@@ -1,38 +1,133 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" lang="ko">
+<html lang="ko" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Haru Pay 결제 결과">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        surface: {
+                            950: '#09090b',
+                            900: '#111114',
+                            800: '#18181c',
+                            700: '#27272e',
+                        },
+                        accent: {
+                            DEFAULT: '#3b82f6',
+                            light: '#60a5fa',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
     <script type="text/javascript" th:src="@{/js/paymentresult.js}"></script>
     <title>Haru Pay - 결제 요청 결과</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+    <style>
+        *, *::before, *::after { word-break: keep-all; }
+        body {
+            background-image:
+                radial-gradient(ellipse 80% 60% at 50% -10%, rgba(59,130,246,0.08) 0%, transparent 60%);
+        }
+        .card {
+            background: rgba(24, 24, 28, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .success-icon {
+            background: linear-gradient(135deg, rgba(34,197,94,0.15) 0%, rgba(34,197,94,0.03) 100%);
+            border: 1px solid rgba(34,197,94,0.12);
+        }
+        .error-icon {
+            background: linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(239,68,68,0.03) 100%);
+            border: 1px solid rgba(239,68,68,0.12);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 4px 20px rgba(59,130,246,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 28px rgba(59,130,246,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+        .fade-in {
+            animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .icon-animate {
+            animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+        }
+        @keyframes checkDraw {
+            from { stroke-dashoffset: 24; }
+            to { stroke-dashoffset: 0; }
+        }
+        .check-draw {
+            stroke-dasharray: 24;
+            stroke-dashoffset: 24;
+            animation: checkDraw 0.4s ease-out 0.4s forwards;
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-200 font-sans min-h-screen flex items-center justify-center">
-<div class="bg-gray-800 shadow-lg rounded-2xl p-10 max-w-sm w-full text-center">
+<body class="bg-surface-950 text-gray-200 font-sans min-h-screen flex items-center justify-center p-4">
 
-    <div class="text-blue-400 text-6xl mb-4">✓</div>
-    <h2 id="result-title" class="text-2xl font-extrabold mb-4">결제 요청 완료</h2>
-    <p class="text-gray-400 text-sm mb-6">주문 페이지로 돌아가 주문을 완료해주세요.</p>
+<div class="w-full max-w-[420px]">
+    <div class="card rounded-2xl p-8 text-center fade-in">
 
-    <div id="result-section" class="text-left space-y-3 mb-6" style="display:none">
-        <div class="flex justify-between border-b border-gray-700 pb-3">
-            <span class="text-gray-400">결제 금액</span>
-            <span id="result-price" class="font-bold text-blue-300 text-lg"></span>
+        <!-- 성공 아이콘 -->
+        <div id="result-icon-wrap" class="mx-auto w-16 h-16 rounded-2xl success-icon flex items-center justify-center mb-6 icon-animate">
+            <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path class="check-draw" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
         </div>
-        <div class="flex justify-between pt-1">
-            <span class="text-gray-400">주문 번호</span>
-            <span id="result-order" class="font-semibold text-sm break-all text-right max-w-[200px]"></span>
+
+        <h2 id="result-title" class="text-xl font-bold text-white tracking-tight mb-2">결제 요청 완료</h2>
+        <p id="result-subtitle" class="text-sm text-gray-500 mb-8 leading-relaxed">주문 페이지로 돌아가 주문을 완료해주세요.</p>
+
+        <!-- 결제 정보 -->
+        <div id="result-section" class="text-left mb-8 rounded-xl bg-surface-950/50 border border-white/5 p-4 space-y-3" style="display:none">
+            <div class="flex justify-between items-center">
+                <span class="text-xs text-gray-500 font-medium">결제 금액</span>
+                <span id="result-price" class="text-lg font-bold text-white tabular-nums"></span>
+            </div>
+            <div class="h-px bg-white/5"></div>
+            <div class="flex justify-between items-start">
+                <span class="text-xs text-gray-500 font-medium">주문 번호</span>
+                <span id="result-order" class="text-sm font-medium text-gray-300 text-right max-w-[220px] break-all"></span>
+            </div>
         </div>
+
+        <!-- 에러 메시지 -->
+        <p id="result-message" class="text-sm text-red-400/90 mb-6 leading-relaxed" style="display:none"></p>
+
+        <!-- 버튼 -->
+        <button id="confirmBtn"
+                class="btn-primary text-white w-full py-3.5 rounded-xl text-base font-bold tracking-tight"
+                style="display:none">
+            다음 단계 진행
+        </button>
     </div>
-
-    <p id="result-message" class="text-red-400 text-sm mb-4" style="display:none"></p>
-
-    <button id="confirmBtn"
-            class="bg-blue-600 text-gray-100 w-full py-3 rounded-lg font-semibold hover:bg-blue-500 transition duration-200"
-            style="display:none">
-        다음 단계 진행
-    </button>
 </div>
 
 <script th:inline="javascript">
