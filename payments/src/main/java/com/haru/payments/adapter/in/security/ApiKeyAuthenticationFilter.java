@@ -8,15 +8,19 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
     private final AuthenticationManager authenticationManager;
+    private final AuthenticationEntryPoint authenticationEntryPoint;
 
-    public ApiKeyAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public ApiKeyAuthenticationFilter(AuthenticationManager authenticationManager,
+                                      AuthenticationEntryPoint authenticationEntryPoint) {
         this.authenticationManager = authenticationManager;
+        this.authenticationEntryPoint = authenticationEntryPoint;
     }
 
     @Override
@@ -33,7 +37,7 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (AuthenticationException e) {
                 SecurityContextHolder.clearContext();
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, e.getMessage());
+                authenticationEntryPoint.commence(request, response, e);
                 return;
             }
         }

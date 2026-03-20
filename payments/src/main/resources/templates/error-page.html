@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Haru Pay - 오류</title>
+</head>
+<body class="bg-gray-900 text-gray-200 font-sans min-h-screen flex items-center justify-center">
+<div class="bg-gray-800 shadow-lg rounded-2xl p-10 max-w-2xl w-full">
+    <div class="text-red-400 text-6xl mb-4">&#9888;</div>
+    <h1 class="text-2xl font-extrabold text-blue-400 mb-2">Haru Pay Error</h1>
+    <p class="text-gray-300 text-lg font-semibold mb-6" th:text="${message}">오류가 발생했습니다.</p>
+
+    <div class="bg-gray-900 rounded-lg p-4 text-sm font-mono text-gray-200 space-y-2">
+        <p><span class="text-gray-400">type:</span> <span th:text="${type} ?: '-'">-</span></p>
+        <p><span class="text-gray-400">title:</span> <span th:text="${title} ?: '-'">-</span></p>
+        <p><span class="text-gray-400">status:</span> <span th:text="${status} ?: '-'">-</span></p>
+        <p><span class="text-gray-400">detail:</span> <span th:text="${detail} ?: '-'">-</span></p>
+        <p><span class="text-gray-400">code:</span> <span th:text="${code} ?: '-'">-</span></p>
+    </div>
+
+    <p class="text-gray-500 text-sm mt-6">문제가 지속되면 서비스 관리자에게 문의하세요.</p>
+</div>
+</body>
+</html>
