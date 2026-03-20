@@ -1,9 +1,6 @@
 package com.haru.payments.application.usecase.impl;
 
 import com.fasterxml.uuid.Generators;
-import com.haru.payments.application.port.out.client.BankingClient;
-import com.haru.payments.application.port.out.client.MemberClient;
-import com.haru.payments.application.port.out.client.MoneyClient;
 import com.haru.payments.application.client.dto.LoadMoneyResponse;
 import com.haru.payments.application.client.dto.MemberResponse;
 import com.haru.payments.application.client.dto.MoneyResponse;
@@ -11,10 +8,14 @@ import com.haru.payments.application.client.dto.RegisteredBankAccountResponse;
 import com.haru.payments.application.dto.PaymentResponse;
 import com.haru.payments.application.dto.PreparePaymentCommand;
 import com.haru.payments.application.dto.RequestPaymentCommand;
+import com.haru.payments.application.port.out.client.BankingClient;
+import com.haru.payments.application.port.out.client.MemberClient;
+import com.haru.payments.application.port.out.client.MoneyClient;
 import com.haru.payments.domain.repository.PaymentRequestRepository;
 import com.haru.payments.support.ContainerizedIntegrationTest;
-import org.junit.jupiter.api.Test;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
@@ -22,10 +23,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -88,21 +92,42 @@ class RequestPaymentServiceTest extends ContainerizedIntegrationTest {
         int threadCount = 100;
         ExecutorService executorService = Executors.newFixedThreadPool(32);
         CountDownLatch latch = new CountDownLatch(threadCount);
+        List<Future<Boolean>> futures = new ArrayList<>();
 
         for (int i = 0; i < threadCount; i++) {
-            executorService.submit(() -> {
+            futures.add(executorService.submit(() -> {
                 try {
                     paymentService.requestPayment(requestPaymentCommand);
-                } catch (Exception ignored) {
+                    return true;
+                } catch (EntityNotFoundException expected) {
+                    return false;
+                } catch (RuntimeException expected) {
+                    if ("already locked".equals(expected.getMessage())) {
+                        return false;
+                    }
+                    throw expected;
                 } finally {
                     latch.countDown();
                 }
-            });
+            }));
         }
 
-        latch.await(30, TimeUnit.SECONDS);
+        assertThat(latch.await(30, TimeUnit.SECONDS)).isTrue();
         executorService.shutdown();
+        assertThat(executorService.awaitTermination(10, TimeUnit.SECONDS)).isTrue();
 
+        int successCount = 0;
+        for (Future<Boolean> future : futures) {
+            try {
+                if (Boolean.TRUE.equals(future.get())) {
+                    successCount++;
+                }
+            } catch (Exception e) {
+                throw new AssertionError("Concurrent request execution failed", e);
+            }
+        }
+
+        assertThat(successCount).isEqualTo(1);
         verify(moneyClient, times(1)).loadMoney(any(UUID.class), any(BigDecimal.class));
         assertThat(paymentRequestRepository.findById(paymentResponse.requestId())).isPresent();
     }

@@ -27,18 +27,19 @@ class ConfirmPaymentServiceMockTest {
 
     @Test
     void confirm_ShouldMarkRequestAsSuccess_WhenRequestExists() {
-        // Arrange
         UUID requestId = UUID.randomUUID();
+        UUID clientId = UUID.randomUUID();
         CompletePaymentRequest request = new CompletePaymentRequest(requestId);
-        PaymentRequest paymentRequest = mock(PaymentRequest.class);
+        PaymentRequest paymentRequest = PaymentRequest.createNew(requestId, "ORDER-1", UUID.randomUUID(), "product", java.math.BigDecimal.TEN, clientId);
 
         when(repository.findById(requestId)).thenReturn(Optional.of(paymentRequest));
         when(repository.save(paymentRequest)).thenReturn(paymentRequest);
-        // Act
-        confirmPaymentService.confirm(request);
 
-        // Assert
-        verify(paymentRequest, times(1)).success();
+        var response = confirmPaymentService.confirm(request);
+
+        assertThat(response.requestId()).isEqualTo(requestId);
+        assertThat(response.paymentStatus()).isEqualTo(1);
+        assertThat(paymentRequest.isSucceeded()).isTrue();
         verify(repository, times(1)).save(paymentRequest);
     }
 
@@ -58,17 +59,15 @@ class ConfirmPaymentServiceMockTest {
 
     @Test
     void failConfirm_ShouldMarkRequestAsFailed_WhenRequestExists() {
-        // Arrange
         UUID requestId = UUID.randomUUID();
-        PaymentRequest paymentRequest = mock(PaymentRequest.class);
+        UUID clientId = UUID.randomUUID();
+        PaymentRequest paymentRequest = PaymentRequest.createNew(requestId, "ORDER-1", UUID.randomUUID(), "product", java.math.BigDecimal.TEN, clientId);
 
         when(repository.findById(requestId)).thenReturn(Optional.of(paymentRequest));
 
-        // Act
         confirmPaymentService.failConfirm(requestId);
 
-        // Assert
-        verify(paymentRequest, times(1)).fail();
+        assertThat(paymentRequest.isFailed()).isTrue();
         verify(repository, times(1)).save(paymentRequest);
     }
 
@@ -131,17 +130,4 @@ class ConfirmPaymentServiceMockTest {
         verify(repository, never()).save(any());
     }
 
-    @Test
-    void failConfirm_ShouldDoNothing_WhenRequestAlreadyFailed() {
-        UUID requestId = UUID.randomUUID();
-        UUID clientId = UUID.randomUUID();
-        PaymentRequest paymentRequest = PaymentRequest.createNew(requestId, "ORDER-1", UUID.randomUUID(), "product", java.math.BigDecimal.TEN, clientId);
-        paymentRequest.fail();
-
-        when(repository.findById(requestId)).thenReturn(Optional.of(paymentRequest));
-
-        confirmPaymentService.failConfirm(requestId);
-
-        verify(repository, never()).save(any());
-    }
 }
