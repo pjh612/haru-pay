@@ -33,7 +33,7 @@ import java.util.List;
 @EnableRedisHttpSession(redisNamespace = SessionConfig.SESSION_NAMESPACE)
 public class SessionConfig implements BeanClassLoaderAware {
 
-    public static final String SESSION_NAMESPACE = "payments:";
+    public static final String SESSION_NAMESPACE = "payments";
     public static final String SESSION_COOKIE_NAME = "PAYMENTS_SESSION";
 
     private ClassLoader loader;
