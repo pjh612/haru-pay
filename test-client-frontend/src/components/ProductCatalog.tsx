@@ -31,11 +31,15 @@ export default function ProductCatalog({ onBuy }: Props) {
   }
 
   return (
-    <div className="section">
-      <h2>2. 상품 선택</h2>
+    <div className="section product-section">
+      <div className="section-head">
+        <h2>상품 선택</h2>
+        <p>구매할 상품을 선택하면 결제창이 열립니다.</p>
+      </div>
       <div className="product-grid">
         {PRODUCTS.map((product, idx) => (
           <div key={idx} className="product-card">
+            <p className="product-tag">구독 상품</p>
             <h3>{product.name}</h3>
             <p className="product-desc">{product.description}</p>
             <p className="product-price">{product.price.toLocaleString()}원</p>

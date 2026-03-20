@@ -10,9 +10,12 @@ export default function EventStream({ paymentId, onStatusChange }: Props) {
   const { events, connected } = useEventSource(paymentId, onStatusChange)
 
   return (
-    <div className="section">
-      <h2>4. 결제 결과 스트림</h2>
-      <p>
+    <div className="section stream-section">
+      <div className="section-head">
+        <h2>실시간 결제 상태</h2>
+        <p>결제 확정 후 승인 이벤트를 SSE로 수신합니다.</p>
+      </div>
+      <p className="stream-meta">
         <strong>결제 ID:</strong> <span className="mono">{paymentId}</span>
         {connected && <span className="connected-badge">연결됨</span>}
       </p>

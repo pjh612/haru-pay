@@ -2,30 +2,28 @@ import type { PreparedPayment } from '../types'
 
 interface Props {
   payment: PreparedPayment
-  onCheckout: () => void
   onConfirm: () => void
   onStream: () => void
 }
 
-export default function PaymentItem({ payment, onCheckout, onConfirm, onStream }: Props) {
+export default function PaymentItem({ payment, onConfirm, onStream }: Props) {
   const priceFormatted = payment.requestPrice.toLocaleString()
   const { status } = payment
 
   return (
     <div className="payment-item">
       <div className="payment-info">
-        <p><strong>결제 ID:</strong> <span className="mono">{payment.paymentId}</span></p>
-        <p><strong>주문 ID:</strong> {payment.orderId}</p>
-        <p><strong>상품명:</strong> {payment.productName}</p>
-        <p><strong>금액:</strong> {priceFormatted}원</p>
-        <p>
-          <strong>상태:</strong>{' '}
+        <div className="payment-row">
+          <p className="payment-product">{payment.productName}</p>
           <span className={`status-badge status-${status}`}>{statusLabel(status)}</span>
-        </p>
+        </div>
+        <p className="payment-price">{priceFormatted}원</p>
+        <p><span className="label">주문 ID</span> {payment.orderId}</p>
+        <p><span className="label">결제 ID</span> <span className="mono">{payment.paymentId}</span></p>
       </div>
       <div className="payment-actions">
         {status === 'PREPARED' && (
-          <button className="btn-primary" onClick={onCheckout}>결제하기</button>
+          <span className="result-text">결제창에서 결제를 진행해 주세요</span>
         )}
         {status === 'REQUESTED' && (
           <button className="btn-confirm" onClick={onConfirm}>결제 확정</button>

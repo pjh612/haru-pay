@@ -22,7 +22,7 @@ interface HaruPayConfig {
 }
 
 interface HaruPayInstance {
-  open(options: { paymentId: string } | PrepareCheckoutOptions): Promise<string>
+  open(options: PrepareCheckoutOptions): Promise<string>
 }
 
 declare global {
@@ -44,26 +44,41 @@ export function usePaymentPopup({ checkoutUrl, prepareUrl, onPaymentComplete, on
       return
     }
 
-    const successUrl = `${window.location.origin}/demo/payments/success`
-    const failureUrl = `${window.location.origin}/demo/payments/failure`
+    const successUrl = `${window.location.origin}/harupay-success.html`
+    const failureUrl = `${window.location.origin}/harupay-failure.html`
 
     let cancelled = false
 
-    const initializeSdk = (remainingAttempts = 10) => {
+    const resolvePrepareUrlWithCsrf = async () => {
+      const response = await fetch('/demo/api/csrf', { credentials: 'same-origin' })
+      if (!response.ok) {
+        throw new Error('CSRF 토큰을 가져오지 못했습니다.')
+      }
+
+      const body = await response.json().catch(() => null)
+      const token = body?.token
+      if (!token) {
+        throw new Error('CSRF 토큰이 유효하지 않습니다.')
+      }
+
+      const url = new URL(prepareUrl, window.location.origin)
+      url.searchParams.set('_csrf', String(token))
+      return url.toString()
+    }
+
+    const initializeSdk = (securedPrepareUrl: string) => {
       if (cancelled) {
         return
       }
 
       if (!window.HaruPay) {
-        if (remainingAttempts > 0) {
-          window.setTimeout(() => initializeSdk(remainingAttempts - 1), 100)
-        }
+        window.setTimeout(() => initializeSdk(securedPrepareUrl), 100)
         return
       }
 
       sdkRef.current = window.HaruPay.create({
         checkoutUrl,
-        prepareUrl,
+        prepareUrl: securedPrepareUrl,
         successUrl,
         failureUrl,
       })
@@ -71,11 +86,16 @@ export function usePaymentPopup({ checkoutUrl, prepareUrl, onPaymentComplete, on
     }
 
     const handleScriptLoad = () => {
-      initializeSdk()
+      resolvePrepareUrlWithCsrf()
+        .then((securedPrepareUrl) => initializeSdk(securedPrepareUrl))
+        .catch((error) => {
+          console.error('HaruPay SDK init failed:', error)
+          setReady(false)
+        })
     }
 
     if (window.HaruPay) {
-      initializeSdk()
+      handleScriptLoad()
       return
     }
 
@@ -84,7 +104,7 @@ export function usePaymentPopup({ checkoutUrl, prepareUrl, onPaymentComplete, on
     const existingScript = document.querySelector<HTMLScriptElement>('script[data-harupay-sdk="true"]')
     if (existingScript) {
       if (existingScript.dataset.loaded === 'true') {
-        initializeSdk()
+        handleScriptLoad()
         return () => {
           cancelled = true
         }
@@ -110,7 +130,7 @@ export function usePaymentPopup({ checkoutUrl, prepareUrl, onPaymentComplete, on
     script.dataset.harupaySdk = 'true'
     script.addEventListener('load', () => {
       script.dataset.loaded = 'true'
-      initializeSdk()
+      handleScriptLoad()
     }, { once: true })
     script.addEventListener('error', () => {
       console.error('HaruPay SDK script load failed:', script.src)
@@ -130,8 +150,21 @@ export function usePaymentPopup({ checkoutUrl, prepareUrl, onPaymentComplete, on
       const data = event.data as ({ source?: string, errorCode?: string, message?: string } & PaymentPopupResult)
       if (!data?.source) return
 
-      if (data.source === 'harupay-success' && data.requestId) {
-        onPaymentComplete(data.requestId, data)
+      if (data.source === 'harupay-success') {
+        if (!data.paymentId) {
+          const error = new Error('결제 완료 데이터가 올바르지 않습니다.')
+          error.name = 'INVALID_SUCCESS_PAYLOAD'
+
+          if (onPaymentFailure) {
+            onPaymentFailure(error)
+            return
+          }
+
+          alert(`결제창 처리 실패: ${error.message}`)
+          return
+        }
+
+        onPaymentComplete(data.paymentId, data)
         return
       }
 
@@ -160,13 +193,9 @@ export function usePaymentPopup({ checkoutUrl, prepareUrl, onPaymentComplete, on
     return sdkRef.current
   }
 
-  const openCheckout = useCallback((paymentId: string) => {
-    return getSdk().open({ paymentId })
-  }, [])
-
   const openPreparedCheckout = useCallback((options: PrepareCheckoutOptions) => {
     return getSdk().open(options)
   }, [])
 
-  return { openCheckout, openPreparedCheckout, ready }
+  return { openPreparedCheckout, ready }
 }

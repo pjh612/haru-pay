@@ -1,4 +1,6 @@
-import type { AppConfig, MerchantSession, PreparedPayment, UserInfo } from '../types'
+import type { OrderSummary, PreparedPayment, UserInfo } from '../types'
+
+const CSRF_HEADER_NAME = 'X-XSRF-TOKEN'
 
 function withIdempotencyKey(headers: HeadersInit | undefined, idempotencyKey?: string): HeadersInit | undefined {
   if (!idempotencyKey) {
@@ -13,14 +15,40 @@ function withIdempotencyKey(headers: HeadersInit | undefined, idempotencyKey?: s
 
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, { credentials: 'same-origin', ...options })
+  if (res.status === 401) {
+    window.location.href = '/'
+    throw new Error('Unauthorized')
+  }
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
   return res.json()
 }
 
+async function ensureCsrfToken(): Promise<string> {
+  const response = await fetch('/demo/api/csrf', { credentials: 'same-origin' })
+  if (!response.ok) {
+    throw new Error('CSRF 토큰을 가져오지 못했습니다.')
+  }
+
+  const body = await response.json().catch(() => null)
+  if (body?.token) {
+    return String(body.token)
+  }
+
+  throw new Error('CSRF 토큰이 유효하지 않습니다.')
+}
+
+function withCsrf(headers: HeadersInit | undefined, csrfToken: string): HeadersInit {
+  return {
+    ...(headers ?? {}),
+    [CSRF_HEADER_NAME]: csrfToken,
+  }
+}
+
 export async function login(username: string, password: string): Promise<UserInfo> {
+  const csrfToken = await ensureCsrfToken()
   const res = await fetch('/demo/api/login', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: withCsrf({ 'Content-Type': 'application/json' }, csrfToken),
     credentials: 'same-origin',
     body: JSON.stringify({ username, password }),
   })
@@ -36,42 +64,39 @@ export function getMe(): Promise<UserInfo | null> {
     .then(res => res.ok ? res.json() : null)
 }
 
-export function logout(): Promise<void> {
-  return fetch('/demo/api/logout', { method: 'POST', credentials: 'same-origin' })
-    .then(() => {})
+export async function logout(): Promise<void> {
+  const csrfToken = await ensureCsrfToken()
+  await fetch('/demo/api/logout', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: withCsrf(undefined, csrfToken),
+  })
 }
 
-export function getConfig(): Promise<AppConfig> {
-  return request('/demo/api/config')
-}
-
-export function getMerchant(): Promise<MerchantSession | null> {
-  return fetch('/demo/api/merchant', { credentials: 'same-origin' })
-    .then(res => res.status === 204 ? null : res.json())
-}
-
-export function preparePayment(orderId: string, productName: string, requestPrice: number, idempotencyKey?: string): Promise<PreparedPayment> {
+export async function preparePayment(orderId: string, productName: string, requestPrice: number, idempotencyKey?: string): Promise<PreparedPayment> {
+  const csrfToken = await ensureCsrfToken()
   return request('/demo/api/payments/prepare', {
     method: 'POST',
-    headers: withIdempotencyKey({ 'Content-Type': 'application/json' }, idempotencyKey),
+    headers: withCsrf(withIdempotencyKey({ 'Content-Type': 'application/json' }, idempotencyKey), csrfToken),
     body: JSON.stringify({ orderId, productName, requestPrice }),
   })
 }
 
-export function confirmPayment(paymentId: string, idempotencyKey?: string): Promise<void> {
+export async function confirmPayment(paymentId: string, orderId: string, requestPrice: number, idempotencyKey?: string): Promise<void> {
+  const csrfToken = await ensureCsrfToken()
+  const resolvedIdempotencyKey = idempotencyKey ?? `confirm-${paymentId}`
   return fetch('/demo/api/payments/' + paymentId + '/confirm', {
     method: 'POST',
-    headers: withIdempotencyKey(undefined, idempotencyKey),
+    headers: withCsrf(withIdempotencyKey({ 'Content-Type': 'application/json' }, resolvedIdempotencyKey), csrfToken),
     credentials: 'same-origin',
+    body: JSON.stringify({ orderId, requestPrice }),
   }).then(res => { if (!res.ok) throw new Error('confirm failed') })
 }
 
 export function getPayments(): Promise<PreparedPayment[]> {
-  return fetch('/demo/api/payments', { credentials: 'same-origin' })
-    .then(res => res.ok ? res.json() : [])
+  return request('/demo/api/payments')
 }
 
-export function clearSession(): Promise<void> {
-  return fetch('/demo/api/session', { method: 'DELETE', credentials: 'same-origin' })
-    .then(() => {})
+export function getOrders(): Promise<OrderSummary[]> {
+  return request('/demo/api/orders')
 }

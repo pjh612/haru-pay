@@ -4,25 +4,258 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HaruPay Success</title>
-  </head>
-  <body>
-    <p>결제 요청이 완료되었습니다. 창을 닫는 중입니다...</p>
-    <script>
-      const params = new URLSearchParams(window.location.search);
-      const payload = {
-        source: 'harupay-success',
-        requestId: params.get('requestId') || params.get('paymentId') || '',
-        orderId: params.get('orderId') || '',
-        requestPrice: Number(params.get('requestPrice') || '0'),
-        paymentStatus: params.get('paymentStatus') ? Number(params.get('paymentStatus')) : null,
-        approvedAt: params.get('approvedAt'),
-      };
-
-      if (window.opener) {
-        window.opener.postMessage(payload, window.location.origin);
+    <style>
+      :root {
+        --bg: #f2f6fc;
+        --card: #ffffff;
+        --ink: #0f172a;
+        --muted: #5f6b7a;
+        --brand: #0f6bff;
+        --ok: #0d9b55;
       }
 
-      window.setTimeout(() => window.close(), 300);
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(circle at 20% 15%, #dbe9ff 0, transparent 36%),
+          radial-gradient(circle at 85% 5%, #fff1dc 0, transparent 30%),
+          var(--bg);
+        font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+        color: var(--ink);
+        padding: 20px;
+      }
+
+      .success-card {
+        width: min(460px, 100%);
+        background: var(--card);
+        border: 1px solid #d8e2ef;
+        border-radius: 18px;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+        padding: 24px;
+      }
+
+      .eyebrow {
+        margin: 0;
+        color: #3a6ec9;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      h1 {
+        margin: 6px 0 8px;
+        font-size: 26px;
+        line-height: 1.2;
+      }
+
+      #message {
+        margin: 0;
+        font-size: 15px;
+        color: var(--muted);
+      }
+
+      .status-row {
+        margin-top: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .spinner {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 2px solid #d8e2ef;
+        border-top-color: var(--brand);
+        animation: spin 0.9s linear infinite;
+      }
+
+      .status-text {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+        color: #254b88;
+      }
+
+      .meta {
+        margin-top: 16px;
+        background: #f7faff;
+        border: 1px solid #e1eaf6;
+        border-radius: 12px;
+        padding: 12px;
+      }
+
+      .meta p {
+        margin: 4px 0;
+        font-size: 13px;
+        color: #4a5a70;
+      }
+
+      .meta strong {
+        margin-right: 6px;
+      }
+
+      .mono {
+        font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+        font-size: 11px;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="success-card">
+      <p class="eyebrow">HaruPay Checkout</p>
+      <h1>결제 승인 처리 중</h1>
+      <p id="message">결제 확정 처리 중입니다...</p>
+      <div class="status-row">
+        <div class="spinner" aria-hidden="true"></div>
+        <p class="status-text">주문 완료 상태를 확인하고 있습니다</p>
+      </div>
+      <section class="meta">
+        <p><strong>주문번호</strong><span id="order-id">-</span></p>
+        <p><strong>결제번호</strong><span id="payment-id" class="mono">-</span></p>
+        <p><strong>결제금액</strong><span id="amount">-</span></p>
+      </section>
+    </main>
+    <script>
+      const params = new URLSearchParams(window.location.search)
+      const paymentId = params.get('paymentId') || ''
+      const orderId = params.get('orderId') || ''
+      const requestPrice = Number(params.get('requestPrice') || '0')
+
+      const orderIdEl = document.getElementById('order-id')
+      const paymentIdEl = document.getElementById('payment-id')
+      const amountEl = document.getElementById('amount')
+      if (orderIdEl) orderIdEl.textContent = orderId || '-'
+      if (paymentIdEl) paymentIdEl.textContent = paymentId || '-'
+      if (amountEl) amountEl.textContent = requestPrice > 0 ? `${requestPrice.toLocaleString()}원` : '-'
+
+      const postFailure = (errorCode, message) => {
+        if (window.opener) {
+          window.opener.postMessage({
+            source: 'harupay-failure',
+            errorCode,
+            message,
+            orderId,
+            paymentId,
+          }, window.location.origin)
+        }
+        window.setTimeout(() => window.close(), 300)
+      }
+
+      const postSuccess = (paymentStatus, approvedAt) => {
+        if (window.opener) {
+          window.opener.postMessage({
+            source: 'harupay-success',
+            paymentId,
+            orderId,
+            requestPrice,
+            paymentStatus,
+            approvedAt: approvedAt || null,
+          }, window.location.origin)
+        }
+        window.setTimeout(() => window.close(), 300)
+      }
+
+      const ensureCsrfToken = async () => {
+        const response = await fetch('/demo/api/csrf', { credentials: 'same-origin' })
+        if (!response.ok) {
+          throw new Error('CSRF 토큰을 가져오지 못했습니다.')
+        }
+
+        const body = await response.json().catch(() => null)
+        if (body?.token) {
+          return String(body.token)
+        }
+
+        throw new Error('CSRF 토큰이 유효하지 않습니다.')
+      }
+
+      const confirmPayment = async () => {
+        if (!paymentId || !orderId || requestPrice <= 0) {
+          postFailure('INVALID_SUCCESS_PAYLOAD', '결제 성공 콜백 데이터가 올바르지 않습니다.')
+          return
+        }
+
+        const csrfToken = await ensureCsrfToken()
+
+        const response = await fetch(`/demo/api/payments/${paymentId}/confirm`, {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-XSRF-TOKEN': csrfToken,
+            'Idempotency-Key': `confirm-${paymentId}`,
+          },
+          body: JSON.stringify({ orderId, requestPrice }),
+        })
+
+        if (!response.ok) {
+          const body = await response.json().catch(() => null)
+          const errorCode = body?.errorType || body?.type || 'PAYMENT_CONFIRM_FAILED'
+          const message = body?.detail || body?.message || '결제 확정 요청에 실패했습니다.'
+          postFailure(errorCode, message)
+          return
+        }
+
+        const messageEl = document.getElementById('message')
+        if (messageEl) {
+          messageEl.textContent = '결제 완료를 확인 중입니다...'
+        }
+
+        const es = new EventSource(`/demo/stream/payments/${paymentId}`)
+        const timeout = window.setTimeout(() => {
+          es.close()
+          postSuccess(null, null)
+        }, 20000)
+
+        es.onmessage = (event) => {
+          let data
+          try {
+            data = JSON.parse(event.data)
+          } catch {
+            return
+          }
+
+          if (typeof data.paymentStatus !== 'number') {
+            return
+          }
+
+          if (data.paymentStatus === 1) {
+            window.clearTimeout(timeout)
+            es.close()
+            postSuccess(1, data.approvedAt)
+            return
+          }
+
+          if (data.paymentStatus === -1) {
+            window.clearTimeout(timeout)
+            es.close()
+            postFailure('PAYMENT_FAILED', '결제가 실패했습니다.')
+          }
+        }
+
+        es.onerror = () => {
+          window.clearTimeout(timeout)
+          es.close()
+          postSuccess(null, null)
+        }
+      }
+
+      confirmPayment().catch(() => {
+        postFailure('PAYMENT_CONFIRM_FAILED', '결제 확정 요청 처리 중 오류가 발생했습니다.')
+      })
     </script>
   </body>
   </html>

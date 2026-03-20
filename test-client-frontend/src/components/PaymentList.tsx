@@ -3,27 +3,30 @@ import PaymentItem from './PaymentItem'
 
 interface Props {
   payments: PreparedPayment[]
-  onCheckout: (paymentId: string) => void
   onConfirm: (paymentId: string) => void
   onStream: (paymentId: string) => void
 }
 
-export default function PaymentList({ payments, onCheckout, onConfirm, onStream }: Props) {
+export default function PaymentList({ payments, onConfirm, onStream }: Props) {
   return (
-    <div className="section">
-      <h2>3. 결제 목록</h2>
+    <div className="section payment-section">
+      <div className="section-head">
+        <h2>주문 결제 내역</h2>
+        <p>요청된 결제를 확정하고 실시간 상태를 확인합니다.</p>
+      </div>
       {payments.length === 0 ? (
         <p className="empty-text">생성된 주문이 없습니다.</p>
       ) : (
-        payments.map(p => (
-          <PaymentItem
-            key={p.paymentId}
-            payment={p}
-            onCheckout={() => onCheckout(p.paymentId)}
-            onConfirm={() => onConfirm(p.paymentId)}
-            onStream={() => onStream(p.paymentId)}
-          />
-        ))
+        <div className="payment-list">
+          {payments.map(p => (
+            <PaymentItem
+              key={p.paymentId}
+              payment={p}
+              onConfirm={() => onConfirm(p.paymentId)}
+              onStream={() => onStream(p.paymentId)}
+            />
+          ))}
+        </div>
       )}
     </div>
   )

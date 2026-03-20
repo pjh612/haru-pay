@@ -21,13 +21,15 @@ export function useEventSource(
       let status: PaymentStatus | undefined
       try {
         const data = JSON.parse(event.data)
-        if (data.paymentStatus !== undefined) {
-          status = data.paymentStatus === 1 ? 'SUCCEEDED'
-            : data.paymentStatus === -1 ? 'FAILED'
-            : 'CONFIRMING'
-          if (status && onStatusChange) {
-            onStatusChange(paymentId, status)
-          }
+        status = toPaymentStatus(data.paymentStatus)
+        if (status && onStatusChange) {
+          onStatusChange(paymentId, status)
+        }
+
+        if (status === 'SUCCEEDED' || status === 'FAILED') {
+          es.close()
+          esRef.current = null
+          setConnected(false)
         }
       } catch { /* raw text event */ }
 
@@ -54,4 +56,20 @@ export function useEventSource(
   }, [paymentId, onStatusChange])
 
   return { events, connected }
+}
+
+function toPaymentStatus(rawStatus: unknown): PaymentStatus | undefined {
+  if (typeof rawStatus !== 'number') {
+    return undefined
+  }
+
+  if (rawStatus === 1) {
+    return 'SUCCEEDED'
+  }
+
+  if (rawStatus === -1) {
+    return 'FAILED'
+  }
+
+  return 'CONFIRMING'
 }

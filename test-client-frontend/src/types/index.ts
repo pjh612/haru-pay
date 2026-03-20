@@ -1,10 +1,3 @@
-export interface MerchantSession {
-  clientId: string
-  clientName: string
-  apiKey: string
-  registeredAt: string
-}
-
 export interface PreparedPayment {
   paymentId: string
   orderId: string
@@ -16,12 +9,8 @@ export interface PreparedPayment {
 
 export type PaymentStatus = 'PREPARED' | 'REQUESTED' | 'CONFIRMING' | 'SUCCEEDED' | 'FAILED'
 
-export interface AppConfig {
-  paymentsCheckoutUrl: string
-}
-
 export interface PaymentPopupResult {
-  requestId: string
+  paymentId: string
   orderId: string
   requestPrice: number
   paymentStatus?: number | null
@@ -47,4 +36,14 @@ export interface StreamEvent {
   time: string
   data: string
   status?: string
+}
+
+export interface OrderSummary {
+  orderId: string
+  paymentId: string
+  productName: string
+  orderAmount: number
+  status: 'PAYMENT_PREPARED' | 'PAYMENT_CONFIRMING' | 'PAYMENT_COMPLETED' | 'PAYMENT_FAILED'
+  createdAt: string
+  completedAt: string | null
 }

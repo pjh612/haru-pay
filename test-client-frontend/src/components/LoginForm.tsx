@@ -8,7 +8,6 @@ interface Props {
 
 const TEST_ACCOUNTS = [
   { username: 'buyer', password: '1234', label: '구매자' },
-  { username: 'admin', password: '1234', label: '관리자' },
 ]
 
 export default function LoginForm({ onLoggedIn }: Props) {
