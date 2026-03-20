@@ -9,7 +9,7 @@ spring:
       client:
         registration:
           payments-oidc:
-            redirect-uri: http://payments:8071/login/oauth2/code/{registrationId}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
         provider:
           spring:
             authorization-uri: http://auth:8072/oauth2/authorize
