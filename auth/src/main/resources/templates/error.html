@@ -1,37 +1,117 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<html lang="ko" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Error</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Haru 오류">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Pretendard', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        surface: {
+                            950: '#09090b',
+                            900: '#111114',
+                            800: '#18181c',
+                            700: '#27272e',
+                        },
+                        accent: {
+                            DEFAULT: '#3b82f6',
+                            light: '#60a5fa',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+    <title>Haru - 오류</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+    <style>
+        *, *::before, *::after { word-break: keep-all; }
+        body {
+            background-image:
+                radial-gradient(ellipse 60% 40% at 50% 0%, rgba(239,68,68,0.06) 0%, transparent 60%);
+        }
+        .card {
+            background: rgba(24, 24, 28, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .logo-icon {
+            background: linear-gradient(135deg, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 100%);
+            border: 1px solid rgba(59,130,246,0.15);
+        }
+        .status-badge {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.15);
+        }
+        .btn-home {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 4px 20px rgba(59,130,246,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn-home:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 28px rgba(59,130,246,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .btn-home:active {
+            transform: scale(0.98);
+        }
+        .fade-in {
+            animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .fade-in-delay { animation-delay: 0.1s; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-gray-200 font-sans flex items-center justify-center h-screen">
-<div class="w-full max-w-md">
-    <header class="text-center mb-8">
-        <div class="mb-4">
-            <img src="/images/logo.png" alt="Logo" class="mx-auto w-20 h-20">
+<body class="bg-surface-950 text-gray-200 font-sans min-h-screen flex items-center justify-center p-4">
+
+<div class="w-full max-w-[420px]">
+    <!-- 헤더 -->
+    <header class="text-center mb-8 fade-in">
+        <div class="mx-auto w-16 h-16 rounded-2xl logo-icon flex items-center justify-center mb-4">
+            <img src="/images/logo.png" alt="Haru 로고" class="w-10 h-10 object-contain" loading="lazy">
         </div>
-        <div>
-            <h1 class="text-3xl font-bold text-blue-400">Haru</h1>
-        </div>
+        <h1 class="text-2xl font-bold tracking-tight">
+            <span class="text-accent-light">Haru</span>
+        </h1>
     </header>
 
-    <div class="bg-gray-800 shadow-lg rounded-2xl p-6 text-center">
-        <div class="text-red-400 text-5xl mb-4">
-            <span th:text="${status ?: '400'}">400</span>
+    <!-- 에러 카드 -->
+    <div class="card rounded-2xl p-8 text-center fade-in fade-in-delay">
+
+        <!-- 상태 코드 -->
+        <div class="inline-flex status-badge rounded-full px-4 py-1.5 mb-5">
+            <span class="text-2xl font-bold text-red-400 tabular-nums" th:text="${status ?: '400'}">400</span>
         </div>
+
         <th:block th:if="${param.message != null && param.message[0] == 'invalid_client'}">
-            <h2 class="text-xl font-bold mb-2">잘못된 요청</h2>
-            <p class="text-gray-400 mb-6">등록되지 않은 클라이언트입니다.</p>
+            <h2 class="text-lg font-bold text-white tracking-tight mb-2">잘못된 요청</h2>
+            <p class="text-sm text-gray-500 leading-relaxed mb-8">등록되지 않은 클라이언트입니다.</p>
         </th:block>
         <th:block th:if="${param.message == null || param.message[0] != 'invalid_client'}">
-            <h2 class="text-xl font-bold mb-2" th:text="${error ?: 'Error'}">Error</h2>
-            <p class="text-gray-400 mb-6" th:text="${message ?: '알 수 없는 오류가 발생했습니다.'}">An unexpected error occurred.</p>
+            <h2 class="text-lg font-bold text-white tracking-tight mb-2" th:text="${error ?: 'Error'}">Error</h2>
+            <p class="text-sm text-gray-500 leading-relaxed mb-8" th:text="${message ?: '알 수 없는 오류가 발생했습니다.'}">An unexpected error occurred.</p>
         </th:block>
-        <a href="/" class="inline-block bg-blue-600 text-gray-100 px-6 py-2 rounded-lg font-semibold hover:bg-blue-500 transition duration-200">
+
+        <a href="/"
+           class="btn-home inline-flex items-center justify-center text-white px-6 py-3 rounded-xl text-sm font-bold tracking-tight gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/>
+            </svg>
             홈으로 돌아가기
         </a>
     </div>
 </div>
+
 </body>
 </html>
